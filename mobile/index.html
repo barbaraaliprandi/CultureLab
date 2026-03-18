@@ -2997,29 +2997,31 @@ function sbMostrarSelectorNombre() {
   picker.style.display = 'flex';
 }
 
-// ── Init: cargar dinámicas activas + suscribir Realtime ──────
+// ── Init: cargar dinámicas activas + arrancar polling ─────────
 async function sbInit() {
-  await sbCargarYMostrarDinamicas();
+  console.log('[Supabase] sbInit arrancando...');
   await sbRenderRanking();
-  sbSuscribirRealtime();
-}
-
-// ── Cargar dinámicas activas y mostrar bubbles/modals ────────
-async function sbCargarYMostrarDinamicas() {
-  try {
-    const { data, error } = await _sb.from('dinamicas')
-      .select('id, tipo, nombre, preguntas(id,texto,opciones,respuesta_correcta,orden)')
-      .eq('estado', 'activa');
-    if (error) throw error;
-    (data || []).forEach(function(din) { sbMostrarDinamica(din); });
-  } catch(e) { console.error('[Supabase] cargarDinamicas:', e); }
+  // Primera carga inmediata + polling cada 5s
+  await sbPolling();
+  setInterval(sbPolling, 5000);
+  console.log('[Supabase] Polling activo (5s)');
 }
 
 // ── Mostrar la bubble/modal correcta según tipo ──────────────
+// Helper: activar una pantalla y abrir su overlay
+function _sbActivarPantalla(screenId) {
+  var allScreens = ['pulse','daily','daily2','recognition','admin','config','culturelab'];
+  allScreens.forEach(function(m) { document.getElementById('s-'+m).classList.remove('active'); });
+  var target = document.getElementById(screenId);
+  if (target) target.classList.add('active');
+}
+
 function sbMostrarDinamica(din) {
+  console.log('[Supabase] sbMostrarDinamica tipo=' + din.tipo);
   if (din.tipo === 'pulso') {
     window._sbPulsoId = din.id;
-    // Abrir overlay de Pulso directamente dentro del phone
+    // Pulso vive en s-pulse (ya activa por default), abrir overlay
+    _sbActivarPantalla('s-pulse');
     var ovP = document.getElementById('ov-pulse');
     if (ovP && !ovP.classList.contains('open')) {
       ovP.classList.add('open');
@@ -3031,7 +3033,8 @@ function sbMostrarDinamica(din) {
     window._sbDailyPlay = din;
     if (din.preguntas) din.preguntas.sort(function(a,b){ return a.orden-b.orden; });
     sbPopularTrivia('ov-daily', din);
-    // Abrir overlay de trivia directamente dentro del phone
+    // Trivia vive en s-daily — activar esa pantalla + abrir overlay
+    _sbActivarPantalla('s-daily');
     var ovD = document.getElementById('ov-daily');
     if (ovD && !ovD.classList.contains('open')) {
       ovD.classList.add('open');
@@ -3040,7 +3043,8 @@ function sbMostrarDinamica(din) {
   }
   if (din.tipo === 'reconocimiento') {
     window._sbRecoId = din.id;
-    // Abrir overlay de reconocimiento directamente dentro del phone
+    // Reconocimiento vive en s-recognition — activar esa pantalla + abrir overlay
+    _sbActivarPantalla('s-recognition');
     var ovR = document.getElementById('ov-rec');
     if (ovR && !ovR.classList.contains('open')) {
       ovR.classList.add('open');
@@ -3098,29 +3102,27 @@ async function sbPolling() {
       .select('id, tipo, nombre, estado')
       .eq('estado', 'activa')
       .order('created_at', { ascending: false });
+    if (res.error) { console.error('[Supabase] polling query error:', res.error); return; }
     var data = res.data || [];
+    console.log('[Supabase] polling: ' + data.length + ' dinámicas activas encontradas');
     for (var i = 0; i < data.length; i++) {
       var din = data[i];
       if (_sbKnownIds[din.id]) continue; // ya procesado
       _sbKnownIds[din.id] = true;
+      console.log('[Supabase] nueva dinámica detectada: ' + din.tipo + ' (id=' + din.id + ')');
       // Cargar preguntas si es daily_play
       if (din.tipo === 'daily_play') {
         var pRes = await _sb.from('preguntas').select('*')
           .eq('dinamica_id', din.id).order('orden');
         din.preguntas = pRes.data || [];
+        console.log('[Supabase] preguntas cargadas: ' + din.preguntas.length);
       }
       sbMostrarDinamica(din);
     }
   } catch(e) { console.warn('[Supabase] polling error:', e.message); }
 }
 
-function sbSuscribirRealtime() {
-  // Primera carga inmediata
-  sbPolling();
-  // Polling cada 5 segundos
-  setInterval(sbPolling, 5000);
-  console.log('[Supabase] Polling activo (5s)');
-}
+// sbSuscribirRealtime removido — polling ahora arranca desde sbInit()
 
 // ── Guardar respuesta de trivia ──────────────────────────────
 async function sbEnviarRespuesta(dinId, pregId, esCorrecta, puntos) {
