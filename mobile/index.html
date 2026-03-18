@@ -3079,18 +3079,43 @@ function sbPopularTrivia(ovId, din) {
 
 // ── Respuesta de trivia ──────────────────────────────────────
 function sbDans(btn, esCorrecta, dinId, pregId) {
-  // Animación visual original
+  // Parar timer y marcar como respondido
+  if (typeof dDone !== 'undefined' && dDone) return;
+  dDone = true;
+  clearInterval(dTimer);
+
+  // Deshabilitar opciones y marcar visual
   var ov = btn.closest('.overlay');
   if (ov) {
-    ov.querySelectorAll('.opt').forEach(function(o) {
-      o.disabled = true;
-      if (o === btn) o.classList.add(esCorrecta ? 'correct' : 'wrong');
-    });
+    ov.querySelectorAll('.opt').forEach(function(o) { o.disabled = true; });
   }
+  btn.classList.add(esCorrecta ? 'correct' : 'wrong');
+
+  // Mostrar pantalla de resultado (ds2) después de una pausa
+  var delay = esCorrecta ? 700 : 900;
+  setTimeout(function() {
+    dStep('ds2');
+    if (esCorrecta) {
+      var bonus = dSecs * 5;
+      document.getElementById('d-em').textContent = '🎉';
+      document.getElementById('d-title').textContent = '¡Correcto!';
+      document.getElementById('d-pts').textContent = '+' + (100 + bonus) + ' pts';
+      document.getElementById('d-pts').style.cssText = '';
+      document.getElementById('d-sub').textContent = 'Bonus de velocidad: +' + bonus + ' pts.';
+      document.getElementById('d-streak').style.display = 'flex';
+    } else {
+      document.getElementById('d-em').textContent = '😅';
+      document.getElementById('d-title').textContent = 'Respuesta incorrecta';
+      document.getElementById('d-pts').textContent = '+0 pts';
+      document.getElementById('d-pts').style.cssText = 'background:#FEF2F2;color:#EF4444;';
+      document.getElementById('d-sub').textContent = '¡Seguí intentando!';
+      document.getElementById('d-streak').style.display = 'none';
+    }
+  }, delay);
+
+  // Guardar en Supabase
   var puntos = esCorrecta ? 10 : 0;
   sbEnviarRespuesta(dinId, pregId, esCorrecta, puntos);
-  if (esCorrecta) sbToast('🎯 ¡Correcto! +10 puntos');
-  else sbToast('❌ Incorrecto — sin puntos esta vez');
 }
 
 // ── Polling: chequear dinámicas nuevas cada 5 segundos ───────
