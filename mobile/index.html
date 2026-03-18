@@ -3051,29 +3051,37 @@ function sbDans(btn, esCorrecta, dinId, pregId) {
   else sbToast('❌ Incorrecto — sin puntos esta vez');
 }
 
-// ── Suscribir Realtime: nuevas dinámicas ─────────────────────
-function sbSuscribirRealtime() {
-  _sb.channel('mobile-dinamicas')
-    .on('postgres_changes',
-      { event: 'INSERT', schema: 'public', table: 'dinamicas' },
-      function(payload) {
-        if (payload.new && payload.new.estado === 'activa') {
-          // Cargar preguntas si es daily_play
-          if (payload.new.tipo === 'daily_play') {
-            _sb.from('preguntas').select('*').eq('dinamica_id', payload.new.id)
-              .order('orden').then(function(res) {
-                payload.new.preguntas = res.data || [];
-                sbMostrarDinamica(payload.new);
-              });
-          } else {
-            sbMostrarDinamica(payload.new);
-          }
-        }
+// ── Polling: chequear dinámicas nuevas cada 5 segundos ───────
+var _sbKnownIds = {};  // IDs ya procesados para no mostrar duplicados
+
+async function sbPolling() {
+  try {
+    var res = await _sb.from('dinamicas')
+      .select('id, tipo, nombre, estado')
+      .eq('estado', 'activa')
+      .order('created_at', { ascending: false });
+    var data = res.data || [];
+    for (var i = 0; i < data.length; i++) {
+      var din = data[i];
+      if (_sbKnownIds[din.id]) continue; // ya procesado
+      _sbKnownIds[din.id] = true;
+      // Cargar preguntas si es daily_play
+      if (din.tipo === 'daily_play') {
+        var pRes = await _sb.from('preguntas').select('*')
+          .eq('dinamica_id', din.id).order('orden');
+        din.preguntas = pRes.data || [];
       }
-    )
-    .subscribe(function(status) {
-      console.log('[Supabase] Realtime:', status);
-    });
+      sbMostrarDinamica(din);
+    }
+  } catch(e) { console.warn('[Supabase] polling error:', e.message); }
+}
+
+function sbSuscribirRealtime() {
+  // Primera carga inmediata
+  sbPolling();
+  // Polling cada 5 segundos
+  setInterval(sbPolling, 5000);
+  console.log('[Supabase] Polling activo (5s)');
 }
 
 // ── Guardar respuesta de trivia ──────────────────────────────

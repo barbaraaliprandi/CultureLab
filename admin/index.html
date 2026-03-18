@@ -1881,15 +1881,42 @@
 
 <script>
 /* ══ DATA ══ */
-let dinamicas = [
-  {id:1,typeKey:'daily',type:'Daily Play',title:'¿Qué valor representa mejor al equipo?',start:'01/03/2026',end:'31/03/2026',status:'activa',part:89,sumaPuntos:true},
-  {id:2,typeKey:'pulse',type:'Pulso',title:'¿Cómo te sentís hoy?',start:'10/03/2026',end:'10/03/2026',status:'activa',part:61,sumaPuntos:true},
-  {id:3,typeKey:'mision',type:'Misión',title:'Descubrí el módulo de Grupos',start:'01/03/2026',end:'30/03/2026',status:'activa',part:38,sumaPuntos:false},
-  {id:4,typeKey:'reco',type:'Reconocimiento',title:'Reconocimiento semanal · Semana 10',start:'04/03/2026',end:'10/03/2026',status:'pasada',part:72,sumaPuntos:true},
-  {id:5,typeKey:'daily',type:'Daily Play',title:'¿Cuál es el pilar estratégico del año?',start:'15/02/2026',end:'28/02/2026',status:'pasada',part:54,sumaPuntos:true},
-  {id:6,typeKey:'pulse',type:'Pulso',title:'¿Cómo saliste del all-hands?',start:'05/03/2026',end:'31/03/2026',status:'inactiva',part:0,sumaPuntos:true},
-];
-let nextId=7;
+let dinamicas = [];  // se carga desde Supabase al iniciar
+let nextId = 100;    // IDs locales empiezan en 100 para no colisionar con Supabase
+
+// Mapeo tipo Supabase → typeKey local
+const SB_TIPO_MAP = { daily_play:'daily', pulso:'pulse', reconocimiento:'reco', mision:'mision' };
+const SB_TYPE_LABEL = { daily_play:'Daily Play', pulso:'Pulso', reconocimiento:'Reconocimiento', mision:'Misión' };
+
+async function sbCargarDinamicasAdmin() {
+  try {
+    const { data, error } = await _sb.from('dinamicas')
+      .select('id, tipo, nombre, estado, created_at')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    if (!data || !data.length) return;
+    const fmt = function(iso) {
+      const d = new Date(iso);
+      return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
+    };
+    dinamicas = data.map(function(d) {
+      return {
+        id: nextId++,
+        sbId: d.id,
+        typeKey: SB_TIPO_MAP[d.tipo] || d.tipo,
+        type: SB_TYPE_LABEL[d.tipo] || d.tipo,
+        title: d.nombre,
+        start: fmt(d.created_at),
+        end: fmt(d.created_at),
+        status: d.estado === 'activa' ? 'activa' : d.estado,
+        part: 0,
+        sumaPuntos: false
+      };
+    });
+    render();
+    console.log('[Supabase] Admin: ' + dinamicas.length + ' dinámicas cargadas');
+  } catch(e) { console.error('[Supabase] cargarDinamicasAdmin:', e); }
+}
 const TC={
   daily:{ico:'🎯',bg:'var(--teal-bg)',text:'var(--teal)',bd:'var(--teal-bd)',cls:'daily'},
   pulse:{ico:'💙',bg:'var(--blue-bg)',text:'var(--blue)',bd:'var(--blue-bd)',cls:'pulse'},
@@ -2805,8 +2832,11 @@ async function sbGuardarConfig(clave, valor) {
 }
 
 // ══════════════════════════════════════════════════════════════
-//  REALTIME: refrescar métricas cuando llegan respuestas nuevas
+//  INIT: cargar dinámicas desde Supabase al abrir el admin
 // ══════════════════════════════════════════════════════════════
+sbCargarDinamicasAdmin();
+
+// Realtime: notificar al admin cuando llegan respuestas
 _sb.channel('admin-metrics')
   .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'respuestas' }, function() {
     sbToast('📊 Nueva respuesta de trivia recibida');
