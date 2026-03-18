@@ -1,0 +1,2829 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Humand Admin — Cultural Engagement</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0;}
+  :root{
+    --bg:#f5f6f8;--white:#fff;--bg2:#eeeef1;--bg3:#f9f9fb;
+    --text:#303036;--text2:#636271;--text3:#9e9dab;
+    --brand:#29317f;--hugo:#496be3;
+    --border:#dfe0e6;--border-brand:#c5d4f8;
+    --hl-bg:#f4f2ff;--hl-border:#d6d4ff;--hl-text:#3b169c;
+    --teal:#1A9370;--teal-bg:#E8F5F1;--teal-bd:#9FE1CB;
+    --amber:#B45309;--amber-bg:#FEF3C7;--amber-bd:#FCD34D;
+    --blue:#1D4ED8;--blue-bg:#EFF6FF;--blue-bd:#BFDBFE;
+    --purple:#6D28D9;--purple-bg:#F5F3FF;--purple-bd:#DDD6FE;
+    --green:#15803D;--green-bg:#F0FDF4;
+    --red:#DC2626;--red-bg:#FEF2F2;
+    --gray:#6B7280;--gray-bg:#F3F4F6;
+    --warn-bg:#fdfaec;--warn-bd:#fbec9e;--warn-text:#7e4317;
+  }
+  body{font-family:'Roboto',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden;}
+
+  /* ── SHARED ── */
+  .hidden{display:none!important;}
+  .ibtn{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);border:none;background:none;transition:background .15s;flex-shrink:0;}
+  .ibtn:hover{background:var(--bg);}
+
+  /* ══════════════════════════════
+     MAIN LAYOUT (sidebar + content)
+  ══════════════════════════════ */
+  #app-main{display:flex;flex-direction:column;min-height:100vh;}
+
+  /* Header — Home/Sections mode */
+  .hdr{background:var(--white);border-bottom:1px solid var(--border);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:sticky;top:0;z-index:200;flex-shrink:0;}
+  .hdr-l{display:flex;align-items:center;gap:8px;}
+  .logo{font-size:20px;font-weight:700;letter-spacing:-.02em;color:var(--text);padding:0 4px;}
+  .logo span{color:var(--hugo);}
+  .pill-admin{background:var(--hl-bg);border:1px solid var(--hl-border);color:var(--hl-text);font-size:12px;font-weight:600;padding:4px 8px;border-radius:16px;}
+  .hdr-r{display:flex;align-items:center;gap:8px;}
+  .hbtn{background:var(--white);border:1px solid var(--border-brand);color:var(--brand);font-size:14px;font-weight:600;padding:8px 12px;border-radius:8px;cursor:pointer;font-family:'Roboto',sans-serif;transition:background .15s;}
+  .hbtn:hover{background:var(--bg);}
+  .nwrap{position:relative;}
+  .ndot{position:absolute;top:2px;right:2px;background:var(--hugo);color:white;font-size:10px;font-weight:700;width:17px;height:17px;border-radius:100px;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+  .av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--hugo),var(--purple));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;cursor:pointer;}
+
+  .layout{display:flex;flex:1;}
+
+  /* Sidebar */
+  .sidebar{width:280px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;padding:12px 16px;gap:2px;min-height:calc(100vh - 56px);}
+  .sidebar::-webkit-scrollbar{width:4px;}
+  .sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+  .si{display:flex;align-items:center;gap:8px;padding:12px 8px;border-radius:16px;cursor:pointer;color:var(--text2);font-size:16px;font-weight:600;transition:background .15s;letter-spacing:.032px;white-space:nowrap;height:49px;}
+  .si:hover{background:var(--bg);}
+  .si.act{background:var(--bg2);color:var(--text);}
+  .si .ico{width:24px;height:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px;}
+  .si .lbl{flex:1;overflow:hidden;text-overflow:ellipsis;}
+  .si .chv{font-size:11px;color:var(--text2);transition:transform .2s;}
+  .si .chv.open{transform:rotate(180deg);}
+  .sibadge{background:var(--hugo);color:white;font-size:11px;font-weight:700;padding:1px 6px;border-radius:10px;}
+  .sinew{background:var(--green-bg);color:var(--green);font-size:11px;font-weight:600;padding:2px 8px;border-radius:16px;}
+  .subs{display:flex;flex-direction:column;}
+  .sub{display:flex;align-items:center;height:48px;padding:12px 16px 12px 40px;border-radius:16px;cursor:pointer;font-size:16px;font-weight:600;transition:background .15s;letter-spacing:.032px;background:var(--bg2);}
+  .sub:hover{background:#e2e2e8;}
+  .sub.on{color:var(--text);} .sub.off{color:var(--text2);}
+  .sdiv{border:none;border-top:1px solid var(--border);margin:8px 0;}
+  .sfoot{display:flex;align-items:center;gap:4px;padding:8px 12px;color:var(--text2);font-size:14px;margin-top:auto;}
+
+  /* Main content area */
+  .main{flex:1;padding:32px;overflow-y:auto;}
+  .ptitle{font-size:32px;font-weight:600;letter-spacing:-.01em;margin-bottom:4px;}
+  .pdesc{font-size:14px;color:var(--text2);margin-bottom:24px;line-height:1.5;}
+
+  /* Dashboard cards */
+  .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px;}
+  .g21{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:20px;}
+  .card{background:var(--white);border-radius:16px;padding:16px;border:1px solid var(--border);}
+  .clbl{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text2);margin-bottom:8px;}
+  .cval{font-size:30px;font-weight:700;letter-spacing:-.02em;margin-bottom:4px;color:var(--text);}
+  .cval.t,.cval.b,.cval.a{color:var(--text);}
+  .cch{font-size:12px;font-weight:500;} .cch.up{color:var(--teal);} .cch.nu{color:var(--text2);}
+  .ctit{font-size:14px;font-weight:600;margin-bottom:16px;}
+  .sparkline{display:flex;align-items:flex-end;gap:8px;height:72px;}
+  .sb{flex:1;background:#EEF2FE;border-radius:4px 4px 0 0;cursor:pointer;transition:background .2s;}
+  .sb:hover,.sb.cur{background:var(--hugo);}
+  .slbls{display:flex;gap:8px;margin-top:6px;}
+  .slbl{flex:1;text-align:center;font-size:10px;color:var(--text2);}
+  .slbl.cur{color:var(--hugo);font-weight:600;}
+  .mbar{margin-bottom:14px;}
+  .mbar-h{display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px;}
+  .mbar-n{font-weight:500;} .mbar-p{font-weight:600;color:var(--hugo);}
+  .mbar-t{height:6px;background:var(--bg);border-radius:4px;overflow:hidden;}
+  .mbar-f{height:100%;border-radius:4px;}
+  .srow{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .sem{font-size:20px;width:28px;text-align:center;}
+  .strk{flex:1;height:6px;background:var(--bg);border-radius:4px;overflow:hidden;}
+  .sfl{height:100%;border-radius:4px;}
+  .spct{font-size:12px;font-weight:600;color:var(--text2);width:32px;text-align:right;}
+  .fsel{padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'Roboto',sans-serif;color:var(--text);background:var(--white);outline:none;cursor:pointer;}
+  /* Dashboard tabs */
+  .db-tab{padding:10px 16px;border:none;background:none;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;font-family:'Roboto',sans-serif;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;white-space:nowrap;}
+  .db-tab:hover{color:var(--text);}
+  .db-tab.on{color:var(--hugo);border-bottom-color:var(--hugo);}
+
+  /* ══════════════════════════════
+     DINÁMICAS
+  ══════════════════════════════ */
+  .din-topbar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;}
+  .din-topbar h2{font-size:24px;font-weight:600;letter-spacing:-.01em;margin-bottom:3px;}
+  .din-topbar p{font-size:13px;color:var(--text2);}
+
+  /* Popover */
+  .popover-wrap{position:relative;display:inline-block;}
+  .btn-create{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:var(--hugo);color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Roboto',sans-serif;white-space:nowrap;}
+  .btn-create:hover{opacity:.9;}
+  .popover{position:absolute;top:calc(100% + 8px);right:0;background:var(--white);border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);width:260px;z-index:250;opacity:0;pointer-events:none;transform:translateY(-6px);transition:opacity .18s,transform .18s;}
+  .popover.show{opacity:1;pointer-events:auto;transform:translateY(0);}
+  .popover-hdr{padding:12px 16px 10px;border-bottom:1px solid var(--border);}
+  .popover-hdr p{font-size:11px;font-weight:700;color:var(--text2);letter-spacing:.06em;text-transform:uppercase;}
+  .popover-item{display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;transition:background .12s;}
+  .popover-item:hover{background:var(--bg);}
+  .popover-item:last-child{border-radius:0 0 12px 12px;}
+  .pi-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+  .pi-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:1px;}
+  .pi-sub{font-size:11px;color:var(--text2);}
+  .pi-arr{color:var(--text3);font-size:16px;margin-left:auto;}
+
+  /* Section labels */
+  .sec-lbl{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .sec-lbl-t{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text2);}
+  .sec-lbl-c{font-size:12px;font-weight:600;color:var(--text3);}
+
+  /* Active cards */
+  .active-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px;}
+  .din-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:14px;}
+  .din-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.07);}
+  .dc-hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+  .dc-ico{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+  .dc-type{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;}
+  .dc-title{font-size:14px;font-weight:600;color:var(--text);margin-top:2px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .sp{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
+  .sp.activa{background:var(--teal-bg);color:var(--teal);}
+  .sp.inactiva{background:var(--gray-bg);color:var(--gray);}
+  .sp.pasada{background:var(--red-bg);color:var(--red);}
+  .sp-dot{width:5px;height:5px;border-radius:50%;background:currentColor;}
+  .dc-meta{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px;}
+  .dc-part-hdr{display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px;}
+  .dc-part-lbl{font-weight:600;color:var(--text2);}
+  .dc-part-val{font-weight:700;color:var(--hugo);}
+  .pt{height:5px;background:var(--bg2);border-radius:3px;overflow:hidden;}
+  .ptf{height:100%;border-radius:3px;background:var(--hugo);}
+  .dc-actions{display:flex;gap:6px;padding-top:4px;border-top:1px solid var(--border);}
+  .cab{display:flex;align-items:center;gap:5px;padding:6px 10px;border-radius:7px;border:1px solid var(--border);background:none;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;font-family:'Roboto',sans-serif;transition:all .15s;}
+  .cab:hover{background:var(--bg);color:var(--text);}
+  .cab.g{background:var(--teal-bg);border-color:var(--teal-bd);color:var(--teal);}
+  .din-empty{border:2px dashed var(--border);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:32px 20px;color:var(--text3);font-size:13px;font-weight:600;min-height:180px;}
+
+  /* History table */
+  .hist-wrap{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+  .htbl{width:100%;border-collapse:collapse;}
+  .htbl th{padding:11px 16px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text2);background:var(--bg3);text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;}
+  .htbl td{padding:13px 16px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle;}
+  .htbl tr:last-child td{border-bottom:none;}
+  .htbl tr:hover td{background:#fafafa;}
+  .tb{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap;}
+  .tb.daily{background:var(--teal-bg);color:var(--teal);}
+  .tb.pulse{background:var(--blue-bg);color:var(--blue);}
+  .tb.mision{background:var(--amber-bg);color:var(--amber);}
+  .tb.reco{background:var(--purple-bg);color:var(--purple);}
+  .hp{display:flex;align-items:center;gap:8px;}
+  .hp-t{flex:1;height:4px;background:var(--bg2);border-radius:2px;overflow:hidden;}
+  .hp-f{height:100%;border-radius:2px;background:var(--text3);}
+  .hp-p{font-size:12px;font-weight:600;color:var(--text2);width:28px;text-align:right;}
+  .tib{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;border:none;background:none;cursor:pointer;color:var(--text2);transition:all .15s;}
+  .tib:hover{background:var(--bg2);}
+  .est{padding:40px;text-align:center;color:var(--text3);}
+
+  /* Premios */
+  .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  .pcard{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:16px;}
+  .pico{font-size:32px;margin-bottom:12px;} .pname{font-size:14px;font-weight:600;margin-bottom:4px;} .psub{font-size:12px;color:var(--text2);margin-bottom:12px;}
+  .pf{display:flex;align-items:center;justify-content:space-between;}
+  .pbg{font-size:13px;font-weight:700;padding:4px 10px;border-radius:6px;background:var(--amber-bg);color:var(--amber);}
+  .bgsm{padding:6px 14px;background:none;border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;font-family:'Roboto',sans-serif;}
+  .padd{background:none;border:2px dashed var(--border);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;color:var(--text2);font-size:13px;font-weight:600;min-height:160px;padding:20px;transition:all .15s;font-family:'Roboto',sans-serif;}
+  .padd:hover{border-color:var(--hugo);color:var(--hugo);background:var(--hl-bg);}
+
+  /* Toast */
+  .toast{position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--text);color:white;padding:12px 20px;border-radius:8px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,.15);transform:translateY(80px);opacity:0;transition:all .3s;}
+  .toast.show{transform:translateY(0);opacity:1;}
+
+  /* ── CONFIG PAGE ── */
+  .cfg-block{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:16px;}
+  .cfg-block-hdr{display:flex;align-items:center;gap:16px;padding:20px;}
+  .cfg-block-ico{font-size:24px;width:44px;height:44px;border-radius:12px;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .cfg-block-body{flex:1;}
+  .cfg-block-title{font-size:15px;font-weight:600;margin-bottom:3px;}
+  .cfg-block-sub{font-size:13px;color:var(--text2);line-height:1.5;}
+  .cfg-expanded{padding:0 20px 20px;}
+  .cfg-divider{height:1px;background:var(--border);margin:0 0 20px;}
+  .cfg-row{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:16px;}
+  .cfg-row:last-child{margin-bottom:0;}
+  .cfg-row-body{flex:1;}
+  .cfg-row-title{font-size:14px;font-weight:600;margin-bottom:3px;}
+  .cfg-row-sub{font-size:12px;color:var(--text2);line-height:1.4;}
+  .cfg-sel{padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'Roboto',sans-serif;color:var(--text);background:var(--white);outline:none;cursor:pointer;min-width:260px;}
+  .cfg-sel:focus{border-color:var(--hugo);}
+
+  /* Points table */
+  .cfg-pts-title{font-size:14px;font-weight:600;margin-bottom:4px;}
+  .cfg-pts-hint{font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.4;}
+  .cfg-pts-table{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:12px;}
+  .cfg-pts-row{display:grid;grid-template-columns:1fr 140px 80px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);}
+  .cfg-pts-row:last-child{border-bottom:none;}
+  .cfg-pts-row.hdr{background:var(--bg3);padding:8px 14px;}
+  .cfg-pts-col-mod{display:flex;align-items:center;gap:10px;font-size:13px;}
+  .cfg-pts-col-pts{display:flex;justify-content:center;}
+  .cfg-pts-col-tog{display:flex;justify-content:center;}
+  .ptab{padding:6px 14px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;color:var(--text2);transition:all .15s;border:none;background:none;font-family:'Roboto',sans-serif;}
+  .ptab.on{background:var(--white);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.08);}
+  /* ── OVERLAY + DRAWER base ── */
+  .overlay{position:fixed;inset:0;background:rgba(50,50,50,0.8);opacity:0;pointer-events:none;transition:opacity .25s;z-index:300;}
+  .overlay.show{opacity:1;pointer-events:auto;}
+  .drawer{position:fixed;top:0;right:0;bottom:0;width:460px;background:var(--white);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);box-shadow:-8px 0 32px rgba(0,0,0,.12);z-index:301;}
+  .drawer.open{transform:translateX(0);}
+  .dr-hdr{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border);flex-shrink:0;}
+  .dr-title-wrap{display:flex;align-items:center;gap:10px;}
+  .dr-type-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+  .dr-title{font-size:18px;font-weight:600;}
+  .dr-close{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;background:none;color:var(--text2);transition:background .15s;}
+  .dr-close:hover{background:var(--bg);}
+  .dr-body{flex:1;overflow-y:auto;padding:24px;}
+  .dr-body::-webkit-scrollbar{width:4px;}
+  .dr-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+  .dr-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;flex-shrink:0;background:var(--white);}
+  .btn-sec{padding:10px 20px;background:var(--white);border:1px solid var(--border);border-radius:8px;font-size:14px;font-weight:600;color:var(--text2);cursor:pointer;font-family:'Roboto',sans-serif;transition:background .15s;}
+  .btn-sec:hover{background:var(--bg);}
+  .btn-pri{padding:10px 20px;background:var(--hugo);border:none;border-radius:8px;font-size:14px;font-weight:600;color:white;cursor:pointer;font-family:'Roboto',sans-serif;transition:opacity .15s;}
+  .btn-pri:hover{opacity:.9;}
+  .tog{position:relative;width:44px;height:24px;flex-shrink:0;cursor:pointer;display:inline-block;}
+  .tog input{opacity:0;width:0;height:0;position:absolute;}
+  .tsl{position:absolute;top:0;left:0;right:0;bottom:0;background:var(--border);border-radius:12px;transition:.2s;cursor:pointer;}
+  .tsl:before{content:'';position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.15);}
+  .tog input:checked + .tsl{background:var(--teal);}
+  .tog input:checked + .tsl:before{transform:translateX(20px);}
+  .premio-row{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--bg);border-radius:10px;border:1px solid var(--border);cursor:pointer;transition:all .15s;}
+  .premio-row:hover{border-color:var(--border-brand);background:var(--white);box-shadow:0 2px 8px rgba(0,0,0,.06);}
+  .premio-row.configured{border-color:var(--teal-bd);background:var(--teal-bg);}
+  /* Colaboradores cards */
+  .colab-card{display:flex;align-items:center;gap:14px;padding:16px 18px;background:var(--white);border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:all .15s;}
+  .colab-card:hover{border-color:var(--border-brand);box-shadow:0 2px 8px rgba(0,0,0,.06);}
+  .colab-card-ico{width:40px;height:40px;background:var(--bg2);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text2);}
+  .colab-card-body{flex:1;}
+  .colab-card-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px;}
+  .colab-card-sub{font-size:12px;color:var(--text2);}
+  .colab-pill{background:var(--hl-bg);border:1px solid var(--hl-border);color:var(--hl-text);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
+  /* Question type tabs */
+  .q-type-tabs{display:flex;gap:4px;background:var(--bg2);padding:3px;border-radius:7px;margin-bottom:12px;}
+  .q-type-tab{flex:1;padding:5px 10px;border-radius:5px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;text-align:center;transition:all .15s;border:none;background:none;font-family:'Roboto',sans-serif;}
+  .q-type-tab.on{background:var(--white);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.08);}
+  /* Pulse range selector */
+  .pulse-range-btn{width:40px;height:40px;border-radius:8px;border:2px solid var(--border);background:var(--white);font-size:15px;font-weight:700;color:var(--text2);cursor:pointer;transition:all .15s;font-family:'Roboto',sans-serif;}
+  .pulse-range-btn:hover{border-color:var(--border-brand);}
+  .pulse-range-btn.on{border-color:var(--hugo);background:var(--hl-bg);color:var(--hugo);}
+  /* Row actions popover */
+  .row-actions-wrap{position:relative;display:inline-flex;align-items:center;justify-content:flex-end;}
+  .row-popover{position:absolute;right:0;top:calc(100% + 4px);background:var(--white);border:1px solid var(--border);border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.10);z-index:300;min-width:160px;overflow:hidden;display:none;}
+  .row-popover.show{display:block;}
+  .row-popover-item{display:flex;align-items:center;gap:10px;padding:10px 14px;font-size:13px;font-weight:500;cursor:pointer;color:var(--text);transition:background .12s;white-space:nowrap;}
+  .row-popover-item:hover{background:var(--bg);}
+  .row-popover-item.danger{color:#DC2626;}
+  .row-popover-divider{height:1px;background:var(--border);margin:2px 0;}
+  /* Resumen blocks (último paso) */
+  .resumen-block{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+  .resumen-block-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);}
+  .resumen-block-title{font-size:14px;font-weight:700;color:var(--text);}
+  .resumen-row{display:flex;align-items:flex-start;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--border);gap:16px;}
+  .resumen-row:last-of-type{border-bottom:none;}
+  .resumen-key{font-size:13px;font-weight:600;color:var(--text);flex-shrink:0;min-width:140px;}
+  .resumen-val{font-size:13px;color:var(--text2);text-align:right;}
+  .resumen-edit-btn{width:100%;padding:13px 20px;background:none;border:none;border-top:1px solid var(--border);font-size:14px;font-weight:600;color:var(--hugo);cursor:pointer;font-family:'Roboto',sans-serif;text-align:center;transition:background .15s;}
+  .resumen-edit-btn:hover{background:var(--hl-bg);}
+  .pulse-dot{width:44px;height:44px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--text2);cursor:pointer;transition:all .15s;background:var(--white);}
+  .pulse-dot:hover{border-color:var(--hugo);color:var(--hugo);}
+  .pulse-dot.neg{background:var(--red-bg);border-color:var(--red);color:var(--red);}
+  .pulse-dot.pos{background:var(--teal-bg);border-color:var(--teal);color:var(--teal);}
+  .pulse-dot.neu{background:var(--gray-bg);border-color:var(--gray);color:var(--gray);}
+  .cfg-pts-row.hdr .cfg-pts-col-mod{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text2);}
+  .cfg-pts-row.hdr .cfg-pts-col-pts{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text2);}
+  .cfg-pts-row.hdr .cfg-pts-col-tog{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text2);}
+  .cfg-pts-action{font-size:13px;color:var(--text2);}
+  .pts-input{width:70px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-weight:600;font-family:'Roboto',sans-serif;color:var(--text);text-align:center;outline:none;transition:border-color .15s;}
+  .pts-input:focus{border-color:var(--hugo);}
+  .cfg-pts-note{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--text3);line-height:1.4;}
+  .btn-go-premios{padding:8px 14px;background:var(--hl-bg);border:1px solid var(--hl-border);color:var(--hugo);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Roboto',sans-serif;white-space:nowrap;transition:opacity .15s;}
+  .btn-go-premios:hover{opacity:.8;}
+
+  /* Points toggle inside stepper step 1 */
+  .pts-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--bg);border:1px solid var(--border);border-radius:10px;margin-top:4px;}
+  .pts-toggle-body{flex:1;}
+  .pts-toggle-title{font-size:14px;font-weight:600;margin-bottom:2px;}
+  .pts-toggle-sub{font-size:12px;color:var(--text2);}
+  .pts-override{margin-top:12px;padding:14px 16px;background:var(--hl-bg);border:1px solid var(--hl-border);border-radius:10px;display:flex;align-items:center;gap:12px;}
+  .pts-override label{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;}
+  .pts-override input[type=number]{width:80px;padding:8px 10px;border:1px solid var(--hl-border);border-radius:8px;font-size:15px;font-weight:700;font-family:'Roboto',sans-serif;color:var(--hugo);text-align:center;background:var(--white);outline:none;}
+  .pts-override span{font-size:12px;color:var(--text2);}
+
+  /* ══════════════════════════════
+     FULL PAGE — TASK FOCUS
+     (Daily Play creator)
+  ══════════════════════════════ */
+  #page-dailyplay{position:fixed;inset:0;background:var(--bg);z-index:400;display:flex;flex-direction:column;overflow:hidden;}
+  #page-pulse{position:fixed;inset:0;background:var(--bg);z-index:400;display:flex;flex-direction:column;overflow:hidden;}
+
+  /* TaskFocus header */
+  .tf-hdr{background:var(--white);border-bottom:1px solid var(--border);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;}
+  .tf-hdr-l{display:flex;align-items:center;gap:10px;}
+  .tf-title{font-size:24px;font-weight:600;letter-spacing:.003em;color:var(--text);}
+  .tf-pill{background:var(--warn-bg);border:1px solid var(--warn-bd);color:var(--warn-text);font-size:12px;font-weight:600;padding:4px 10px;border-radius:16px;}
+  .tf-hdr-r{display:flex;align-items:center;gap:8px;}
+  .tf-close{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;background:none;color:var(--text2);transition:background .15s;}
+  .tf-close:hover{background:var(--bg);}
+
+  /* Body */
+  .tf-body{flex:1;overflow-y:auto;padding:32px 235px;}
+  .tf-body::-webkit-scrollbar{width:6px;}
+  .tf-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+  /* Stepper */
+  .stepper{display:flex;align-items:flex-start;gap:0;margin-bottom:32px;width:100%;}
+  .step{display:flex;flex-direction:column;align-items:center;flex:1;position:relative;}
+  .step:not(:last-child)::after{content:'';position:absolute;top:20px;left:calc(50% + 20px);right:calc(-50% + 20px);height:1px;background:var(--border);}
+  .step.done:not(:last-child)::after{background:var(--hugo);}
+  .step-circle{width:40px;height:40px;border-radius:50%;border:2px solid var(--border);background:var(--white);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:var(--text2);position:relative;z-index:1;transition:all .2s;flex-shrink:0;}
+  .step.active .step-circle{border-color:var(--hugo);background:var(--hugo);color:white;}
+  .step.done .step-circle{border-color:var(--hugo);background:var(--hugo);color:white;}
+  .step-label{margin-top:8px;text-align:center;}
+  .step-copetin{font-size:11px;color:var(--text3);margin-bottom:2px;}
+  .step-name{font-size:13px;font-weight:600;color:var(--text2);}
+  .step.active .step-name{color:var(--hugo);}
+  .step.done .step-name{color:var(--teal);}
+
+  /* Step content */
+  .step-content{display:none;}
+  .step-content.active{display:block;}
+
+  /* Step titles */
+  .step-title{font-size:32px;font-weight:600;letter-spacing:-.01em;margin-bottom:4px;}
+  .step-desc{font-size:14px;color:var(--text2);margin-bottom:28px;line-height:1.5;}
+
+  /* Fields */
+  .field{margin-bottom:20px;}
+  .field-label{font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px;display:block;}
+  .field-hint{font-size:12px;color:var(--text3);margin-bottom:6px;}
+  .finput{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:'Roboto',sans-serif;color:var(--text);background:var(--white);outline:none;transition:border-color .15s;}
+  .finput:focus{border-color:var(--hugo);box-shadow:0 0 0 3px rgba(73,107,227,.1);}
+  .ftextarea{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:'Roboto',sans-serif;color:var(--text);background:var(--white);outline:none;transition:border-color .15s;resize:vertical;min-height:80px;}
+  .ftextarea:focus{border-color:var(--hugo);box-shadow:0 0 0 3px rgba(73,107,227,.1);}
+  .frow2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .fsel{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:'Roboto',sans-serif;color:var(--text);background:var(--white);outline:none;cursor:pointer;transition:border-color .15s;}
+  .fsel:focus{border-color:var(--hugo);}
+  .char-count{font-size:11px;color:var(--text3);text-align:right;margin-top:4px;}
+
+  /* Pool de preguntas */
+  .questions-list{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+  .q-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px;}
+  .q-card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .q-num{font-size:12px;font-weight:700;color:var(--text3);}
+  .q-del{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;border:none;background:none;cursor:pointer;color:var(--text3);transition:all .15s;}
+  .q-del:hover{background:var(--red-bg);color:var(--red);}
+  .opts-list{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
+  .opt-row{display:flex;align-items:center;gap:8px;}
+  .opt-row input[type=text]{flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'Roboto',sans-serif;color:var(--text);background:var(--white);outline:none;transition:border-color .15s;}
+  .opt-row input[type=text]:focus{border-color:var(--hugo);}
+  .opt-row.ok input[type=text]{border-color:var(--teal);background:var(--teal-bg);color:var(--teal);}
+  .opt-ck{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;background:none;font-size:11px;transition:all .15s;}
+  .opt-row.ok .opt-ck{border-color:var(--teal);background:var(--teal);color:white;}
+  .btn-add-q{display:flex;align-items:center;gap:8px;padding:10px 16px;background:none;border:1.5px dashed var(--border-brand);border-radius:8px;font-size:13px;font-weight:600;color:var(--hugo);cursor:pointer;font-family:'Roboto',sans-serif;transition:all .15s;width:100%;}
+  .btn-add-q:hover{background:var(--hl-bg);border-color:var(--hugo);}
+
+  /* Segmentación */
+  .seg-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;}
+  .seg-opt{padding:16px;border:2px solid var(--border);border-radius:12px;cursor:pointer;transition:all .15s;}
+  .seg-opt:hover{border-color:var(--border-brand);}
+  .seg-opt.sel{border-color:var(--hugo);background:var(--hl-bg);}
+  .seg-opt-name{font-size:14px;font-weight:600;margin-bottom:3px;}
+  .seg-opt-sub{font-size:12px;color:var(--text2);}
+  .seg-opt.sel .seg-opt-name{color:var(--hugo);}
+  .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+  .tag{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;background:var(--hl-bg);border:1px solid var(--hl-border);border-radius:20px;font-size:12px;font-weight:600;color:var(--hl-text);}
+  .tag-rm{background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;line-height:1;padding:0;}
+  .tag-rm:hover{color:var(--red);}
+
+  /* Footer navigation */
+  .tf-footer{background:var(--white);border-top:1px solid var(--border);padding:16px 235px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+  .tf-footer-l{font-size:13px;color:var(--text2);}
+  .tf-footer-r{display:flex;gap:10px;}
+  .btn-back{padding:10px 20px;background:var(--white);border:1px solid var(--border);border-radius:8px;font-size:14px;font-weight:600;color:var(--text2);cursor:pointer;font-family:'Roboto',sans-serif;transition:background .15s;}
+  .btn-back:hover{background:var(--bg);}
+  .btn-next{padding:10px 24px;background:var(--hugo);border:none;border-radius:8px;font-size:14px;font-weight:600;color:white;cursor:pointer;font-family:'Roboto',sans-serif;transition:opacity .15s;}
+  .btn-next:hover{opacity:.9;}
+  .btn-save{padding:10px 24px;background:var(--teal);border:none;border-radius:8px;font-size:14px;font-weight:600;color:white;cursor:pointer;font-family:'Roboto',sans-serif;transition:opacity .15s;}
+  .btn-save:hover{opacity:.9;}
+</style>
+
+<!-- ═══ SUPABASE ════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // ⚠️  Reemplazá estos valores con los de tu proyecto Supabase
+  // Settings → API → Project URL  y  anon public key
+  const SUPABASE_URL = 'https://YOUR_PROJECT_ID.supabase.co';
+  const SUPABASE_KEY = 'YOUR_ANON_PUBLIC_KEY';
+  const _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // Notificación toast helper
+  function sbToast(msg, ok=true) {
+    let t = document.querySelector('.sb-toast');
+    if (!t) { t = document.createElement('div'); t.className = 'sb-toast'; document.body.appendChild(t);
+      Object.assign(t.style, {position:'fixed',bottom:'20px',right:'20px',padding:'12px 18px',borderRadius:'10px',
+        fontFamily:'sans-serif',fontSize:'14px',fontWeight:'600',zIndex:'9999',transition:'opacity .3s',opacity:'0',pointerEvents:'none'}); }
+    t.textContent = msg;
+    t.style.background = ok ? '#10B981' : '#EF4444';
+    t.style.color = 'white';
+    t.style.opacity = '1';
+    clearTimeout(t._to);
+    t._to = setTimeout(() => { t.style.opacity = '0'; }, 3000);
+  }
+</script>
+
+</head>
+<body>
+
+<!-- ══ MAIN APP ══ -->
+<div id="app-main">
+
+  <!-- Header -->
+  <header class="hdr">
+    <div class="hdr-l">
+      <button class="ibtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="7" x2="21" y2="7"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="17" x2="21" y2="17"/></svg></button>
+      <div class="logo">hum<span>and</span></div>
+      <div class="pill-admin">Admin</div>
+    </div>
+    <div class="hdr-r">
+      <button class="hbtn">Extra important option</button>
+      <button class="hbtn">Admin</button>
+      <button class="ibtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></button>
+      <button class="ibtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></button>
+      <div class="nwrap"><button class="ibtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button><div class="ndot">1</div></div>
+      <div class="av">JR</div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="si"><div class="ico">🏠</div><div class="lbl">Home</div></div>
+      <div class="si"><div class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div class="lbl">Users</div></div>
+      <div class="si"><div class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div><div class="lbl">OrgChart</div></div>
+      <div class="si"><div class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="lbl">Roles & Permission</div></div>
+      <div class="si act"><div class="ico">🎯</div><div class="lbl">Cultural Engagement</div><div class="chv open">▾</div></div>
+      <div class="subs">
+        <div class="sub on" id="sub-dashboard" onclick="setV('dashboard')">Dashboard</div>
+        <div class="sub off" id="sub-dinamicas" onclick="setV('dinamicas')">Dinámicas</div>
+        <div class="sub off" id="sub-config" onclick="setV('config')">Configuración</div>
+      </div>
+      <div class="si"><div class="ico">💬</div><div class="lbl">Chats & Calls</div></div>
+      <div class="si"><div class="ico">📡</div><div class="lbl">Live streaming</div></div>
+      <div class="si"><div class="ico">📚</div><div class="lbl">Training</div><span class="sibadge">1</span></div>
+      <div class="si"><div class="ico">🔄</div><div class="lbl">Performance review</div></div>
+      <div class="si"><div class="ico">💙</div><div class="lbl">People experience</div><span class="sibadge">1</span><span class="sinew">Nuevo</span></div>
+      <div class="si"><div class="ico">📋</div><div class="lbl">Forms</div></div>
+      <div class="si"><div class="ico">⚡</div><div class="lbl">Workflows</div></div>
+      <div class="si"><div class="ico">🛎️</div><div class="lbl">Service management</div></div>
+      <div class="si"><div class="ico">🏖️</div><div class="lbl">Time off</div></div>
+      <div class="si"><div class="ico">⏱️</div><div class="lbl">Time tracking</div></div>
+      <div class="si"><div class="ico">✅</div><div class="lbl">Onboarding & Tasks</div></div>
+      <hr class="sdiv">
+      <div class="sfoot"><span style="font-size:12px">Built with love by</span><strong style="color:var(--hugo);font-size:13px">humand</strong></div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main">
+
+      <!-- DASHBOARD -->
+      <div id="v-dashboard">
+        <div class="ptitle">Dashboard</div>
+
+        <!-- Tabs — sin filtros globales -->
+        <div style="display:flex;gap:2px;border-bottom:2px solid var(--border);margin-bottom:24px">
+          <button class="db-tab on" id="dbt-resumen"  onclick="setDbTab('resumen')">Resumen</button>
+          <button class="db-tab"   id="dbt-daily"     onclick="setDbTab('daily')">🎯 Daily Play</button>
+          <button class="db-tab"   id="dbt-pulse"     onclick="setDbTab('pulse')">💙 Pulso</button>
+          <button class="db-tab"   id="dbt-reco"      onclick="setDbTab('reco')">⭐ Reconocimientos</button>
+          <button class="db-tab"   id="dbt-misiones"  onclick="setDbTab('misiones')" style="opacity:.45;pointer-events:none">🚀 Misiones</button>
+        </div>
+
+        <!-- ═══ RESUMEN ═══ -->
+        <div id="dbv-resumen">
+          <div class="g4" style="margin-bottom:20px">
+            <div class="card"><div class="clbl">Colaboradores activos</div><div class="cval">68%</div><div class="cch up">↑ 12% vs. semana anterior</div></div>
+            <div class="card"><div class="clbl">Sentimiento positivo</div><div class="cval">70%</div><div class="cch up">↑ 5% vs. semana anterior</div></div>
+            <div class="card"><div class="clbl">Módulo más activo</div><div class="cval" style="font-size:18px;line-height:2.2">Daily Play</div><div class="cch nu">89% participación</div></div>
+            <div class="card"><div class="clbl">Total participantes</div><div class="cval">1.024</div><div class="cch nu">de 1.500 colaboradores</div></div>
+          </div>
+          <div class="g21">
+            <div class="card">
+              <div class="ctit">Tendencia de participación — últimas 8 semanas</div>
+              <div class="sparkline"><div class="sb" style="height:45%"></div><div class="sb" style="height:50%"></div><div class="sb" style="height:48%"></div><div class="sb" style="height:58%"></div><div class="sb" style="height:55%"></div><div class="sb" style="height:62%"></div><div class="sb" style="height:65%"></div><div class="sb cur" style="height:68%"></div></div>
+              <div class="slbls"><div class="slbl">S1</div><div class="slbl">S2</div><div class="slbl">S3</div><div class="slbl">S4</div><div class="slbl">S5</div><div class="slbl">S6</div><div class="slbl">S7</div><div class="slbl cur">Hoy</div></div>
+            </div>
+            <div class="card">
+              <div class="ctit">Engagement por módulo</div>
+              <div class="mbar"><div class="mbar-h"><span class="mbar-n">🎯 Daily Play</span><span class="mbar-p">89%</span></div><div class="mbar-t"><div class="mbar-f" style="width:89%;background:var(--teal)"></div></div></div>
+              <div class="mbar"><div class="mbar-h"><span class="mbar-n">💙 Pulso</span><span class="mbar-p">61%</span></div><div class="mbar-t"><div class="mbar-f" style="width:61%;background:var(--blue)"></div></div></div>
+              <div class="mbar"><div class="mbar-h"><span class="mbar-n">🚀 Misiones</span><span class="mbar-p">38%</span></div><div class="mbar-t"><div class="mbar-f" style="width:38%;background:var(--amber)"></div></div></div>
+              <div class="mbar"><div class="mbar-h"><span class="mbar-n">⭐ Reconocimientos</span><span class="mbar-p">24%</span></div><div class="mbar-t"><div class="mbar-f" style="width:24%;background:var(--purple)"></div></div></div>
+            </div>
+          </div>
+
+          <!-- Ranking — solo si ranking activo -->
+          <div id="db-ranking-block" class="hidden" style="margin-top:20px">
+            <div class="card">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+                <div class="ctit" style="margin-bottom:0">🏆 Ranking del período</div>
+                <span style="font-size:12px;color:var(--text2);font-weight:500">Top 10 · período actual</span>
+              </div>
+
+              <!-- Header -->
+              <div style="display:grid;grid-template-columns:32px 1fr 80px 80px;gap:0;padding:6px 12px;background:var(--bg2);border-radius:8px;margin-bottom:8px">
+                <span style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em">#</span>
+                <span style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em">Colaborador</span>
+                <span style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;text-align:right">Pts</span>
+                <span style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;text-align:right">Dif.</span>
+              </div>
+
+              <!-- Rows -->
+              <div style="display:flex;flex-direction:column;gap:2px">
+                <div style="display:grid;grid-template-columns:32px 1fr 80px 80px;align-items:center;padding:10px 12px;border-radius:8px;background:var(--amber-bg)">
+                  <span style="font-size:14px">🥇</span>
+                  <div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#FCD34D,#F59E0B);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white">MG</div><span style="font-size:13px;font-weight:600">María González</span></div>
+                  <span style="font-size:13px;font-weight:700;text-align:right;color:var(--text)">1.240</span>
+                  <span style="font-size:12px;text-align:right;color:var(--teal)">+85</span>
+                </div>
+                <div style="display:grid;grid-template-columns:32px 1fr 80px 80px;align-items:center;padding:10px 12px;border-radius:8px">
+                  <span style="font-size:14px">🥈</span>
+                  <div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--hugo),var(--purple));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white">JR</div><span style="font-size:13px;font-weight:500">Juan Ramírez</span></div>
+                  <span style="font-size:13px;font-weight:700;text-align:right;color:var(--text)">1.180</span>
+                  <span style="font-size:12px;text-align:right;color:var(--teal)">+60</span>
+                </div>
+                <div style="display:grid;grid-template-columns:32px 1fr 80px 80px;align-items:center;padding:10px 12px;border-radius:8px">
+                  <span style="font-size:14px">🥉</span>
+                  <div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--teal),#059669);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white">LF</div><span style="font-size:13px;font-weight:500">Lucía Fernández</span></div>
+                  <span style="font-size:13px;font-weight:700;text-align:right;color:var(--text)">1.095</span>
+                  <span style="font-size:12px;text-align:right;color:var(--teal)">+45</span>
+                </div>
+                <div style="display:grid;grid-template-columns:32px 1fr 80px 80px;align-items:center;padding:10px 12px;border-radius:8px">
+                  <span style="font-size:13px;font-weight:600;color:var(--text2)">4</span>
+                  <div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#EC4899,#DB2777);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white">AS</div><span style="font-size:13px;font-weight:500">Ana Sofía M.</span></div>
+                  <span style="font-size:13px;font-weight:700;text-align:right;color:var(--text)">980</span>
+                  <span style="font-size:12px;text-align:right;color:var(--text3)">—</span>
+                </div>
+                <div style="display:grid;grid-template-columns:32px 1fr 80px 80px;align-items:center;padding:10px 12px;border-radius:8px">
+                  <span style="font-size:13px;font-weight:600;color:var(--text2)">5</span>
+                  <div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#6366F1,#4F46E5);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white">CT</div><span style="font-size:13px;font-weight:500">Carlos Torres</span></div>
+                  <span style="font-size:13px;font-weight:700;text-align:right;color:var(--text)">870</span>
+                  <span style="font-size:12px;text-align:right;color:#DC2626">−20</span>
+                </div>
+                <div style="display:grid;grid-template-columns:32px 1fr 80px 80px;align-items:center;padding:10px 12px;border-radius:8px">
+                  <span style="font-size:13px;font-weight:600;color:var(--text2)">6</span>
+                  <div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#F59E0B,#D97706);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white">DH</div><span style="font-size:13px;font-weight:500">Diego Hernández</span></div>
+                  <span style="font-size:13px;font-weight:700;text-align:right;color:var(--text)">810</span>
+                  <span style="font-size:12px;text-align:right;color:var(--teal)">+30</span>
+                </div>
+                <div style="display:grid;grid-template-columns:32px 1fr 80px 80px;align-items:center;padding:10px 12px;border-radius:8px">
+                  <span style="font-size:13px;font-weight:600;color:var(--text2)">7</span>
+                  <div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#8B5CF6,#7C3AED);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white">VL</div><span style="font-size:13px;font-weight:500">Valentina López</span></div>
+                  <span style="font-size:13px;font-weight:700;text-align:right;color:var(--text)">755</span>
+                  <span style="font-size:12px;text-align:right;color:var(--text3)">—</span>
+                </div>
+              </div>
+
+              <button style="width:100%;margin-top:12px;padding:10px;background:none;border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;font-family:'Roboto',sans-serif;transition:background .15s" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='none'">Ver ranking completo</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ DAILY PLAY ═══ -->
+        <div id="dbv-daily" class="hidden">
+          <!-- Filtro de trivia -->
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;flex-wrap:wrap">
+            <span style="font-size:12px;font-weight:600;color:var(--text2)">Trivia:</span>
+            <select class="fsel" id="db-daily-select" style="width:auto;min-width:260px" onchange="updateDailyStatus(this)">
+              <option data-status="activa">¿Qué valor representa mejor al equipo? · Mar 2026</option>
+              <option data-status="inactiva">¿Cuál es el pilar estratégico del año? · Feb 2026</option>
+              <option data-status="pasada">Trivia de cultura · Ene 2026</option>
+            </select>
+            <span id="db-daily-status" class="sp activa"><span class="sp-dot"></span>Activa</span>
+          </div>
+
+          <!-- KPIs — números en negro -->
+          <div class="g4" style="margin-bottom:20px">
+            <div class="card"><div class="clbl">Respuestas totales</div><div class="cval">912</div><div class="cch nu">preguntas respondidas</div></div>
+            <div class="card"><div class="clbl">Preguntas ignoradas</div><div class="cval">188</div><div class="cch nu">sin respuesta</div></div>
+            <div class="card"><div class="clbl">Tasa de respuesta</div><div class="cval">83%</div><div class="cch up">↑ 4% vs. período anterior</div></div>
+            <div class="card"><div class="clbl">Respuestas correctas</div><div class="cval">73%</div><div class="cch nu">de las respondidas</div></div>
+          </div>
+
+          <div class="g21" style="margin-bottom:20px">
+            <div class="card">
+              <div class="ctit">Participación diaria — últimos 14 días</div>
+              <div class="sparkline" style="height:80px">
+                <div class="sb" style="height:72%"></div><div class="sb" style="height:80%"></div><div class="sb" style="height:68%"></div><div class="sb" style="height:75%"></div><div class="sb" style="height:82%"></div><div class="sb" style="height:78%"></div><div class="sb" style="height:85%"></div><div class="sb" style="height:79%"></div><div class="sb" style="height:83%"></div><div class="sb" style="height:87%"></div><div class="sb" style="height:84%"></div><div class="sb" style="height:88%"></div><div class="sb" style="height:86%"></div><div class="sb cur" style="height:89%"></div>
+              </div>
+              <div class="slbls"><div class="slbl">L</div><div class="slbl">M</div><div class="slbl">X</div><div class="slbl">J</div><div class="slbl">V</div><div class="slbl">S</div><div class="slbl">D</div><div class="slbl">L</div><div class="slbl">M</div><div class="slbl">X</div><div class="slbl">J</div><div class="slbl">V</div><div class="slbl">S</div><div class="slbl cur">Hoy</div></div>
+            </div>
+            <div class="card">
+              <div class="ctit">Respondidas vs. ignoradas por pregunta</div>
+              <div style="display:flex;flex-direction:column;gap:14px;margin-top:4px">
+                <!-- Pregunta 1 -->
+                <div>
+                  <div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">¿Qué valor representa al equipo?</div>
+                  <div style="display:flex;gap:6px;align-items:center">
+                    <div style="flex:1;height:8px;border-radius:4px;background:var(--bg2);overflow:hidden;display:flex">
+                      <div style="width:78%;background:var(--hugo);border-radius:4px 0 0 4px"></div>
+                      <div style="flex:1;background:#E5E7EB"></div>
+                    </div>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-top:4px">
+                    <span>Respondidas: <strong style="color:var(--text)">78%</strong></span>
+                    <span>Ignoradas: <strong style="color:var(--text)">22%</strong></span>
+                  </div>
+                </div>
+                <!-- Pregunta 2 -->
+                <div>
+                  <div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">¿Cuál es el pilar estratégico?</div>
+                  <div style="display:flex;gap:6px;align-items:center">
+                    <div style="flex:1;height:8px;border-radius:4px;background:var(--bg2);overflow:hidden;display:flex">
+                      <div style="width:54%;background:var(--hugo);border-radius:4px 0 0 4px"></div>
+                      <div style="flex:1;background:#E5E7EB"></div>
+                    </div>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-top:4px">
+                    <span>Respondidas: <strong style="color:var(--text)">54%</strong></span>
+                    <span>Ignoradas: <strong style="color:var(--text)">46%</strong></span>
+                  </div>
+                </div>
+                <!-- Pregunta 3 -->
+                <div>
+                  <div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">¿Cuándo fundamos la empresa?</div>
+                  <div style="display:flex;gap:6px;align-items:center">
+                    <div style="flex:1;height:8px;border-radius:4px;background:var(--bg2);overflow:hidden;display:flex">
+                      <div style="width:91%;background:var(--hugo);border-radius:4px 0 0 4px"></div>
+                      <div style="flex:1;background:#E5E7EB"></div>
+                    </div>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-top:4px">
+                    <span>Respondidas: <strong style="color:var(--text)">91%</strong></span>
+                    <span>Ignoradas: <strong style="color:var(--text)">9%</strong></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ PULSE ═══ -->
+        <div id="dbv-pulse" class="hidden">
+          <!-- Filtro de pulso -->
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px">
+            <span style="font-size:12px;font-weight:600;color:var(--text2)">Pulso:</span>
+            <select class="fsel" style="width:auto;min-width:260px">
+              <option>¿Cómo te sentís hoy? · 10 Mar 2026</option>
+              <option>¿Cómo saliste del all-hands? · 5 Mar 2026</option>
+              <option>Pulso post-vacaciones · Feb 2026</option>
+            </select>
+          </div>
+
+          <!-- KPIs — sin "Pulsos activos", números en negro -->
+          <div class="g4" style="margin-bottom:20px">
+            <div class="card"><div class="clbl">Respuestas totales</div><div class="cval">124</div><div class="cch nu">para este pulso</div></div>
+            <div class="card">
+              <div class="clbl">Sentimiento positivo</div>
+              <div class="cval">70%</div>
+              <div class="cch up">↑ 5% vs. pulso anterior</div>
+              <div style="font-size:10px;color:var(--text3);margin-top:4px;display:flex;align-items:center;gap:4px">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Respondió entre bien y muy bien
+              </div>
+            </div>
+            <div class="card">
+              <div class="clbl">Sentimiento negativo</div>
+              <div class="cval">12%</div>
+              <div class="cch nu">atención recomendada</div>
+              <div style="font-size:10px;color:var(--text3);margin-top:4px;display:flex;align-items:center;gap:4px">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Respondió entre mal y muy mal
+              </div>
+            </div>
+            <div class="card"><div class="clbl">Sin respuesta</div><div class="cval">18%</div><div class="cch nu">no respondieron</div></div>
+          </div>
+
+          <!-- Solo distribución, sin tendencia -->
+          <div class="card" style="max-width:560px">
+            <div class="ctit">Distribución de respuestas</div>
+            <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+              <div class="srow">
+                <div class="sem">😄</div>
+                <div class="strk"><div class="sfl" style="width:45%;background:#1A9370"></div></div>
+                <div class="spct">45%</div>
+                <div style="font-size:11px;color:var(--text3);min-width:52px;text-align:right">Muy bien</div>
+              </div>
+              <div class="srow">
+                <div class="sem">🙂</div>
+                <div class="strk"><div class="sfl" style="width:25%;background:#86EFAC"></div></div>
+                <div class="spct">25%</div>
+                <div style="font-size:11px;color:var(--text3);min-width:52px;text-align:right">Bien</div>
+              </div>
+              <div class="srow">
+                <div class="sem">😐</div>
+                <div class="strk"><div class="sfl" style="width:18%;background:#D1D5DB"></div></div>
+                <div class="spct">18%</div>
+                <div style="font-size:11px;color:var(--text3);min-width:52px;text-align:right">Neutro</div>
+              </div>
+              <div class="srow">
+                <div class="sem">😕</div>
+                <div class="strk"><div class="sfl" style="width:8%;background:#FCA5A5"></div></div>
+                <div class="spct">8%</div>
+                <div style="font-size:11px;color:var(--text3);min-width:52px;text-align:right">Mal</div>
+              </div>
+              <div class="srow">
+                <div class="sem">😤</div>
+                <div class="strk"><div class="sfl" style="width:4%;background:#F87171"></div></div>
+                <div class="spct">4%</div>
+                <div style="font-size:11px;color:var(--text3);min-width:52px;text-align:right">Muy mal</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Comentarios abiertos -->
+          <div class="card" style="margin-top:20px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+              <div class="ctit" style="margin-bottom:0">Respuestas abiertas</div>
+              <span style="font-size:12px;color:var(--text2);font-weight:500">32 comentarios</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+
+              <div style="padding:12px 14px;background:var(--bg);border-radius:10px;border-left:3px solid #1A9370">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+                  <span style="font-size:11px;color:var(--text3)">12 mar 2026 · 09:14</span>
+                  <span style="font-size:11px;font-weight:600;color:var(--text2)">😄 Muy bien</span>
+                </div>
+                <p style="font-size:13px;color:var(--text);line-height:1.5;margin:0">"El equipo estuvo muy bien coordinado esta semana, se nota el trabajo en conjunto."</p>
+              </div>
+
+              <div style="padding:12px 14px;background:var(--bg);border-radius:10px;border-left:3px solid #86EFAC">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+                  <span style="font-size:11px;color:var(--text3)">12 mar 2026 · 10:02</span>
+                  <span style="font-size:11px;font-weight:600;color:var(--text2)">🙂 Bien</span>
+                </div>
+                <p style="font-size:13px;color:var(--text);line-height:1.5;margin:0">"Buena semana en general. Podríamos mejorar la comunicación entre áreas."</p>
+              </div>
+
+              <div style="padding:12px 14px;background:var(--bg);border-radius:10px;border-left:3px solid #FCA5A5">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+                  <span style="font-size:11px;color:var(--text3)">12 mar 2026 · 11:38</span>
+                  <span style="font-size:11px;font-weight:600;color:var(--text2)">😕 Mal</span>
+                </div>
+                <p style="font-size:13px;color:var(--text);line-height:1.5;margin:0">"Semana muy cargada, siento que hay muchas reuniones que podrían ser mails."</p>
+              </div>
+
+              <div style="padding:12px 14px;background:var(--bg);border-radius:10px;border-left:3px solid #D1D5DB">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+                  <span style="font-size:11px;color:var(--text3)">12 mar 2026 · 14:55</span>
+                  <span style="font-size:11px;font-weight:600;color:var(--text2)">😐 Neutro</span>
+                </div>
+                <p style="font-size:13px;color:var(--text);line-height:1.5;margin:0">"Sin novedades particulares. La semana fue normal, nada que destacar."</p>
+              </div>
+
+            </div>
+            <button style="width:100%;margin-top:12px;padding:10px;background:none;border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;font-family:'Roboto',sans-serif;transition:background .15s" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='none'">Ver todos los comentarios (32)</button>
+          </div>
+        </div>
+
+        <!-- ═══ RECONOCIMIENTOS — grisado ═══ -->
+        <div id="dbv-reco" class="hidden">
+          <!-- Filtro -->
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px">
+            <span style="font-size:12px;font-weight:600;color:var(--text2)">Período:</span>
+            <select class="fsel" style="width:auto;min-width:200px">
+              <option>Esta semana</option>
+              <option>Este mes</option>
+              <option>Últimos 30 días</option>
+            </select>
+          </div>
+          <!-- KPIs -->
+          <div class="g4" style="margin-bottom:20px">
+            <div class="card"><div class="clbl">Nominaciones</div><div class="cval">47</div><div class="cch up">↑ 8 vs. semana anterior</div></div>
+            <div class="card"><div class="clbl">Colaboradores nominados</div><div class="cval">31</div><div class="cch nu">de 1.500</div></div>
+            <div class="card"><div class="clbl">Categoría más votada</div><div class="cval" style="font-size:16px;line-height:2.4">Trabajo en equipo</div><div class="cch nu">18 votos</div></div>
+            <div class="card"><div class="clbl">Participación</div><div class="cval">24%</div><div class="cch nu">nomina o es nominado</div></div>
+          </div>
+          <div class="g21" style="margin-bottom:20px">
+            <div class="card">
+              <div class="ctit">Top 5 colaboradores reconocidos</div>
+              <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
+                <div style="display:flex;align-items:center;gap:12px"><div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#FCD34D,#F59E0B);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0">MG</div><div style="flex:1;font-size:13px;font-weight:500">María González</div><span style="font-size:12px;font-weight:700;color:var(--text)">8 votos</span></div>
+                <div style="display:flex;align-items:center;gap:12px"><div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--hugo),var(--purple));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0">JR</div><div style="flex:1;font-size:13px;font-weight:500">Juan Ramírez</div><span style="font-size:12px;font-weight:700;color:var(--text)">6 votos</span></div>
+                <div style="display:flex;align-items:center;gap:12px"><div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--teal),#059669);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0">LF</div><div style="flex:1;font-size:13px;font-weight:500">Lucía Fernández</div><span style="font-size:12px;font-weight:700;color:var(--text)">5 votos</span></div>
+                <div style="display:flex;align-items:center;gap:12px"><div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#EC4899,#DB2777);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0">AS</div><div style="flex:1;font-size:13px;font-weight:500">Ana Sofía M.</div><span style="font-size:12px;font-weight:700;color:var(--text)">4 votos</span></div>
+                <div style="display:flex;align-items:center;gap:12px"><div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#6366F1,#4F46E5);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0">CT</div><div style="flex:1;font-size:13px;font-weight:500">Carlos Torres</div><span style="font-size:12px;font-weight:700;color:var(--text)">3 votos</span></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="ctit">Votos por categoría</div>
+              <div class="mbar"><div class="mbar-h"><span class="mbar-n">Trabajo en equipo</span><span class="mbar-p">38%</span></div><div class="mbar-t"><div class="mbar-f" style="width:38%;background:var(--purple)"></div></div></div>
+              <div class="mbar"><div class="mbar-h"><span class="mbar-n">Innovación</span><span class="mbar-p">27%</span></div><div class="mbar-t"><div class="mbar-f" style="width:27%;background:var(--purple)"></div></div></div>
+              <div class="mbar"><div class="mbar-h"><span class="mbar-n">Liderazgo</span><span class="mbar-p">22%</span></div><div class="mbar-t"><div class="mbar-f" style="width:22%;background:var(--purple)"></div></div></div>
+              <div class="mbar"><div class="mbar-h"><span class="mbar-n">Excelencia</span><span class="mbar-p">13%</span></div><div class="mbar-t"><div class="mbar-f" style="width:13%;background:var(--purple)"></div></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ MISIONES — grisado ═══ -->
+        <div id="dbv-misiones" class="hidden">
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 32px;gap:12px;text-align:center">
+            <div style="font-size:40px">🚀</div>
+            <div style="font-size:16px;font-weight:700;color:var(--text)">Misiones</div>
+            <div style="font-size:13px;color:var(--text2);max-width:340px">Este módulo estará disponible próximamente. Podrás ver acciones completadas, módulos más usados y progreso semanal.</div>
+            <span style="background:var(--amber-bg);color:var(--amber);font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;margin-top:4px">Próximamente</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- DINÁMICAS -->
+      <div id="v-dinamicas" class="hidden">
+        <div class="din-topbar">
+          <div>
+            <h2>Dinámicas</h2>
+            <p>Creá y gestioná las dinámicas de engagement de tu organización</p>
+          </div>
+          <!-- POPOVER WRAP -->
+          <div class="popover-wrap" id="pw">
+            <button class="btn-create" id="btn-create-din" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Crear dinámica
+            </button>
+            <div class="popover" id="popover" role="menu">
+              <div class="popover-hdr"><p>Elegí el tipo de dinámica</p></div>
+              <div class="popover-item" role="menuitem" tabindex="0" onclick="openDailyPlay()">
+                <div class="pi-ico" style="background:var(--teal-bg)">🎯</div>
+                <div><div class="pi-name">Daily Play</div><div class="pi-sub">Trivia diaria · +20 pts</div></div>
+                <span class="pi-arr">›</span>
+              </div>
+              <div class="popover-item" role="menuitem" tabindex="0" onclick="openPulse()">
+                <div class="pi-ico" style="background:var(--blue-bg)">💙</div>
+                <div><div class="pi-name">Pulso</div><div class="pi-sub">Pulso emocional · +5 pts</div></div>
+                <span class="pi-arr">›</span>
+              </div>
+              <div class="popover-item" role="menuitem" tabindex="0" style="opacity:.5;cursor:default;pointer-events:none">
+                <div class="pi-ico" style="background:var(--amber-bg)">🚀</div>
+                <div><div class="pi-name">Misión <span style="background:var(--amber-bg);color:var(--amber);font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:4px;vertical-align:middle">Próximamente</span></div><div class="pi-sub">Acciones guiadas · +50 pts</div></div>
+                <span class="pi-arr">›</span>
+              </div>
+              <div class="popover-item" role="menuitem" tabindex="0" onclick="openRecoDrawer()" style="border-radius:0 0 12px 12px">
+                <div class="pi-ico" style="background:var(--purple-bg)">⭐</div>
+                <div><div class="pi-name">Reconocimiento</div><div class="pi-sub">Nominación y voto · +30 pts</div></div>
+                <span class="pi-arr">›</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ranking status banner -->
+        <div id="ranking-banner-off" style="display:flex;align-items:center;justify-content:space-between;background:var(--gray-bg);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:20px;gap:16px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <span style="font-size:20px">🏆</span>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px">Ranking y puntos están desactivados</div>
+              <div style="font-size:12px;color:var(--text2)">Las dinámicas no acumularán puntos. Activá el sistema en Configuración para habilitar esta función.</div>
+            </div>
+          </div>
+          <button onclick="setV('config')" style="flex-shrink:0;padding:8px 14px;background:var(--white);border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;font-family:'Roboto',sans-serif;white-space:nowrap">Ir a Configuración →</button>
+        </div>
+        <div id="ranking-banner-on" class="hidden" style="display:flex;align-items:center;justify-content:space-between;background:var(--teal-bg);border:1px solid var(--teal-bd);border-radius:12px;padding:14px 18px;margin-bottom:20px;gap:16px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <span style="font-size:20px">🏆</span>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--teal);margin-bottom:2px">Ranking y puntos activos</div>
+              <div style="font-size:12px;color:var(--text2)">Las dinámicas acumularán puntos según su configuración individual. Podés activar o desactivar puntos en cada dinámica.</div>
+            </div>
+          </div>
+          <button onclick="setV('config')" style="flex-shrink:0;padding:8px 14px;background:var(--white);border:1px solid var(--teal-bd);border-radius:8px;font-size:12px;font-weight:600;color:var(--teal);cursor:pointer;font-family:'Roboto',sans-serif;white-space:nowrap">Configurar →</button>
+        </div>
+
+        <!-- Tabla unificada de dinámicas -->
+        <div class="sec-lbl">
+          <span class="sec-lbl-t">Todas las dinámicas</span>
+          <span class="sec-lbl-c" id="active-count">0 dinámicas</span>
+        </div>
+        <div class="hist-wrap">
+          <table class="htbl">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Tipo</th>
+                <th>Período</th>
+                <th>Estado</th>
+                <th>Participación</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="din-tbody"></tbody>
+          </table>
+          <div id="din-empty" class="est hidden"><p>🎯</p><p style="font-size:13px">No hay dinámicas aún — creá la primera</p></div>
+        </div>
+      </div>
+
+      <!-- CONFIGURACIÓN -->
+      <div id="v-config" class="hidden">
+        <div class="ptitle">Configuración</div>
+        <div class="pdesc">Definí cómo funciona el sistema de engagement para tu organización. Estos ajustes afectan a todas las dinámicas.</div>
+
+        <!-- Bloque: Ranking y puntos -->
+        <div class="cfg-block">
+          <div class="cfg-block-hdr">
+            <div class="cfg-block-ico">🏆</div>
+            <div class="cfg-block-body">
+              <div class="cfg-block-title">Ranking y puntos</div>
+              <div class="cfg-block-sub">Al activar, los colaboradores acumularán puntos por participar en las dinámicas y verán un ranking general en el hub.</div>
+            </div>
+            <label class="tog" onclick="setTimeout(function(){ toggleRanking(document.getElementById('chk-ranking')); }, 0)">
+              <input type="checkbox" id="chk-ranking">
+              <span class="tsl"></span>
+            </label>
+          </div>
+
+          <div id="ranking-config" class="cfg-expanded hidden">
+            <div class="cfg-divider"></div>
+
+            <div class="cfg-row">
+              <div class="cfg-row-body">
+                <div class="cfg-row-title">Período del ranking</div>
+                <div class="cfg-row-sub">Cada cuánto se reinician los puntos acumulados</div>
+              </div>
+              <div style="display:flex;gap:8px;align-items:center">
+                <div id="periodo-tabs" style="display:flex;gap:4px;background:var(--bg2);padding:4px;border-radius:8px">
+                  <button class="ptab on" onclick="setPeriodo('mensual',this)">Mensual</button>
+                  <button class="ptab" onclick="setPeriodo('trimestral',this)">Trimestral</button>
+                  <button class="ptab" onclick="setPeriodo('custom',this)">Custom</button>
+                </div>
+              </div>
+            </div>
+
+            <div id="periodo-custom" class="hidden" style="margin-top:-4px;padding:12px 16px;background:var(--bg);border-radius:8px;border:1px solid var(--border)">
+              <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px">Definí el período personalizado</div>
+              <div style="display:flex;align-items:center;gap:10px">
+                <input type="date" class="finput" style="flex:1;padding:8px 12px;font-size:13px">
+                <span style="font-size:13px;color:var(--text2)">→</span>
+                <input type="date" class="finput" style="flex:1;padding:8px 12px;font-size:13px">
+              </div>
+            </div>
+
+            <div class="cfg-divider"></div>
+
+            <!-- Puntos por dinámica — sin checkbox de activo -->
+            <div class="cfg-pts-title">Puntos por dinámica — valores por default</div>
+            <div class="cfg-pts-hint">Definí cuántos puntos vale cada tipo de dinámica. El admin puede sobreescribir estos valores al crear o editar una dinámica.</div>
+
+            <div class="cfg-pts-table">
+              <div class="cfg-pts-row hdr">
+                <div class="cfg-pts-col-mod">Tipo de dinámica · Acción</div>
+                <div class="cfg-pts-col-pts" style="text-align:right">Puntos default</div>
+              </div>
+              <div class="cfg-pts-row">
+                <div class="cfg-pts-col-mod"><span class="tb daily">🎯 Daily Play</span><span class="cfg-pts-action">Respuesta correcta</span></div>
+                <div class="cfg-pts-col-pts"><input class="pts-input" type="number" value="20" min="0" max="999"></div>
+              </div>
+              <div class="cfg-pts-row">
+                <div class="cfg-pts-col-mod"><span class="tb daily" style="opacity:0">🎯</span><span class="cfg-pts-action">Respuesta incorrecta</span></div>
+                <div class="cfg-pts-col-pts"><input class="pts-input" type="number" value="0" min="0" max="999"></div>
+              </div>
+              <div class="cfg-pts-row">
+                <div class="cfg-pts-col-mod"><span class="tb pulse">💙 Pulso</span><span class="cfg-pts-action">Respondió el pulso</span></div>
+                <div class="cfg-pts-col-pts"><input class="pts-input" type="number" value="5" min="0" max="999"></div>
+              </div>
+              <div class="cfg-pts-row" style="opacity:.4;pointer-events:none">
+                <div class="cfg-pts-col-mod"><span class="tb mision">🚀 Misión</span><span class="cfg-pts-action">Acción dentro de la misión</span><span style="background:var(--amber-bg);color:var(--amber);font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;margin-left:6px">Próximamente</span></div>
+                <div class="cfg-pts-col-pts"><input class="pts-input" type="number" value="25" min="0" max="999" disabled></div>
+              </div>
+              <div class="cfg-pts-row" style="opacity:.4;pointer-events:none">
+                <div class="cfg-pts-col-mod"><span class="tb mision" style="opacity:0">🚀</span><span class="cfg-pts-action">Misión completa</span></div>
+                <div class="cfg-pts-col-pts"><input class="pts-input" type="number" value="50" min="0" max="999" disabled></div>
+              </div>
+              <div class="cfg-pts-row" style="opacity:.4;pointer-events:none">
+                <div class="cfg-pts-col-mod"><span class="tb reco">⭐ Reconocimiento</span><span class="cfg-pts-action">Nominó a un compañero</span><span style="background:var(--amber-bg);color:var(--amber);font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;margin-left:6px">Próximamente</span></div>
+                <div class="cfg-pts-col-pts"><input class="pts-input" type="number" value="15" min="0" max="999" disabled></div>
+              </div>
+              <div class="cfg-pts-row" style="opacity:.4;pointer-events:none">
+                <div class="cfg-pts-col-mod"><span class="tb reco" style="opacity:0">⭐</span><span class="cfg-pts-action">Fue nominado</span></div>
+                <div class="cfg-pts-col-pts"><input class="pts-input" type="number" value="30" min="0" max="999" disabled></div>
+              </div>
+            </div>
+
+            <div class="cfg-pts-note">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Los cambios aplican a dinámicas nuevas. Las existentes conservan su configuración individual de puntos.
+            </div>
+          </div>
+        </div>
+
+        <!-- Bloque: Premios y canje -->
+        <div class="cfg-block" id="cfg-premios-block" style="opacity:.5;pointer-events:none">
+          <div class="cfg-block-hdr">
+            <div class="cfg-block-ico">🎁</div>
+            <div class="cfg-block-body">
+              <div class="cfg-block-title">Premios y canje</div>
+              <div class="cfg-block-sub">Definí los premios para los primeros puestos del ranking. Requiere tener Ranking y puntos activo.</div>
+            </div>
+            <label class="tog" onclick="setTimeout(function(){ togglePremios(document.getElementById('chk-premios')); }, 0)">
+              <input type="checkbox" id="chk-premios">
+              <span class="tsl"></span>
+            </label>
+          </div>
+          <div id="premios-config" class="cfg-expanded hidden">
+            <div class="cfg-divider"></div>
+            <div class="cfg-pts-hint" style="margin-bottom:16px">Configurá el premio para cada posición del podio. Hacé clic en cada puesto para editarlo.</div>
+
+            <!-- Podio — cada fila abre un drawer -->
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div class="premio-row" id="premio-row-1" onclick="openPremioDrawer(1)">
+                <div style="width:40px;height:40px;border-radius:50%;background:#FEF3C7;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🥇</div>
+                <div style="flex:1">
+                  <div style="font-size:13px;font-weight:700;color:var(--amber)">Primer puesto</div>
+                  <div class="premio-preview" id="preview-1" style="font-size:12px;color:var(--text3);margin-top:2px">Sin configurar — hacé clic para editar</div>
+                </div>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3);flex-shrink:0"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              </div>
+              <div class="premio-row" id="premio-row-2" onclick="openPremioDrawer(2)">
+                <div style="width:40px;height:40px;border-radius:50%;background:#F3F4F6;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🥈</div>
+                <div style="flex:1">
+                  <div style="font-size:13px;font-weight:700;color:var(--gray)">Segundo puesto</div>
+                  <div class="premio-preview" id="preview-2" style="font-size:12px;color:var(--text3);margin-top:2px">Sin configurar — hacé clic para editar</div>
+                </div>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3);flex-shrink:0"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              </div>
+              <div class="premio-row" id="premio-row-3" onclick="openPremioDrawer(3)">
+                <div style="width:40px;height:40px;border-radius:50%;background:#FEF2F2;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🥉</div>
+                <div style="flex:1">
+                  <div style="font-size:13px;font-weight:700;color:#92400E">Tercer puesto</div>
+                  <div class="premio-preview" id="preview-3" style="font-size:12px;color:var(--text3);margin-top:2px">Sin configurar — hacé clic para editar</div>
+                </div>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3);flex-shrink:0"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              </div>
+            </div>
+
+            <div class="cfg-pts-note" style="margin-top:14px">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Los premios son visibles para los colaboradores en el hub de engagement. La entrega es responsabilidad de la organización.
+            </div>
+          </div>
+        </div>
+
+        <!-- Bloque: Streak — siempre disabled -->
+        <div class="cfg-block" id="cfg-streak-block" style="opacity:.45;pointer-events:none;cursor:not-allowed;user-select:none;filter:grayscale(0.3)">
+          <div class="cfg-block-hdr">
+            <div class="cfg-block-ico" style="filter:grayscale(1)">🔥</div>
+            <div class="cfg-block-body">
+              <div class="cfg-block-title">Streak semanal <span style="font-size:11px;font-weight:600;background:var(--amber-bg);color:var(--amber);padding:2px 8px;border-radius:12px;margin-left:6px">Próximamente</span></div>
+              <div class="cfg-block-sub">Los colaboradores acumulan racha si participan al menos una vez por semana en cualquier módulo.</div>
+            </div>
+            <label class="tog"><input type="checkbox" id="chk-streak" disabled><span class="tsl"></span></label>
+          </div>
+        </div>
+
+        <!-- Save -->
+        <div style="display:flex;justify-content:flex-end;margin-top:8px">
+          <button class="btn-next" onclick="saveConfig()">Guardar configuración</button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div><!-- /app-main -->
+
+
+<!-- ══ FULL PAGE: DAILY PLAY CREATOR ══ -->
+<div id="page-dailyplay" class="hidden">
+
+  <!-- TaskFocus header -->
+  <header class="tf-hdr">
+    <div class="tf-hdr-l">
+      <span class="tf-title">Daily Play</span>
+      <span class="tf-pill" id="tf-pill">Paso 1 de 3</span>
+    </div>
+    <div class="tf-hdr-r">
+      <button class="tf-close" onclick="closeDailyPlay()" title="Cerrar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Body -->
+  <div class="tf-body">
+
+    <!-- Stepper -->
+    <div class="stepper" id="stepper">
+      <div class="step active" id="step-0">
+        <div class="step-circle">1</div>
+        <div class="step-label">
+          <div class="step-copetin">Paso 1</div>
+          <div class="step-name">Información básica</div>
+        </div>
+      </div>
+      <div class="step" id="step-1">
+        <div class="step-circle">2</div>
+        <div class="step-label">
+          <div class="step-copetin">Paso 2</div>
+          <div class="step-name">Banco de preguntas</div>
+        </div>
+      </div>
+      <div class="step" id="step-2">
+        <div class="step-circle">3</div>
+        <div class="step-label">
+          <div class="step-copetin">Paso 3</div>
+          <div class="step-name">Colaboradores</div>
+        </div>
+      </div>
+      <div class="step" id="step-3">
+        <div class="step-circle">4</div>
+        <div class="step-label">
+          <div class="step-copetin">Paso 4</div>
+          <div class="step-name">Resumen</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 1: Información básica -->
+    <div class="step-content active" id="sc-0">
+      <div class="step-title">Información básica</div>
+      <div class="step-desc">Definí los datos generales de esta dinámica de trivia.</div>
+
+      <div class="field">
+        <label class="field-label">Nombre de la trivia</label>
+        <input class="finput" type="text" id="dp-name" placeholder="Ej: Trivia de valores · Marzo 2026" maxlength="80" oninput="updateCount(this,'cnt-name',80)">
+        <div class="char-count"><span id="cnt-name">0</span>/80</div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Descripción</label>
+        <textarea class="ftextarea" id="dp-desc" placeholder="Describí brevemente de qué trata esta trivia..." maxlength="200" oninput="updateCount(this,'cnt-desc',200)"></textarea>
+        <div class="char-count"><span id="cnt-desc">0</span>/200</div>
+        <div style="display:flex;align-items:center;gap:5px;margin-top:5px;font-size:11px;color:var(--text3)">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Solo visible para administradores — no se muestra a los colaboradores
+        </div>
+      </div>
+
+      <!-- Fechas con restricción por período de ranking -->
+      <div id="dp-date-hint" class="hidden" style="display:flex;align-items:flex-start;gap:8px;padding:10px 14px;background:var(--blue-bg);border:1px solid var(--blue-bd);border-radius:8px;margin-bottom:16px;font-size:12px;color:var(--blue)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="dp-date-hint-text">El ranking es mensual — las fechas deben estar dentro del mismo mes.</span>
+      </div>
+      <div class="frow2">
+        <div class="field">
+          <label class="field-label">Fecha de inicio</label>
+          <input class="finput" type="date" id="dp-start" onchange="validateDates()">
+        </div>
+        <div class="field">
+          <label class="field-label">Fecha de fin</label>
+          <input class="finput" type="date" id="dp-end" onchange="validateDates()">
+        </div>
+      </div>
+      <div id="dp-date-error" class="hidden" style="margin-top:-10px;margin-bottom:16px;font-size:12px;color:var(--red);display:flex;align-items:center;gap:5px">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        <span id="dp-date-error-text">Las fechas no son válidas para el período de ranking seleccionado.</span>
+      </div>
+
+      <!-- SUMA PUNTOS — solo visible si ranking activo -->
+      <div id="dp-pts-section" class="hidden" style="padding:16px;border:1px solid var(--border);border-radius:12px;margin-top:4px;background:var(--white)">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:16px">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px">Esta dinámica suma puntos al ranking</div>
+            <div style="font-size:12px;color:var(--text2)">Los colaboradores acumularán puntos al participar. El valor se configura globalmente en Configuración.</div>
+          </div>
+          <label class="tog" style="flex-shrink:0">
+            <input type="checkbox" id="dp-pts-active" checked>
+            <span class="tsl"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: Banco de preguntas -->
+    <div class="step-content" id="sc-1">
+      <div class="step-title">Banco de preguntas de la trivia</div>
+      <div class="step-desc">Podés cargar hasta <strong id="dp-days-count">—</strong> pregunta<span id="dp-days-plural">s</span> — una por cada día que esté activa la trivia. Si cargás menos, las preguntas se repetirán en ciclo.</div>
+
+      <div class="questions-list" id="questions-list"></div>
+
+      <button class="btn-add-q" onclick="addQuestion()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Agregar pregunta
+      </button>
+    </div>
+
+    <!-- STEP 3: Colaboradores -->
+    <div class="step-content" id="sc-2">
+      <div class="step-title">Colaboradores</div>
+      <div class="step-desc">Podés usar uno o más criterios de asignación.</div>
+
+      <!-- Criterios activos -->
+      <div id="colab-criterios-activos" style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px"></div>
+
+      <!-- Cards de selección — solo si no hay criterio activo o se quiere agregar más -->
+      <div id="colab-cards" style="display:flex;flex-direction:column;gap:10px">
+
+        <!-- Grupos de segmentación -->
+        <div class="colab-card" onclick="openColabDrawer('grupos')">
+          <div class="colab-card-ico">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div class="colab-card-body">
+            <div class="colab-card-title">Grupos de segmentación</div>
+            <div class="colab-card-sub">Crea reglas para segmentar y definir qué colaboradores incluir.</div>
+          </div>
+          <span class="colab-pill">Actualización automática</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--hugo);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+
+        <!-- Colaboradores específicos -->
+        <div class="colab-card" onclick="openColabDrawer('especificos')">
+          <div class="colab-card-ico">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <div class="colab-card-body">
+            <div class="colab-card-title">Colaboradores específicos</div>
+            <div class="colab-card-sub">Selecciona manualmente a los colaboradores que quieras incluir.</div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--hugo);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+
+        <!-- Toda la comunidad -->
+        <div class="colab-card" onclick="seleccionarTodaComunidad()">
+          <div class="colab-card-ico">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </div>
+          <div class="colab-card-body">
+            <div class="colab-card-title">Toda la comunidad</div>
+            <div class="colab-card-sub">Selecciona a todos los colaboradores que forman parte de tu comunidad.</div>
+          </div>
+          <span class="colab-pill">Actualización automática</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--hugo);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+
+      <!-- Estado de comunidad seleccionada -->
+      <div id="colab-comunidad-activa" class="hidden" style="margin-top:0">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--white);border:1px solid var(--border);border-radius:12px;">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:40px;height:40px;background:var(--bg2);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </div>
+            <div>
+              <div style="font-size:14px;font-weight:600">Toda la comunidad</div>
+              <div style="font-size:12px;color:var(--text2)">Selecciona a todos los colaboradores que forman parte de tu comunidad.</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="colab-pill">Actualización automática</span>
+            <button onclick="quitarComunidad()" style="background:none;border:none;cursor:pointer;color:var(--text3);padding:4px" title="Quitar">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>
+            </button>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding:10px 14px;background:var(--blue-bg);border:1px solid var(--blue-bd);border-radius:8px">
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--blue);font-weight:600">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Total: <strong id="colab-total">12.634</strong> colaboradores
+          </div>
+          <button style="font-size:12px;font-weight:600;color:var(--blue);background:none;border:none;cursor:pointer;font-family:'Roboto',sans-serif">Ver colaboradores</button>
+        </div>
+        <!-- Agregar otro criterio -->
+        <div style="margin-top:16px">
+          <div style="font-size:13px;font-weight:600;margin-bottom:8px">Agregar otro criterio de asignación</div>
+          <select class="fsel" style="font-size:13px" onchange="agregarCriterioExtra(this)">
+            <option value="">Seleccionar criterio</option>
+            <option value="grupos">Grupos de segmentación</option>
+            <option value="especificos">Colaboradores específicos</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4: Resumen -->
+    <div class="step-content" id="sc-3">
+      <div class="step-title">¡Último paso! Resumen de la dinámica</div>
+      <div class="step-desc">Verificá de forma rápida la configuración antes de activar.</div>
+
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <!-- Información básica -->
+        <div class="resumen-block">
+          <div class="resumen-block-hdr">
+            <span class="resumen-block-title">Información básica</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+          </div>
+          <div class="resumen-row"><span class="resumen-key">Nombre</span><span class="resumen-val" id="res-name">—</span></div>
+          <div class="resumen-row"><span class="resumen-key">Período</span><span class="resumen-val" id="res-period">—</span></div>
+          <div class="resumen-row" id="res-pts-row" style="display:none"><span class="resumen-key">Puntos</span><span class="resumen-val" id="res-pts">—</span></div>
+          <button class="resumen-edit-btn" onclick="goStep(0)">Editar información básica</button>
+        </div>
+        <!-- Banco de preguntas -->
+        <div class="resumen-block">
+          <div class="resumen-block-hdr">
+            <span class="resumen-block-title">Banco de preguntas</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+          </div>
+          <div class="resumen-row"><span class="resumen-key">Preguntas cargadas</span><span class="resumen-val" id="res-questions">0</span></div>
+          <button class="resumen-edit-btn" onclick="goStep(1)">Editar banco de preguntas</button>
+        </div>
+        <!-- Colaboradores -->
+        <div class="resumen-block">
+          <div class="resumen-block-hdr">
+            <span class="resumen-block-title">Colaboradores</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+          </div>
+          <div class="resumen-row"><span class="resumen-key">Asignación</span><span class="resumen-val" id="res-seg">Sin asignar</span></div>
+          <button class="resumen-edit-btn" onclick="goStep(2)">Editar colaboradores</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /tf-body -->
+
+  <!-- Footer navigation -->
+  <footer class="tf-footer">
+    <div class="tf-footer-l" id="tf-step-label">Paso 1 de 4 — Información básica</div>
+    <div class="tf-footer-r">
+      <button class="btn-back" id="btn-back" onclick="stepBack()" style="display:none">← Anterior</button>
+      <button class="btn-next" id="btn-next" onclick="stepNext()">Siguiente →</button>
+      <button class="btn-save hidden" id="btn-save" onclick="saveDailyPlay()">Activar dinámica</button>
+    </div>
+  </footer>
+
+</div><!-- /page-dailyplay -->
+
+
+<!-- ══ FULL PAGE: PULSE CREATOR ══ -->
+<div id="page-pulse" class="hidden">
+
+  <header class="tf-hdr">
+    <div class="tf-hdr-l">
+      <span class="tf-title">Pulso</span>
+      <span class="tf-pill" id="pulse-pill">Paso 1 de 3</span>
+    </div>
+    <div class="tf-hdr-r">
+      <button class="tf-close" onclick="closePulse()" title="Cerrar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="tf-body">
+
+    <!-- Stepper -->
+    <div class="stepper">
+      <div class="step active" id="pulse-step-0">
+        <div class="step-circle">1</div>
+        <div class="step-label">
+          <div class="step-copetin">Paso 1</div>
+          <div class="step-name">Información básica</div>
+        </div>
+      </div>
+      <div class="step" id="pulse-step-1">
+        <div class="step-circle">2</div>
+        <div class="step-label">
+          <div class="step-copetin">Paso 2</div>
+          <div class="step-name">Colaboradores</div>
+        </div>
+      </div>
+      <div class="step" id="pulse-step-2">
+        <div class="step-circle">3</div>
+        <div class="step-label">
+          <div class="step-copetin">Paso 3</div>
+          <div class="step-name">Resumen</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PASO 1: Información básica ── -->
+    <div class="step-content active" id="pulse-sc-0">
+      <div class="step-title">Información básica</div>
+      <div class="step-desc">Definí la pregunta y cuándo estará disponible para los colaboradores.</div>
+
+      <!-- Pregunta -->
+      <div class="field">
+        <label class="field-label">Pregunta del pulso</label>
+        <input class="finput" type="text" id="pulse-name" placeholder="Ej: ¿Cómo te sentís hoy?" maxlength="120" oninput="updateCount(this,'pulse-cnt',120)">
+        <div class="char-count"><span id="pulse-cnt">0</span>/120</div>
+      </div>
+
+      <!-- Escala fija de 5 — solo preview -->
+      <div class="field">
+        <label class="field-label">Escala de respuesta</label>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:12px">Escala fija de 5 niveles. Los colaboradores elegirán uno al responder.</div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:20px">
+          <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:14px;text-align:center">Así verán la escala los colaboradores</div>
+          <div style="display:flex;align-items:center;gap:8px;justify-content:center">
+            <div class="pulse-dot neg"><span style="font-size:20px">😤</span></div>
+            <div style="flex:1;height:2px;background:var(--border);min-width:12px;max-width:32px"></div>
+            <div class="pulse-dot neg"><span style="font-size:20px">😔</span></div>
+            <div style="flex:1;height:2px;background:var(--border);min-width:12px;max-width:32px"></div>
+            <div class="pulse-dot neu"><span style="font-size:20px">😐</span></div>
+            <div style="flex:1;height:2px;background:var(--border);min-width:12px;max-width:32px"></div>
+            <div class="pulse-dot pos"><span style="font-size:20px">🙂</span></div>
+            <div style="flex:1;height:2px;background:var(--border);min-width:12px;max-width:32px"></div>
+            <div class="pulse-dot pos"><span style="font-size:20px">😄</span></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:10px">
+            <span style="font-size:11px;color:var(--text2)">Muy mal</span>
+            <span style="font-size:11px;color:var(--text2)">Muy bien</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Respuesta abierta opcional -->
+      <div class="field">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <label class="field-label" style="margin-bottom:0">Respuesta abierta <span style="font-size:12px;font-weight:400;color:var(--text3)">(opcional)</span></label>
+          <label class="tog" style="flex-shrink:0">
+            <input type="checkbox" id="pulse-open-field">
+            <span class="tsl"></span>
+          </label>
+        </div>
+        <div id="pulse-open-field-config" style="display:none;flex-direction:column;gap:8px">
+          <input class="finput" type="text" id="pulse-open-label" placeholder="Ej: ¿Querés contarnos algo más?" value="¿Querés contarnos algo más?">
+          <div style="font-size:11px;color:var(--text3)">El colaborador podrá escribir una respuesta libre además de elegir en la escala. Las respuestas son anónimas.</div>
+        </div>
+        <div style="font-size:12px;color:var(--text2)" id="pulse-open-field-hint">Al activarlo, el colaborador podrá agregar un comentario libre junto a su respuesta.</div>
+      </div>
+
+      <!-- Suma puntos — solo si ranking activo -->
+      <div id="pulse-pts-section" class="hidden" style="padding:16px;border:1px solid var(--border);border-radius:12px;margin-top:4px;background:var(--white)">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:16px">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px">Esta dinámica suma puntos al ranking</div>
+            <div style="font-size:12px;color:var(--text2)">Los colaboradores acumularán puntos al responder. El valor se configura globalmente en Configuración.</div>
+          </div>
+          <label class="tog" style="flex-shrink:0">
+            <input type="checkbox" id="pulse-pts-active" checked>
+            <span class="tsl"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Disponibilidad — solo fechas, sin horas ni estado -->
+      <div style="margin-top:20px">
+        <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px">Disponibilidad</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:16px">Definí cuándo estará disponible este pulso.</div>
+        <div class="frow2">
+          <div class="field">
+            <label class="field-label">Fecha de inicio</label>
+            <input class="finput" type="date" id="pulse-start">
+          </div>
+          <div class="field">
+            <label class="field-label">Fecha de fin</label>
+            <input class="finput" type="date" id="pulse-end">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PASO 2: Colaboradores ── -->
+    <div class="step-content" id="pulse-sc-1">
+      <div class="step-title">Colaboradores</div>
+      <div class="step-desc">Podés usar uno o más criterios de asignación.</div>
+
+      <div id="pulse-colab-criterios" style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px"></div>
+
+      <div id="pulse-colab-cards" style="display:flex;flex-direction:column;gap:10px">
+        <div class="colab-card" onclick="openColabDrawer('pulse-grupos')">
+          <div class="colab-card-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <div class="colab-card-body"><div class="colab-card-title">Grupos de segmentación</div><div class="colab-card-sub">Crea reglas para segmentar y definir qué colaboradores incluir.</div></div>
+          <span class="colab-pill">Actualización automática</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--hugo);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="colab-card" onclick="openColabDrawer('pulse-especificos')">
+          <div class="colab-card-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+          <div class="colab-card-body"><div class="colab-card-title">Colaboradores específicos</div><div class="colab-card-sub">Selecciona manualmente a los colaboradores que quieras incluir.</div></div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--hugo);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="colab-card" onclick="seleccionarComunidadPulse()">
+          <div class="colab-card-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+          <div class="colab-card-body"><div class="colab-card-title">Toda la comunidad</div><div class="colab-card-sub">Selecciona a todos los colaboradores que forman parte de tu comunidad.</div></div>
+          <span class="colab-pill">Actualización automática</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--hugo);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+
+      <div id="pulse-comunidad-activa" class="hidden" style="margin-top:0">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--white);border:1px solid var(--border);border-radius:12px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:40px;height:40px;background:var(--bg2);border-radius:12px;display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+            <div><div style="font-size:14px;font-weight:600">Toda la comunidad</div><div style="font-size:12px;color:var(--text2)">Todos los colaboradores activos de tu organización.</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="colab-pill">Actualización automática</span>
+            <button onclick="quitarComunidadPulse()" style="background:none;border:none;cursor:pointer;color:var(--text3);padding:4px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg></button>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding:10px 14px;background:var(--blue-bg);border:1px solid var(--blue-bd);border-radius:8px">
+          <span style="font-size:13px;color:var(--blue);font-weight:600">Total: <strong>12.634</strong> colaboradores</span>
+          <button style="font-size:12px;font-weight:600;color:var(--blue);background:none;border:none;cursor:pointer;font-family:'Roboto',sans-serif">Ver colaboradores</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PASO 3: Resumen ── -->
+    <div class="step-content" id="pulse-sc-2">
+      <div class="step-title">¡Último paso! Resumen del pulso</div>
+      <div class="step-desc">Verificá de forma rápida la configuración antes de guardar.</div>
+
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <!-- Configuración básica -->
+        <div class="resumen-block">
+          <div class="resumen-block-hdr">
+            <span class="resumen-block-title">Configuración básica</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+          </div>
+          <div class="resumen-row"><span class="resumen-key">Pregunta</span><span class="resumen-val" id="pres-nombre">—</span></div>
+          <div class="resumen-row"><span class="resumen-key">Escala</span><span class="resumen-val">5 niveles · 😤 → 😄</span></div>
+          <div class="resumen-row" id="pres-campo-abierto-row" style="display:none"><span class="resumen-key">Respuesta abierta</span><span class="resumen-val" id="pres-campo-abierto">—</span></div>
+          <div class="resumen-row" id="pres-pts-row" style="display:none"><span class="resumen-key">Puntos</span><span class="resumen-val" id="pres-pts">—</span></div>
+          <button class="resumen-edit-btn" onclick="pulseGoStep(0)">Editar información básica</button>
+        </div>
+
+        <!-- Disponibilidad -->
+        <div class="resumen-block">
+          <div class="resumen-block-hdr">
+            <span class="resumen-block-title">Disponibilidad</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+          </div>
+          <div class="resumen-row"><span class="resumen-key">Fecha de inicio</span><span class="resumen-val" id="pres-start">—</span></div>
+          <div class="resumen-row"><span class="resumen-key">Fecha de fin</span><span class="resumen-val" id="pres-end">—</span></div>
+          <button class="resumen-edit-btn" onclick="pulseGoStep(0)">Editar disponibilidad</button>
+        </div>
+
+        <!-- Colaboradores -->
+        <div class="resumen-block">
+          <div class="resumen-block-hdr">
+            <span class="resumen-block-title">Colaboradores</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+          </div>
+          <div class="resumen-row"><span class="resumen-key">Asignación</span><span class="resumen-val" id="pres-seg">Sin asignar</span></div>
+          <button class="resumen-edit-btn" onclick="pulseGoStep(1)">Editar colaboradores</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /tf-body -->
+
+  <footer class="tf-footer">
+    <div class="tf-footer-l" id="pulse-step-label">Paso 1 de 3 — Información básica</div>
+    <div class="tf-footer-r">
+      <button class="btn-back" id="pulse-btn-back" onclick="pulseStepBack()" style="display:none">← Anterior</button>
+      <button class="btn-next" id="pulse-btn-next" onclick="pulseStepNext()">Siguiente →</button>
+      <button class="btn-save hidden" id="pulse-btn-save" onclick="savePulse()">Activar dinámica</button>
+    </div>
+  </footer>
+
+</div><!-- /page-pulse -->
+
+
+<!-- DRAWER: Pulse grupos de segmentación -->
+<div class="overlay" id="overlay-pulse-grupos" onclick="closeColabDrawer('pulse-grupos')" style="z-index:500"></div>
+<div class="drawer" id="drawer-pulse-grupos" style="z-index:501">
+  <div class="dr-hdr">
+    <div class="dr-title-wrap">
+      <div class="dr-type-ico" style="background:var(--hl-bg)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--hugo)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+      <div class="dr-title">Grupos de segmentación</div>
+    </div>
+    <button class="dr-close" onclick="closeColabDrawer('pulse-grupos')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="dr-body">
+    <p style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.5">Crea reglas para segmentar y definir qué colaboradores incluir.</p>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px;font-weight:600;color:var(--text2);width:52px;flex-shrink:0">Cuando</span><select class="seg-rule-sel"><option>Sede</option><option>Área</option><option>Segmento</option></select><span style="font-size:12px;color:var(--text2);flex-shrink:0">es</span><select class="seg-rule-sel"><option>014</option><option>Casa Central</option><option>Planta A</option></select></div>
+      <button style="background:none;border:none;cursor:pointer;font-size:13px;font-weight:600;color:var(--hugo);font-family:'Roboto',sans-serif;text-align:left;padding:4px 0">+ Nueva regla</button>
+    </div>
+    <div style="margin-top:14px;padding:12px 14px;background:var(--blue-bg);border:1px solid var(--blue-bd);border-left:3px solid var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:13px;color:var(--blue);font-weight:600">Total: <strong>8 colaboradores</strong></span>
+      <button style="font-size:12px;font-weight:600;color:var(--blue);background:none;border:none;cursor:pointer;font-family:'Roboto',sans-serif">Ver colaboradores</button>
+    </div>
+  </div>
+  <div class="dr-footer">
+    <button class="btn-sec" onclick="closeColabDrawer('pulse-grupos')">Cancelar</button>
+    <button class="btn-pri" onclick="confirmarColabPulse('pulse-grupos','Grupos de segmentación')">Confirmar</button>
+  </div>
+</div>
+
+<!-- DRAWER: Pulse colaboradores específicos -->
+<div class="overlay" id="overlay-pulse-especificos" onclick="closeColabDrawer('pulse-especificos')" style="z-index:500"></div>
+<div class="drawer" id="drawer-pulse-especificos" style="z-index:501;width:480px">
+  <div class="dr-hdr">
+    <div class="dr-title-wrap">
+      <div class="dr-type-ico" style="background:var(--hl-bg)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--hugo)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+      <div class="dr-title">Colaboradores específicos</div>
+    </div>
+    <button class="dr-close" onclick="closeColabDrawer('pulse-especificos')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="dr-body" style="padding:0">
+    <div style="padding:16px 24px 12px;border-bottom:1px solid var(--border)">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:12px">Selecciona manualmente a los colaboradores que quieras incluir.</p>
+      <div style="display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--white)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3)"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Buscar" style="border:none;outline:none;font-size:13px;font-family:'Roboto',sans-serif;width:100%;color:var(--text)"></div>
+    </div>
+    <div style="overflow-y:auto;max-height:340px">
+      <div class="colab-item"><div class="colab-check"></div><div class="colab-avatar">MG</div><div style="font-size:13px;font-weight:500">María Carolina González</div></div>
+      <div class="colab-item"><div class="colab-check"></div><div class="colab-avatar">JP</div><div style="font-size:13px;font-weight:500">Juan Pablo Ramírez</div></div>
+      <div class="colab-item"><div class="colab-check"></div><div class="colab-avatar">LF</div><div style="font-size:13px;font-weight:500">Lucía Fernández</div></div>
+      <div class="colab-item"><div class="colab-check"></div><div class="colab-avatar">CA</div><div style="font-size:13px;font-weight:500">Carlos Alberto Torres</div></div>
+    </div>
+    <div style="padding:12px 24px;background:var(--blue-bg);border-top:3px solid var(--blue);font-size:13px;color:var(--blue);font-weight:600">Aún no hay colaboradores seleccionados.</div>
+  </div>
+  <div class="dr-footer">
+    <button class="btn-sec" onclick="closeColabDrawer('pulse-especificos')">Cancelar</button>
+    <button class="btn-pri" onclick="confirmarColabPulse('pulse-especificos','Colaboradores específicos')">Confirmar</button>
+  </div>
+</div>
+
+<!-- DRAWER: Premio por puesto -->
+<div class="overlay" id="overlay-premio" onclick="closePremioDrawer()" style="z-index:500"></div>
+<div class="drawer" id="drawer-premio" style="z-index:501">
+  <div class="dr-hdr">
+    <div class="dr-title-wrap">
+      <div class="dr-type-ico" id="premio-drawer-ico" style="background:var(--amber-bg);font-size:20px">🥇</div>
+      <div class="dr-title" id="premio-drawer-title">Primer puesto</div>
+    </div>
+    <button class="dr-close" onclick="closePremioDrawer()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="dr-body">
+    <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text2);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)">Detalle del premio</div>
+    <div style="margin-bottom:16px">
+      <label style="font-size:13px;font-weight:600;color:var(--text);display:block;margin-bottom:6px">Nombre del premio</label>
+      <input class="finput" type="text" id="premio-nombre" placeholder="Ej: Viaje para dos · Día libre · Gift card $10.000">
+    </div>
+    <div style="margin-bottom:16px">
+      <label style="font-size:13px;font-weight:600;color:var(--text);display:block;margin-bottom:6px">Descripción</label>
+      <textarea class="ftextarea" id="premio-desc" rows="3" placeholder="Contá los detalles del premio: cómo se entrega, cuándo, condiciones..."></textarea>
+    </div>
+    <div style="margin-bottom:16px">
+      <label style="font-size:13px;font-weight:600;color:var(--text);display:block;margin-bottom:6px">Imagen del premio <span style="font-size:11px;font-weight:400;color:var(--text3)">(opcional)</span></label>
+      <div style="border:2px dashed var(--border);border-radius:10px;padding:24px;text-align:center;cursor:pointer;transition:all .15s" onmouseenter="this.style.borderColor='var(--hugo)'" onmouseleave="this.style.borderColor='var(--border)'">
+        <div style="font-size:24px;margin-bottom:6px">🖼️</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text2)">Subir imagen</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">PNG, JPG hasta 2MB</div>
+      </div>
+    </div>
+    <div style="margin-bottom:4px">
+      <label style="font-size:13px;font-weight:600;color:var(--text);display:block;margin-bottom:6px">Visibilidad</label>
+      <select class="fsel" id="premio-visibilidad" style="font-size:13px">
+        <option>Visible para todos los colaboradores</option>
+        <option>Solo visible para el ganador</option>
+      </select>
+      <div style="font-size:11px;color:var(--text3);margin-top:5px">Define si los colaboradores pueden ver el premio antes de conocer al ganador</div>
+    </div>
+  </div>
+  <div class="dr-footer">
+    <button class="btn-sec" onclick="closePremioDrawer()">Cancelar</button>
+    <button class="btn-pri" onclick="savePremio()">Guardar premio</button>
+  </div>
+</div>
+
+<!-- DRAWER: Grupos de segmentación -->
+<div class="overlay" id="overlay-grupos" onclick="closeColabDrawer('grupos')" style="z-index:500"></div>
+<div class="drawer" id="drawer-grupos" style="z-index:501">
+  <div class="dr-hdr">
+    <div class="dr-title-wrap">
+      <div class="dr-type-ico" style="background:var(--hl-bg)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--hugo)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <div class="dr-title">Grupos de segmentación</div>
+    </div>
+    <button class="dr-close" onclick="closeColabDrawer('grupos')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="dr-body">
+    <p style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.5">Crea reglas para segmentar y definir qué colaboradores incluir. Todo colaborador que cumpla las reglas se incluirá automáticamente.</p>
+    <!-- Reglas -->
+    <div id="seg-rules" style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:10px">
+      <!-- Regla 1 -->
+      <div class="seg-rule-row" id="rule-0">
+        <span style="font-size:12px;font-weight:600;color:var(--text2);width:52px;flex-shrink:0">Cuando</span>
+        <select class="seg-rule-sel" onchange="updateRulePreview()">
+          <option>Sede</option><option>Área</option><option>Segmento</option><option>Cargo</option>
+        </select>
+        <span style="font-size:12px;color:var(--text2);flex-shrink:0">es</span>
+        <select class="seg-rule-sel" onchange="updateRulePreview()">
+          <option>014</option><option>Casa Central</option><option>Planta A</option><option>Planta B</option>
+        </select>
+        <button class="seg-rule-del" onclick="removeRule(0)" style="visibility:hidden">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
+      </div>
+      <!-- Regla 2 (adicional) -->
+      <div class="seg-rule-row hidden" id="rule-1">
+        <select class="seg-rule-cond">
+          <option>Y</option><option>O</option>
+        </select>
+        <select class="seg-rule-sel" onchange="updateRulePreview()">
+          <option>Segmento</option><option>Sede</option><option>Área</option><option>Cargo</option>
+        </select>
+        <span style="font-size:12px;color:var(--text2);flex-shrink:0">es</span>
+        <select class="seg-rule-sel" onchange="updateRulePreview()">
+          <option>Valor</option><option>Operaciones</option><option>Comercial</option>
+        </select>
+        <button class="seg-rule-del" onclick="removeRule(1)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
+      </div>
+      <button onclick="addRule()" style="background:none;border:none;cursor:pointer;font-size:13px;font-weight:600;color:var(--hugo);font-family:'Roboto',sans-serif;text-align:left;padding:4px 0">+ Nueva regla</button>
+    </div>
+    <!-- Total preview -->
+    <div id="seg-total-preview" style="margin-top:14px;padding:12px 14px;background:var(--blue-bg);border:1px solid var(--blue-bd);border-left:3px solid var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--blue);font-weight:600">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Total: <strong>8 colaboradores</strong>
+      </div>
+      <button style="font-size:12px;font-weight:600;color:var(--blue);background:none;border:none;cursor:pointer;font-family:'Roboto',sans-serif">Ver colaboradores</button>
+    </div>
+  </div>
+  <div class="dr-footer">
+    <button class="btn-sec" onclick="closeColabDrawer('grupos')">Cancelar</button>
+    <button class="btn-pri" onclick="confirmarColab('grupos','Grupos de segmentación')">Confirmar</button>
+  </div>
+</div>
+
+<!-- DRAWER: Colaboradores específicos -->
+<div class="overlay" id="overlay-especificos" onclick="closeColabDrawer('especificos')" style="z-index:500"></div>
+<div class="drawer" id="drawer-especificos" style="width:480px;z-index:501">
+  <div class="dr-hdr">
+    <div class="dr-title-wrap">
+      <div class="dr-type-ico" style="background:var(--hl-bg)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--hugo)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div class="dr-title">Colaboradores específicos</div>
+    </div>
+    <button class="dr-close" onclick="closeColabDrawer('especificos')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="dr-body" style="padding:0">
+    <div style="padding:16px 24px 12px;border-bottom:1px solid var(--border)">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:12px">Selecciona manualmente a los colaboradores que quieras incluir.</p>
+      <div style="display:flex;gap:8px">
+        <div style="flex:1;display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--white)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3)"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Buscar" style="border:none;outline:none;font-size:13px;font-family:'Roboto',sans-serif;width:100%;color:var(--text)" oninput="filterColabs(this.value)">
+        </div>
+        <button style="display:flex;align-items:center;gap:6px;padding:9px 14px;border:1px solid var(--border);border-radius:8px;background:var(--white);font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;font-family:'Roboto',sans-serif">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+          Filtrar
+        </button>
+      </div>
+    </div>
+    <!-- Lista de colaboradores -->
+    <div id="colab-list" style="overflow-y:auto;max-height:340px">
+      <!-- generado por JS -->
+    </div>
+    <!-- Footer sticky del drawer -->
+    <div style="padding:12px 24px;background:var(--blue-bg);border-top:3px solid var(--blue)">
+      <div style="font-size:13px;color:var(--blue);font-weight:600" id="colab-sel-count">Aún no hay colaboradores seleccionados.</div>
+    </div>
+  </div>
+  <div class="dr-footer">
+    <button class="btn-sec" onclick="closeColabDrawer('especificos')">Cancelar</button>
+    <button class="btn-pri" id="btn-confirm-especificos" onclick="confirmarColabEspecificos()" style="opacity:.5;pointer-events:none">Confirmar</button>
+  </div>
+</div>
+
+<style>
+  .seg-rule-row{display:flex;align-items:center;gap:8px;}
+  .seg-rule-sel{flex:1;padding:7px 10px;border:1px solid var(--border-brand);border-radius:8px;font-size:12px;font-weight:600;color:var(--hugo);font-family:'Roboto',sans-serif;background:var(--white);outline:none;cursor:pointer;}
+  .seg-rule-cond{width:52px;padding:7px 6px;border:1px solid var(--border-brand);border-radius:8px;font-size:12px;font-weight:600;color:var(--hugo);font-family:'Roboto',sans-serif;background:var(--white);outline:none;cursor:pointer;flex-shrink:0;}
+  .seg-rule-del{background:none;border:none;cursor:pointer;color:var(--text3);padding:4px;display:flex;align-items:center;transition:color .15s;}
+  .seg-rule-del:hover{color:var(--red);}
+  .colab-item{display:flex;align-items:center;gap:12px;padding:12px 24px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s;}
+  .colab-item:hover{background:var(--bg);}
+  .colab-item.selected{background:var(--hl-bg);}
+  .colab-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--hugo),var(--purple));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0;}
+  .colab-check{width:18px;height:18px;border:2px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
+  .colab-item.selected .colab-check{background:var(--hugo);border-color:var(--hugo);color:white;}
+</style>
+
+<!-- DRAWER: Reconocimientos — activar módulo -->
+<div class="overlay" id="overlay-reco" onclick="closeRecoDrawer()" style="z-index:500"></div>
+<div class="drawer" id="drawer-reco" style="z-index:501;width:480px">
+  <div class="dr-hdr">
+    <div class="dr-title-wrap">
+      <div class="dr-type-ico" style="background:var(--purple-bg);font-size:20px">⭐</div>
+      <div class="dr-title">Reconocimiento</div>
+    </div>
+    <button class="dr-close" onclick="closeRecoDrawer()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="dr-body">
+
+    <!-- Descripción del módulo -->
+    <div style="background:var(--purple-bg);border:1px solid #D8B4FE;border-radius:12px;padding:16px;margin-bottom:20px">
+      <div style="font-size:14px;font-weight:700;color:var(--purple);margin-bottom:6px">¿Qué es el módulo de Reconocimientos?</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.6">Al activar este módulo, los colaboradores podrán <strong style="color:var(--text)">nominar y votar a sus compañeros</strong> en distintas categorías (trabajo en equipo, innovación, liderazgo, etc.).</div>
+    </div>
+
+    <!-- Beneficios -->
+    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px">
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div style="width:32px;height:32px;background:var(--teal-bg);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px">Visible en el feed</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.5">Los reconocimientos aparecerán en el feed de la comunidad, generando visibilidad y cultura de agradecimiento.</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:12px" id="reco-pts-benefit" style="display:none">
+        <div style="width:32px;height:32px;background:var(--amber-bg);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px">Suma puntos al ranking</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.5">Nominar a un compañero suma <strong>+30 pts</strong> y ser nominado suma <strong>+15 pts</strong>, según la configuración global.</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div style="width:32px;height:32px;background:var(--hl-bg);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--hugo)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px">Categorías configurables</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.5">Las categorías de reconocimiento se adaptan a los valores de tu organización desde la configuración del módulo.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="height:1px;background:var(--border);margin-bottom:20px"></div>
+
+    <!-- Fecha de activación -->
+    <div class="field">
+      <label class="field-label">Fecha de activación</label>
+      <div style="display:flex;gap:10px">
+        <div style="flex:1">
+          <input class="finput" type="date" id="reco-fecha-inicio" style="width:100%">
+          <div style="font-size:11px;color:var(--text3);margin-top:4px">Inicio</div>
+        </div>
+        <div style="flex:1">
+          <input class="finput" type="date" id="reco-fecha-fin" style="width:100%">
+          <div style="font-size:11px;color:var(--text3);margin-top:4px">Fin <span style="font-size:10px">(opcional)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nota ranking -->
+    <div id="reco-pts-note" style="display:none;margin-top:4px;padding:10px 14px;background:var(--amber-bg);border:1px solid var(--amber-bd);border-radius:8px;font-size:12px;color:var(--text2)">
+      <strong style="color:var(--amber)">Ranking activo</strong> — los colaboradores acumularán puntos por nominar y ser nominados.
+    </div>
+
+  </div>
+  <div class="dr-footer">
+    <button class="btn-sec" onclick="closeRecoDrawer()">Cancelar</button>
+    <button class="btn-pri" onclick="activarReconocimiento()">Activar reconocimientos</button>
+  </div>
+</div>
+
+<div class="toast" id="toast">✓ <span id="tmsg"></span></div>
+
+<script>
+/* ══ DATA ══ */
+let dinamicas = [
+  {id:1,typeKey:'daily',type:'Daily Play',title:'¿Qué valor representa mejor al equipo?',start:'01/03/2026',end:'31/03/2026',status:'activa',part:89,sumaPuntos:true},
+  {id:2,typeKey:'pulse',type:'Pulso',title:'¿Cómo te sentís hoy?',start:'10/03/2026',end:'10/03/2026',status:'activa',part:61,sumaPuntos:true},
+  {id:3,typeKey:'mision',type:'Misión',title:'Descubrí el módulo de Grupos',start:'01/03/2026',end:'30/03/2026',status:'activa',part:38,sumaPuntos:false},
+  {id:4,typeKey:'reco',type:'Reconocimiento',title:'Reconocimiento semanal · Semana 10',start:'04/03/2026',end:'10/03/2026',status:'pasada',part:72,sumaPuntos:true},
+  {id:5,typeKey:'daily',type:'Daily Play',title:'¿Cuál es el pilar estratégico del año?',start:'15/02/2026',end:'28/02/2026',status:'pasada',part:54,sumaPuntos:true},
+  {id:6,typeKey:'pulse',type:'Pulso',title:'¿Cómo saliste del all-hands?',start:'05/03/2026',end:'31/03/2026',status:'inactiva',part:0,sumaPuntos:true},
+];
+let nextId=7;
+const TC={
+  daily:{ico:'🎯',bg:'var(--teal-bg)',text:'var(--teal)',bd:'var(--teal-bd)',cls:'daily'},
+  pulse:{ico:'💙',bg:'var(--blue-bg)',text:'var(--blue)',bd:'var(--blue-bd)',cls:'pulse'},
+  mision:{ico:'🚀',bg:'var(--amber-bg)',text:'var(--amber)',bd:'var(--amber-bd)',cls:'mision'},
+  reco:{ico:'⭐',bg:'var(--purple-bg)',text:'var(--purple)',bd:'var(--purple-bd)',cls:'reco'},
+};
+
+/* ══ RECONOCIMIENTOS DRAWER ══ */
+function openRecoDrawer(){
+  if(document.getElementById('popover')) document.getElementById('popover').classList.remove('show');
+  // Show/hide ranking benefit based on rankingActive
+  var ptsBenefit = document.getElementById('reco-pts-benefit');
+  var ptsNote    = document.getElementById('reco-pts-note');
+  if(ptsBenefit) ptsBenefit.style.display = rankingActive ? 'flex' : 'none';
+  if(ptsNote)    ptsNote.style.display    = rankingActive ? '' : 'none';
+  document.getElementById('overlay-reco').classList.add('show');
+  document.getElementById('drawer-reco').classList.add('open');
+}
+function closeRecoDrawer(){
+  document.getElementById('overlay-reco').classList.remove('show');
+  document.getElementById('drawer-reco').classList.remove('open');
+}
+function activarReconocimiento(){
+  var inicio = document.getElementById('reco-fecha-inicio')?.value;
+  if(!inicio){
+    document.getElementById('reco-fecha-inicio').style.borderColor='var(--red)';
+    document.getElementById('reco-fecha-inicio').focus();
+    return;
+  }
+  document.getElementById('reco-fecha-inicio').style.borderColor='';
+  const fmt = d => { const p=d.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; };
+  const fin = document.getElementById('reco-fecha-fin')?.value;
+  const finFmt = fin ? fmt(fin) : fmt(inicio.replace(/(\d{4})-(\d{2})-(\d{2})/,(_,y,m,d)=>`${y}-${m}-${String(parseInt(d)+30).padStart(2,'0')}`));
+  dinamicas.unshift({id:nextId++,typeKey:'reco',type:'Reconocimiento',title:'Reconocimiento semanal · activo',start:fmt(inicio),end:fin?fmt(fin):finFmt,status:'activa',part:0,sumaPuntos:rankingActive});
+  closeRecoDrawer();
+  setV('dinamicas');
+  showToast('Módulo de Reconocimientos activado');
+}
+
+/* ══ DASHBOARD TABS ══ */
+function updateDailyStatus(sel){
+  const opt = sel.options[sel.selectedIndex];
+  const status = opt.getAttribute('data-status') || 'activa';
+  const pill = document.getElementById('db-daily-status');
+  if(!pill) return;
+  const labels = { activa:'Activa', inactiva:'Pausada', pasada:'Finalizada' };
+  pill.className = 'sp ' + status;
+  pill.innerHTML = '<span class="sp-dot"></span>' + (labels[status]||status);
+}
+function setDbTab(tab){
+  ['resumen','daily','pulse','reco','misiones'].forEach(function(t){
+    var btn = document.getElementById('dbt-'+t);
+    var view = document.getElementById('dbv-'+t);
+    if(btn) btn.classList.toggle('on', t===tab);
+    if(view) view.classList.toggle('hidden', t!==tab);
+  });
+}
+
+/* ══ VIEWS ══ */
+function setV(v){
+  ['dashboard','dinamicas','config'].forEach(id=>{
+    document.getElementById('v-'+id).classList.add('hidden');
+    const s=document.getElementById('sub-'+id);
+    if(s){s.classList.remove('on');s.classList.add('off');}
+  });
+  document.getElementById('v-'+v).classList.remove('hidden');
+  const a=document.getElementById('sub-'+v);
+  if(a){a.classList.add('on');a.classList.remove('off');}
+  if(v==='dinamicas') render();
+}
+
+/* ══ POPOVER ══ */
+
+/* ══ RENDER DINÁMICAS ══ */
+function render(){
+  // Filter out mision and reco
+  const visible = dinamicas.filter(d => d.typeKey !== 'mision' && d.typeKey !== 'reco');
+  document.getElementById('active-count').textContent = visible.length + ' dinámica' + (visible.length!==1?'s':'');
+
+  const tbody = document.getElementById('din-tbody');
+  const empty  = document.getElementById('din-empty');
+
+  if(visible.length===0){ tbody.innerHTML=''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+
+  const stLabel = { activa:'Activa', inactiva:'Pausada', pasada:'Finalizada' };
+  const stClass = { activa:'sp activa', inactiva:'sp inactiva', pasada:'sp pasada' };
+  const typeLabel = { daily:'Daily Play', pulse:'Pulso', mision:'Misión', reco:'Reconocimiento' };
+
+  tbody.innerHTML = visible.map(d=>{
+    const partHtml = d.part>0
+      ? `<div class="hp"><div class="hp-t"><div class="hp-f" style="width:${d.part}%"></div></div><div class="hp-p">${d.part}%</div></div>`
+      : `<span style="font-size:12px;color:var(--text3)">—</span>`;
+
+    const isFinal = d.status==='pasada';
+    const isActive = d.status==='activa';
+
+    const toggleLabel = isActive ? 'Pausar' : 'Activar';
+    const toggleIcon  = isActive
+      ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`
+      : `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
+
+    const menuItems = isFinal
+      ? `<div class="row-popover-item" onclick="duplicar(${d.id});closeAllRowPopovers()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Duplicar
+        </div>`
+      : `<div class="row-popover-item" onclick="toggleDin(${d.id});closeAllRowPopovers()">
+          ${toggleIcon} ${toggleLabel}
+        </div>
+        <div class="row-popover-item" onclick="editDin(${d.id});closeAllRowPopovers()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          Editar
+        </div>
+        <div class="row-popover-divider"></div>
+        <div class="row-popover-item danger" onclick="eliminarDin(${d.id});closeAllRowPopovers()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>
+          Eliminar
+        </div>`;
+
+    return `<tr>
+      <td style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500">${d.title}</td>
+      <td style="font-size:13px;color:var(--text2)">${typeLabel[d.typeKey]||d.type}</td>
+      <td><span style="font-size:12px;color:var(--text2)">${d.start} → ${d.end}</span></td>
+      <td><span class="${stClass[d.status]}"><span class="sp-dot"></span>${stLabel[d.status]}</span></td>
+      <td>${partHtml}</td>
+      <td>
+        <div class="row-actions-wrap">
+          <button class="tib" onclick="toggleRowPopover(event,${d.id})" style="font-size:18px;letter-spacing:1px;padding:4px 6px">⋯</button>
+          <div class="row-popover" id="row-pop-${d.id}">${menuItems}</div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleDin(id){
+  const d=dinamicas.find(x=>x.id===id);
+  if(!d||d.status==='pasada') return;
+  d.status=d.status==='activa'?'inactiva':'activa';
+  render(); showToast(d.type+' '+(d.status==='activa'?'activada':'pausada'));
+}
+function eliminarDin(id){
+  dinamicas = dinamicas.filter(x=>x.id!==id);
+  render(); showToast('Dinámica eliminada');
+}
+function closeAllRowPopovers(){
+  document.querySelectorAll('.row-popover.show').forEach(p=>p.classList.remove('show'));
+}
+function toggleRowPopover(e, id){
+  e.stopPropagation();
+  const pop = document.getElementById('row-pop-'+id);
+  const wasOpen = pop.classList.contains('show');
+  closeAllRowPopovers();
+  if(!wasOpen) pop.classList.add('show');
+}
+function editDin(id){
+  const d=dinamicas.find(x=>x.id===id);
+  if(d&&d.typeKey==='daily') openDailyPlay();
+}
+function duplicar(id){
+  const d=dinamicas.find(x=>x.id===id);
+  if(!d) return;
+  const fmt=x=>`${String(x.getDate()).padStart(2,'0')}/${String(x.getMonth()+1).padStart(2,'0')}/${x.getFullYear()}`;
+  const t=new Date(); const e=new Date(t); e.setDate(e.getDate()+30);
+  dinamicas.unshift({...d,id:nextId++,title:d.title+' (copia)',status:'inactiva',start:fmt(t),end:fmt(e),part:0});
+  render(); showToast(d.type+' duplicada como borrador');
+}
+
+/* ══ DAILY PLAY FULL PAGE ══ */
+let currentStep=0;
+const STEPS=4;
+let qCount=0;
+
+function closeDailyPlay(){
+  document.getElementById('page-dailyplay').classList.add('hidden');
+  document.body.style.overflow='';
+}
+
+function goStep(n){
+  currentStep=n;
+  for(let i=0;i<STEPS;i++){
+    const el=document.getElementById('step-'+i);
+    const sc=document.getElementById('sc-'+i);
+    if(el){ el.classList.remove('active','done'); if(i<n) el.classList.add('done'); else if(i===n) el.classList.add('active'); }
+    if(sc){ sc.classList.remove('active'); sc.style.display=(i===n)?'block':'none'; }
+  }
+  document.getElementById('sc-'+n).classList.add('active');
+  const labels=['Información básica','Banco de preguntas','Colaboradores','Resumen'];
+  document.getElementById('tf-pill').textContent=`Paso ${n+1} de ${STEPS}`;
+  document.getElementById('tf-step-label').textContent=`Paso ${n+1} de ${STEPS} — ${labels[n]}`;
+  document.getElementById('btn-back').style.display=n>0?'':'none';
+  if(n===STEPS-1){
+    document.getElementById('btn-next').classList.add('hidden');
+    document.getElementById('btn-save').classList.remove('hidden');
+    updateResumen();
+  } else {
+    document.getElementById('btn-next').classList.remove('hidden');
+    document.getElementById('btn-save').classList.add('hidden');
+  }
+  // Update days count in step 2 description
+  if(n===1){
+    const s = document.getElementById('dp-start')?.value;
+    const e = document.getElementById('dp-end')?.value;
+    const cnt = document.getElementById('dp-days-count');
+    const plural = document.getElementById('dp-days-plural');
+    if(s && e){
+      const days = Math.max(1, Math.round((new Date(e)-new Date(s))/(1000*60*60*24))+1);
+      if(cnt) cnt.textContent = days;
+      if(plural) plural.textContent = days!==1?'s':'';
+    } else {
+      if(cnt) cnt.textContent = '—';
+      if(plural) plural.textContent = 's';
+    }
+  }
+}
+
+function stepNext(){
+  if(currentStep<STEPS-1) goStep(currentStep+1);
+}
+function stepBack(){
+  if(currentStep>0) goStep(currentStep-1);
+}
+
+function addQuestion(){
+  qCount++;
+  const id=qCount;
+  const el=document.createElement('div');
+  el.className='q-card';
+  el.id='q-'+id;
+  el.innerHTML=`
+    <div class="q-card-hdr">
+      <span class="q-num">Pregunta ${id}</span>
+      ${id>1?`<button class="q-del" onclick="removeQ(${id})" title="Eliminar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>`:''}
+    </div>
+    <div class="q-type-tabs">
+      <button class="q-type-tab on" onclick="setQType(${id},'single',this)">Selección única</button>
+      <button class="q-type-tab" onclick="setQType(${id},'multi',this)">Selección múltiple</button>
+    </div>
+    <div class="field" style="margin-bottom:12px">
+      <label class="field-label" style="font-size:13px">Enunciado</label>
+      <input class="finput" type="text" placeholder="Escribí la pregunta...">
+    </div>
+    <div class="field" style="margin-bottom:0">
+      <label class="field-label" style="font-size:13px" id="q${id}-opt-label">Opciones — marcá la correcta (✓)</label>
+      <div class="opts-list" id="q${id}-opts">
+        <div class="opt-row ok" id="q${id}-o0"><button class="opt-ck" onclick="setOk(${id},0,'single')">✓</button><input type="text" placeholder="Opción A (correcta)"></div>
+        <div class="opt-row" id="q${id}-o1"><button class="opt-ck" onclick="setOk(${id},1,'single')">○</button><input type="text" placeholder="Opción B"></div>
+        <div class="opt-row" id="q${id}-o2"><button class="opt-ck" onclick="setOk(${id},2,'single')">○</button><input type="text" placeholder="Opción C"></div>
+      </div>
+    </div>`;
+  document.getElementById('questions-list').appendChild(el);
+}
+function removeQ(id){
+  document.getElementById('q-'+id)?.remove();
+}
+
+function updateCount(el,id,max){
+  document.getElementById(id).textContent=el.value.length;
+}
+function updateResumen(){
+  const name  = document.getElementById('dp-name')?.value || 'Sin nombre';
+  const start = document.getElementById('dp-start')?.value || '—';
+  const end   = document.getElementById('dp-end')?.value || '—';
+  const qs    = document.getElementById('questions-list')?.querySelectorAll('.q-card').length || 0;
+  const statusEl = document.getElementById('dp-status');
+  const statusTxt = statusEl ? statusEl.options[statusEl.selectedIndex].text : '—';
+
+  const rn = document.getElementById('res-name');       if(rn) rn.textContent = name;
+  const rp = document.getElementById('res-period');     if(rp) rp.textContent = (start !== '—' && end !== '—') ? start + ' → ' + end : '—';
+  const rq = document.getElementById('res-questions');  if(rq) rq.textContent = qs;
+  const rs = document.getElementById('res-seg');        // populated by colab functions
+  const rst = document.getElementById('res-status');    if(rst) rst.textContent = statusTxt;
+
+  // Points row
+  const ptsRow = document.getElementById('res-pts-row');
+  const ptsVal = document.getElementById('res-pts');
+  if(ptsRow){ ptsRow.style.display = rankingActive ? '' : 'none'; }
+  if(ptsVal && rankingActive){
+    const ptsOn = document.getElementById('dp-pts-active')?.checked !== false;
+    ptsVal.textContent = ptsOn ? 'Suma puntos al ranking' : 'No suma puntos';
+  }
+}
+
+function saveDailyPlay(){
+  const name=document.getElementById('dp-name')?.value.trim()||'Daily Play — nueva';
+  const status=document.getElementById('dp-status')?.value||'activa';
+  const ptsActive = document.getElementById('dp-pts-active')?.checked !== false;
+  const fmt=d=>`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+  const t=new Date(); const e=new Date(t); e.setDate(e.getDate()+30);
+  dinamicas.unshift({id:nextId++,typeKey:'daily',type:'Daily Play',title:name,start:fmt(t),end:fmt(e),status,part:0,sumaPuntos:rankingActive?ptsActive:false});
+  closeDailyPlay();
+  setV('dinamicas');
+  showToast('Daily Play guardada · '+(status==='activa'?'activa de inmediato':'guardada como borrador'));
+}
+
+/* ══ CONFIG ══ */
+let rankingActive = false;
+
+function toggleRanking(chk){
+  rankingActive = chk.checked;
+  document.getElementById('ranking-config').classList.toggle('hidden', !rankingActive);
+  const pb = document.getElementById('cfg-premios-block');
+  pb.style.opacity = rankingActive ? '1' : '.45';
+  pb.style.pointerEvents = rankingActive ? '' : 'none';
+  // cfg-streak-block is always disabled — never touched here
+  // If ranking turns off, reset dependent toggles
+  if(!rankingActive){
+    const premChk = document.getElementById('chk-premios');
+    if(premChk){ premChk.checked = false; }
+    document.getElementById('premios-config').classList.add('hidden');
+    const streakChk = document.getElementById('chk-streak');
+    if(streakChk){ streakChk.checked = false; }
+  }
+  // Update banners on Dinámicas page
+  const bannerOff = document.getElementById('ranking-banner-off');
+  const bannerOn  = document.getElementById('ranking-banner-on');
+  if(bannerOff) bannerOff.style.display = rankingActive ? 'none' : '';
+  if(bannerOn)  bannerOn.style.display  = rankingActive ? '' : 'none';
+  // Show/hide ranking block in dashboard resumen
+  const rankingBlock = document.getElementById('db-ranking-block');
+  if(rankingBlock) rankingBlock.classList.toggle('hidden', !rankingActive);
+  if(!document.getElementById('v-dinamicas').classList.contains('hidden')) render();
+}
+
+function togglePremios(chk){
+  document.getElementById('premios-config').classList.toggle('hidden', !chk.checked);
+}
+
+function setPeriodo(val, btn){
+  document.querySelectorAll('.ptab').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('periodo-custom').classList.toggle('hidden', val !== 'custom');
+}
+
+function toggleDinPuntos(id, label){
+  const d = dinamicas.find(x=>x.id===id);
+  if(!d) return;
+  d.sumaPuntos = label.querySelector('input').checked;
+  showToast(d.type + (d.sumaPuntos ? ' sumará puntos' : ' no sumará puntos'));
+}
+
+function togglePtsOverride(chk){
+  const override = document.getElementById('dp-pts-override');
+  if(override) override.style.display = chk.checked ? '' : 'none';
+}
+
+function saveConfig(){
+  // Persist ranking state visually — update all dependent UI
+  const chk = document.getElementById('chk-ranking');
+  if(chk) toggleRanking(chk);
+
+  // Update pts sections in daily play and pulse if open
+  const dpPts = document.getElementById('dp-pts-section');
+  if(dpPts) dpPts.classList.toggle('hidden', !rankingActive);
+  const pulsePts = document.getElementById('pulse-pts-section');
+  if(pulsePts) pulsePts.classList.toggle('hidden', !rankingActive);
+
+  // Visual feedback on the button
+  const btn = document.querySelector('#v-config .btn-next');
+  if(btn){
+    const orig = btn.textContent;
+    btn.textContent = '✓ Guardado';
+    btn.style.background = 'var(--teal)';
+    setTimeout(function(){
+      btn.textContent = orig;
+      btn.style.background = '';
+    }, 2000);
+  }
+
+  showToast('Configuración guardada · Ranking ' + (rankingActive ? 'activado' : 'desactivado'));
+}
+
+/* ══ PREMIOS DRAWER ══ */
+let currentPremio = null;
+const premioData = { 1:{}, 2:{}, 3:{} };
+const premioMeta = {
+  1:{ ico:'🥇', bg:'#FEF3C7', label:'Primer puesto' },
+  2:{ ico:'🥈', bg:'#F3F4F6', label:'Segundo puesto' },
+  3:{ ico:'🥉', bg:'#FEF2F2', label:'Tercer puesto' },
+};
+
+function openPremioDrawer(n){
+  currentPremio = n;
+  const meta = premioMeta[n];
+  const data = premioData[n];
+  document.getElementById('premio-drawer-ico').textContent = meta.ico;
+  document.getElementById('premio-drawer-ico').style.background = meta.bg;
+  document.getElementById('premio-drawer-title').textContent = meta.label;
+  document.getElementById('premio-nombre').value = data.nombre || '';
+  document.getElementById('premio-desc').value = data.desc || '';
+  document.getElementById('overlay-premio').classList.add('show');
+  document.getElementById('drawer-premio').classList.add('open');
+}
+function closePremioDrawer(){
+  document.getElementById('overlay-premio').classList.remove('show');
+  document.getElementById('drawer-premio').classList.remove('open');
+  currentPremio = null;
+}
+function savePremio(){
+  const nombre = document.getElementById('premio-nombre').value.trim();
+  const desc   = document.getElementById('premio-desc').value.trim();
+  if(!nombre){
+    document.getElementById('premio-nombre').style.borderColor = 'var(--red)';
+    document.getElementById('premio-nombre').focus();
+    return;
+  }
+  document.getElementById('premio-nombre').style.borderColor = '';
+  premioData[currentPremio] = { nombre, desc };
+  const preview = document.getElementById('preview-' + currentPremio);
+  const row     = document.getElementById('premio-row-' + currentPremio);
+  preview.textContent = nombre + (desc ? ' · ' + desc.substring(0,40) + (desc.length>40?'…':'') : '');
+  preview.style.color = 'var(--teal)';
+  row.classList.add('configured');
+  const label = premioMeta[currentPremio].label;
+  closePremioDrawer();
+  showToast('Premio guardado · ' + label);
+}
+
+function setQType(qid, type, btn){
+  const tabs = btn.parentElement.querySelectorAll('.q-type-tab');
+  tabs.forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');
+  const label = document.getElementById('q'+qid+'-opt-label');
+  const opts  = document.getElementById('q'+qid+'-opts');
+  if(type==='multi'){
+    if(label) label.textContent = 'Opciones — podés marcar varias correctas (✓)';
+    if(opts) opts.querySelectorAll('.opt-ck').forEach((ck,i)=>{
+      ck.setAttribute('onclick',`setOk(${qid},${i},'multi')`);
+      ck.style.borderRadius='4px'; // cuadrado para multi
+    });
+  } else {
+    if(label) label.textContent = 'Opciones — marcá la correcta (✓)';
+    if(opts) {
+      opts.querySelectorAll('.opt-row').forEach(r=>r.classList.remove('ok'));
+      opts.querySelectorAll('.opt-ck').forEach((ck,i)=>{
+        ck.textContent='○';
+        ck.setAttribute('onclick',`setOk(${qid},${i},'single')`);
+        ck.style.borderRadius='50%';
+      });
+      // Mark first as correct for single
+      const first=opts.querySelector('.opt-row');
+      if(first){first.classList.add('ok');first.querySelector('.opt-ck').textContent='✓';}
+    }
+  }
+}
+
+function setOk(qid,idx,type){
+  const opts=document.getElementById('q'+qid+'-opts');
+  if(!opts) return;
+  if(type==='multi'){
+    // toggle individual
+    const row=document.getElementById('q'+qid+'-o'+idx);
+    if(!row) return;
+    row.classList.toggle('ok');
+    row.querySelector('.opt-ck').textContent=row.classList.contains('ok')?'✓':'○';
+  } else {
+    // single — clear all then set
+    [0,1,2].forEach(i=>{
+      const el=document.getElementById('q'+qid+'-o'+i);
+      if(!el) return;
+      el.classList.remove('ok');
+      el.querySelector('.opt-ck').textContent='○';
+    });
+    const el=document.getElementById('q'+qid+'-o'+idx);
+    if(el){el.classList.add('ok');el.querySelector('.opt-ck').textContent='✓';}
+  }
+}
+
+/* ══ COLABORADORES ══ */
+const mockColabs = [
+  'María Carolina González','Juan Pablo Ramírez','Lucía Fernández','Carlos Alberto Torres',
+  'Ana Sofía Martínez','Diego Hernández','Valentina López','Roberto Sánchez',
+  'Florencia Castro','Marcos Rodríguez','Natalia Moreno','Sebastián Jiménez',
+];
+let selectedColabs = new Set();
+
+function openColabDrawer(type){
+  const overlay = document.getElementById('overlay-'+type);
+  const drawer  = document.getElementById('drawer-'+type);
+  overlay.style.zIndex = '410';
+  drawer.style.zIndex  = '411';
+  overlay.classList.add('show');
+  drawer.classList.add('open');
+  if(type==='especificos') renderColabList('');
+}
+function closeColabDrawer(type){
+  document.getElementById('overlay-'+type).classList.remove('show');
+  document.getElementById('drawer-'+type).classList.remove('open');
+}
+function renderColabList(filter){
+  const list = document.getElementById('colab-list');
+  const filtered = mockColabs.filter(n=>n.toLowerCase().includes(filter.toLowerCase()));
+  list.innerHTML = filtered.map((name,i)=>{
+    const sel = selectedColabs.has(name);
+    const initials = name.split(' ').slice(0,2).map(w=>w[0]).join('');
+    return `<div class="colab-item ${sel?'selected':''}" onclick="toggleColab('${name}')">
+      <div class="colab-check">${sel?`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`:''}</div>
+      <div class="colab-avatar">${initials}</div>
+      <div style="font-size:13px;font-weight:500">${name}</div>
+    </div>`;
+  }).join('');
+}
+function toggleColab(name){
+  if(selectedColabs.has(name)) selectedColabs.delete(name);
+  else selectedColabs.add(name);
+  renderColabList(document.querySelector('#drawer-especificos input[type=text]')?.value||'');
+  const count=selectedColabs.size;
+  const countEl=document.getElementById('colab-sel-count');
+  const btn=document.getElementById('btn-confirm-especificos');
+  countEl.textContent=count>0?`${count} colaborador${count!==1?'es':''} seleccionado${count!==1?'s':''}.`:'Aún no hay colaboradores seleccionados.';
+  btn.style.opacity=count>0?'1':'0.5';
+  btn.style.pointerEvents=count>0?'':'none';
+}
+function filterColabs(val){ renderColabList(val); }
+function confirmarColabEspecificos(){
+  const count=selectedColabs.size;
+  if(!count) return;
+  document.getElementById('res-seg').textContent=count+' colaborador'+(count!==1?'es':'')+' seleccionado'+(count!==1?'s':'');
+  closeColabDrawer('especificos');
+  showToast(count+' colaboradores asignados');
+  selectedColabs.clear();
+}
+function confirmarColab(type, label){
+  document.getElementById('res-seg').textContent=label;
+  closeColabDrawer(type);
+  showToast(label+' confirmado');
+}
+function seleccionarTodaComunidad(){
+  // Show active state, hide cards
+  document.getElementById('colab-cards').classList.add('hidden');
+  document.getElementById('colab-comunidad-activa').classList.remove('hidden');
+  document.getElementById('res-seg').textContent='Toda la comunidad (12.634)';
+}
+function quitarComunidad(){
+  document.getElementById('colab-cards').classList.remove('hidden');
+  document.getElementById('colab-comunidad-activa').classList.add('hidden');
+  document.getElementById('res-seg').textContent='Sin asignar';
+}
+function agregarCriterioExtra(sel){
+  if(!sel.value) return;
+  openColabDrawer(sel.value);
+  sel.value='';
+}
+
+/* ══ SEGMENTACIÓN REGLAS ══ */
+let rulesVisible=1;
+function addRule(){
+  if(rulesVisible<2){
+    document.getElementById('rule-'+rulesVisible).classList.remove('hidden');
+    document.getElementById('rule-0').querySelector('.seg-rule-del').style.visibility='visible';
+    rulesVisible++;
+  }
+}
+function removeRule(idx){
+  document.getElementById('rule-'+idx).classList.add('hidden');
+  rulesVisible=Math.max(1,rulesVisible-1);
+  if(rulesVisible===1) document.getElementById('rule-0').querySelector('.seg-rule-del').style.visibility='hidden';
+}
+function updateRulePreview(){ /* visual only — no-op */ }
+
+function showToast(msg){
+  document.getElementById('tmsg').textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+/* ══ DATE VALIDATION ══ */
+function validateDates(){
+  if(!rankingActive) return true;
+  const startEl = document.getElementById('dp-start');
+  const endEl   = document.getElementById('dp-end');
+  const errEl   = document.getElementById('dp-date-error');
+  const errTxt  = document.getElementById('dp-date-error-text');
+  if(!startEl.value || !endEl.value){ errEl.classList.add('hidden'); return true; }
+  const s = new Date(startEl.value);
+  const e = new Date(endEl.value);
+  // Get selected period from config tabs
+  const activePtab = document.querySelector('.ptab.on');
+  const period = activePtab ? activePtab.textContent.trim().toLowerCase() : 'mensual';
+  let valid = true;
+  let msg = '';
+  if(period === 'mensual'){
+    if(s.getMonth()!==e.getMonth() || s.getFullYear()!==e.getFullYear()){
+      valid = false; msg = 'El ranking es mensual — inicio y fin deben estar dentro del mismo mes.';
+    }
+  } else if(period === 'trimestral'){
+    const qS = Math.floor(s.getMonth()/3);
+    const qE = Math.floor(e.getMonth()/3);
+    if(qS!==qE || s.getFullYear()!==e.getFullYear()){
+      valid = false; msg = 'El ranking es trimestral — inicio y fin deben estar dentro del mismo trimestre.';
+    }
+  }
+  if(e < s){ valid = false; msg = 'La fecha de fin debe ser posterior a la de inicio.'; }
+  errEl.classList.toggle('hidden', valid);
+  if(!valid) errTxt.textContent = msg;
+  startEl.style.borderColor = valid ? '' : 'var(--red)';
+  endEl.style.borderColor   = valid ? '' : 'var(--red)';
+  return valid;
+}
+
+function openDailyPlay(){
+  popover.classList.remove('show');
+  currentStep=0; qCount=0;
+  document.getElementById('questions-list').innerHTML='';
+  addQuestion();
+  goStep(0);
+  // Show pts section based on ranking state (lives in step 1)
+  const ptsSection = document.getElementById('dp-pts-section');
+  if(ptsSection) ptsSection.classList.toggle('hidden', !rankingActive);
+  // Show date hint if ranking active
+  const hint = document.getElementById('dp-date-hint');
+  const hintTxt = document.getElementById('dp-date-hint-text');
+  if(hint && rankingActive){
+    hint.classList.remove('hidden');
+    const activePtab = document.querySelector('.ptab.on');
+    const period = activePtab ? activePtab.textContent.trim().toLowerCase() : 'mensual';
+    hintTxt.textContent = period==='mensual'
+      ? 'El ranking es mensual — las fechas deben estar dentro del mismo mes.'
+      : period==='trimestral'
+      ? 'El ranking es trimestral — las fechas deben estar dentro del mismo trimestre.'
+      : 'Usá las fechas del período de ranking custom configurado.';
+  } else if(hint){
+    hint.classList.add('hidden');
+  }
+  // Reset date fields
+  document.getElementById('dp-start').value = '';
+  document.getElementById('dp-end').value = '';
+  document.getElementById('dp-start').style.borderColor = '';
+  document.getElementById('dp-end').style.borderColor = '';
+  document.getElementById('dp-date-error').classList.add('hidden');
+  // Reset colaboradores
+  document.getElementById('colab-cards').classList.remove('hidden');
+  document.getElementById('colab-comunidad-activa').classList.add('hidden');
+  selectedColabs.clear();
+  document.getElementById('res-seg').textContent='Sin asignar';
+  document.getElementById('page-dailyplay').classList.remove('hidden');
+  document.body.style.overflow='hidden';
+}
+
+/* ══ PULSE FULL PAGE ══ */
+let pulseStep = 0;
+const PULSE_STEPS = 3;
+let pulseSegLabel = 'Sin asignar';
+
+function openPulse(){
+  if(document.getElementById('popover')) document.getElementById('popover').classList.remove('show');
+  pulseStep = 0;
+  pulseSegLabel = 'Sin asignar';
+  var n = document.getElementById('pulse-name'); if(n) n.value='';
+  var c = document.getElementById('pulse-cnt'); if(c) c.textContent='0';
+  var openChk = document.getElementById('pulse-open-field');
+  if(openChk){ openChk.checked = false; }
+  var openCfg = document.getElementById('pulse-open-field-config');
+  if(openCfg){ openCfg.style.display='none'; }
+  var openHint = document.getElementById('pulse-open-field-hint');
+  if(openHint){ openHint.style.display=''; }
+  var cc = document.getElementById('pulse-colab-cards'); if(cc) cc.classList.remove('hidden');
+  var ca = document.getElementById('pulse-comunidad-activa'); if(ca) ca.classList.add('hidden');
+  var pts = document.getElementById('pulse-pts-section');
+  if(pts) pts.classList.toggle('hidden', !rankingActive);
+  pulseGoStep(0);
+  document.getElementById('page-pulse').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePulse(){
+  document.getElementById('page-pulse').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+function pulseGoStep(n){
+  pulseStep = n;
+  for(var i=0; i<PULSE_STEPS; i++){
+    var el = document.getElementById('pulse-step-'+i);
+    var sc = document.getElementById('pulse-sc-'+i);
+    if(el){ el.classList.remove('active','done'); if(i<n) el.classList.add('done'); else if(i===n) el.classList.add('active'); }
+    if(sc) sc.classList.toggle('active', i===n);
+    if(sc) sc.style.display = (i===n)?'block':'none';
+  }
+  var labels = ['Información básica','Colaboradores','Resumen'];
+  var pill = document.getElementById('pulse-pill'); if(pill) pill.textContent='Paso '+(n+1)+' de '+PULSE_STEPS;
+  var lbl = document.getElementById('pulse-step-label'); if(lbl) lbl.textContent='Paso '+(n+1)+' de '+PULSE_STEPS+' — '+labels[n];
+  var back = document.getElementById('pulse-btn-back'); if(back) back.style.display = n>0?'':'none';
+  var next = document.getElementById('pulse-btn-next');
+  var save = document.getElementById('pulse-btn-save');
+  if(n===PULSE_STEPS-1){
+    if(next) next.classList.add('hidden');
+    if(save) save.classList.remove('hidden');
+    pulseUpdateResumen();
+  } else {
+    if(next) next.classList.remove('hidden');
+    if(save) save.classList.add('hidden');
+  }
+}
+function pulseStepNext(){ if(pulseStep<PULSE_STEPS-1) pulseGoStep(pulseStep+1); }
+function pulseStepBack(){ if(pulseStep>0) pulseGoStep(pulseStep-1); }
+
+/* Campo abierto toggle */
+function togglePulseOpenField(chk){
+  var cfg  = document.getElementById('pulse-open-field-config');
+  var hint = document.getElementById('pulse-open-field-hint');
+  if(cfg)  cfg.style.display  = chk.checked ? 'flex' : 'none';
+  if(hint) hint.style.display = chk.checked ? 'none' : '';
+}
+
+function seleccionarComunidadPulse(){
+  var cards = document.getElementById('pulse-colab-cards');
+  var activa = document.getElementById('pulse-comunidad-activa');
+  if(cards) cards.classList.add('hidden');
+  if(activa) activa.classList.remove('hidden');
+  pulseSegLabel = 'Toda la comunidad (12.634)';
+  var res = document.getElementById('pulse-res-seg'); if(res) res.textContent = pulseSegLabel;
+}
+function quitarComunidadPulse(){
+  var cards = document.getElementById('pulse-colab-cards');
+  var activa = document.getElementById('pulse-comunidad-activa');
+  if(cards) cards.classList.remove('hidden');
+  if(activa) activa.classList.add('hidden');
+  pulseSegLabel = 'Sin asignar';
+  var res = document.getElementById('pulse-res-seg'); if(res) res.textContent = pulseSegLabel;
+}
+
+function pulseUpdateResumen(){
+  var name   = document.getElementById('pulse-name')?.value || '—';
+  var start  = document.getElementById('pulse-start')?.value || '—';
+  var end    = document.getElementById('pulse-end')?.value || '—';
+  var openChk = document.getElementById('pulse-open-field');
+  var openLabel = document.getElementById('pulse-open-label')?.value || '—';
+
+  var n = document.getElementById('pres-nombre'); if(n) n.textContent = name;
+  // Respuesta abierta
+  var caRow = document.getElementById('pres-campo-abierto-row');
+  var caVal = document.getElementById('pres-campo-abierto');
+  if(caRow && openChk){
+    caRow.style.display = openChk.checked ? '' : 'none';
+    if(caVal) caVal.textContent = openLabel;
+  }
+  // Puntos
+  var ptsRow = document.getElementById('pres-pts-row');
+  var ptsVal = document.getElementById('pres-pts');
+  if(ptsRow){ ptsRow.style.display = rankingActive ? '' : 'none'; }
+  if(ptsVal && rankingActive){
+    var active = document.getElementById('pulse-pts-active')?.checked;
+    ptsVal.textContent = active ? 'Suma puntos al ranking' : 'No suma puntos';
+  }
+  // Disponibilidad — solo fechas
+  var ps = document.getElementById('pres-start'); if(ps) ps.textContent = start;
+  var pe = document.getElementById('pres-end');   if(pe) pe.textContent = end;
+  // Colaboradores
+  var pseg = document.getElementById('pres-seg'); if(pseg) pseg.textContent = pulseSegLabel;
+}
+
+function savePulse(){
+  var name = document.getElementById('pulse-name')?.value.trim() || 'Pulse — nueva';
+  var status = document.getElementById('pulse-status')?.value || 'activa';
+  var fmt = function(d){ return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear(); };
+  var t = new Date(); var e = new Date(t); e.setDate(e.getDate()+7);
+  dinamicas.unshift({id:nextId++, typeKey:'pulse', type:'Pulso', title:name, start:fmt(t), end:fmt(e), status:status, part:0, sumaPuntos:rankingActive&&(document.getElementById('pulse-pts-active')?.checked!==false)});
+  closePulse();
+  setV('dinamicas');
+  showToast('Pulso guardado · '+(status==='activa'?'activo de inmediato':'guardado como borrador'));
+}
+
+function confirmarColabPulse(type, label){
+  pulseSegLabel = label;
+  closeColabDrawer(type);
+  var res = document.getElementById('pulse-res-seg'); if(res) res.textContent = label;
+  showToast(label+' confirmado');
+}
+
+// Wire up pulse label inputs to live-update preview
+// Wire up campo abierto toggle
+var openFieldChk = document.getElementById('pulse-open-field');
+if(openFieldChk) openFieldChk.addEventListener('change', function(){ togglePulseOpenField(this); });
+document.getElementById('ranking-banner-off').style.display = '';
+document.getElementById('ranking-banner-on').style.display = 'none';
+
+// Wire up popover button (safe guard)
+(function(){
+  window.openPulse=openPulse; window.closePulse=closePulse;
+  window.pulseStepNext=pulseStepNext; window.pulseStepBack=pulseStepBack;
+  window.pulseGoStep=pulseGoStep;
+  window.togglePulseOpenField=togglePulseOpenField;
+  window.seleccionarComunidadPulse=seleccionarComunidadPulse; window.quitarComunidadPulse=quitarComunidadPulse;
+  window.savePulse=savePulse; window.confirmarColabPulse=confirmarColabPulse;
+  window.setDbTab=setDbTab;
+  window.updateDailyStatus=updateDailyStatus;
+  window.openRecoDrawer=openRecoDrawer; window.closeRecoDrawer=closeRecoDrawer; window.activarReconocimiento=activarReconocimiento;
+  window.goStep=goStep;
+  window.toggleRowPopover=toggleRowPopover; window.closeAllRowPopovers=closeAllRowPopovers; window.eliminarDin=eliminarDin;
+  var btn = document.getElementById('btn-create-din');
+  var pop = document.getElementById('popover');
+  if(btn && pop){
+    btn.addEventListener('click', function(e){ e.stopPropagation(); pop.classList.toggle('show'); });
+  }
+  document.addEventListener('click', function(e){
+    if(pop && !document.getElementById('pw').contains(e.target)) pop.classList.remove('show');
+    // Close row action popovers
+    if(!e.target.closest('.row-actions-wrap')) closeAllRowPopovers();
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key==='Escape' && pop) pop.classList.remove('show');
+  });
+})();
+</script>
+
+<!-- ═══ SUPABASE — ADMIN FUNCTIONS ══════════════════════ -->
+<script>
+// ══════════════════════════════════════════════════════════════
+//  ADMIN → SUPABASE
+//  Estas funciones se llaman desde las funciones existentes
+//  del admin para persistir los datos en la base de datos.
+// ══════════════════════════════════════════════════════════════
+
+// ── Cargar dinámicas activas al iniciar ──────────────────────
+async function sbCargarDinamicas() {
+  try {
+    const { data, error } = await _sb.from('dinamicas').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    return data || [];
+  } catch(e) { console.error('[Supabase] cargarDinamicas:', e); return []; }
+}
+
+// ── Crear Daily Play ─────────────────────────────────────────
+async function sbCrearDailyPlay(nombre, estado, preguntas) {
+  try {
+    const { data: din, error: e1 } = await _sb
+      .from('dinamicas')
+      .insert({ tipo: 'daily_play', nombre, estado, descripcion: '' })
+      .select().single();
+    if (e1) throw e1;
+
+    if (preguntas && preguntas.length) {
+      const rows = preguntas.map((p, i) => ({
+        dinamica_id: din.id, texto: p.texto || p,
+        opciones: p.opciones || [], respuesta_correcta: p.correcta ?? 0,
+        tiempo_segundos: 15, orden: i
+      }));
+      const { error: e2 } = await _sb.from('preguntas').insert(rows);
+      if (e2) throw e2;
+    }
+    sbToast('✅ Daily Play guardado en Supabase');
+    return din;
+  } catch(e) { sbToast('❌ Error guardando Daily Play', false); console.error(e); return null; }
+}
+
+// ── Crear Pulso ──────────────────────────────────────────────
+async function sbCrearPulso(nombre, estado) {
+  try {
+    const { error } = await _sb.from('dinamicas')
+      .insert({ tipo: 'pulso', nombre, estado, descripcion: '' });
+    if (error) throw error;
+    sbToast('✅ Pulso guardado en Supabase');
+  } catch(e) { sbToast('❌ Error guardando Pulso', false); console.error(e); }
+}
+
+// ── Crear Reconocimiento ─────────────────────────────────────
+async function sbCrearReconocimiento(nombre, estado) {
+  try {
+    const { error } = await _sb.from('dinamicas')
+      .insert({ tipo: 'reconocimiento', nombre, estado, descripcion: '' });
+    if (error) throw error;
+    sbToast('✅ Reconocimiento guardado en Supabase');
+  } catch(e) { sbToast('❌ Error guardando Reconocimiento', false); console.error(e); }
+}
+
+// ── Cargar respuestas para métricas ──────────────────────────
+async function sbCargarMetricas() {
+  try {
+    const [resp, pulsos, recos, ranking] = await Promise.all([
+      _sb.from('respuestas').select('*'),
+      _sb.from('pulso_respuestas').select('*'),
+      _sb.from('reconocimientos').select('*'),
+      _sb.from('rankings').select('*').order('puntos_total', { ascending: false }).limit(10)
+    ]);
+    return {
+      respuestas: resp.data || [],
+      pulsos: pulsos.data || [],
+      reconocimientos: recos.data || [],
+      ranking: ranking.data || []
+    };
+  } catch(e) { console.error('[Supabase] cargarMetricas:', e); return {}; }
+}
+
+// ── Guardar configuración ────────────────────────────────────
+async function sbGuardarConfig(clave, valor) {
+  try {
+    await _sb.from('configuracion')
+      .upsert({ clave, valor, updated_at: new Date().toISOString() }, { onConflict: 'clave' });
+  } catch(e) { console.error('[Supabase] guardarConfig:', e); }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  HOOKS: inyectar llamadas a Supabase en funciones existentes
+// ══════════════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', function() {
+
+  // ── Patch saveDailyPlay ──────────────────────────────────
+  const _origSaveDP = window.saveDailyPlay;
+  window.saveDailyPlay = function() {
+    _origSaveDP && _origSaveDP();
+    const nombre = document.getElementById('dp-name')?.value.trim() || 'Daily Play';
+    const estado = document.getElementById('dp-status')?.value || 'activa';
+    // Recolectar preguntas del formulario
+    const preguntas = [];
+    document.querySelectorAll('.q-card').forEach(card => {
+      const texto = card.querySelector('.finput')?.value || card.querySelector('input')?.value || '';
+      const opciones = Array.from(card.querySelectorAll('.opt-row input[type=text]')).map(i=>i.value);
+      const correctaIdx = Array.from(card.querySelectorAll('.opt-row')).findIndex(r=>r.classList.contains('ok'));
+      if (texto) preguntas.push({ texto, opciones, correcta: correctaIdx >= 0 ? correctaIdx : 0 });
+    });
+    sbCrearDailyPlay(nombre, estado, preguntas);
+  };
+
+  // ── Patch savePulse ──────────────────────────────────────
+  const _origSavePulse = window.savePulse;
+  window.savePulse = function() {
+    _origSavePulse && _origSavePulse();
+    const nombre = document.getElementById('pulse-name')?.value.trim() || 'Pulso';
+    const estado = document.getElementById('pulse-status')?.value || 'activa';
+    sbCrearPulso(nombre, estado);
+  };
+
+  // ── Patch activarReconocimiento ──────────────────────────
+  const _origSaveReco = window.activarReconocimiento;
+  window.activarReconocimiento = function() {
+    _origSaveReco && _origSaveReco();
+    sbCrearReconocimiento('Reconocimiento', 'activa');
+  };
+
+  console.log('[Supabase] Admin hooks activos ✅');
+});
+</script>
+
+</body>
+</html>
