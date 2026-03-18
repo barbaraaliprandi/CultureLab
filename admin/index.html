@@ -500,10 +500,10 @@
         <!-- ═══ RESUMEN ═══ -->
         <div id="dbv-resumen">
           <div class="g4" style="margin-bottom:20px">
-            <div class="card"><div class="clbl">Colaboradores activos</div><div class="cval">68%</div><div class="cch up">↑ 12% vs. semana anterior</div></div>
-            <div class="card"><div class="clbl">Sentimiento positivo</div><div class="cval">70%</div><div class="cch up">↑ 5% vs. semana anterior</div></div>
-            <div class="card"><div class="clbl">Módulo más activo</div><div class="cval" style="font-size:18px;line-height:2.2">Daily Play</div><div class="cch nu">89% participación</div></div>
-            <div class="card"><div class="clbl">Total participantes</div><div class="cval">1.024</div><div class="cch nu">de 1.500 colaboradores</div></div>
+            <div class="card"><div class="clbl">Colaboradores activos</div><div class="cval" id="db-res-activos">68%</div><div class="cch up">↑ 12% vs. semana anterior</div></div>
+            <div class="card"><div class="clbl">Sentimiento positivo</div><div class="cval" id="db-res-sentimiento">70%</div><div class="cch up">↑ 5% vs. semana anterior</div></div>
+            <div class="card"><div class="clbl">Módulo más activo</div><div class="cval" id="db-res-modulo" style="font-size:18px;line-height:2.2">Daily Play</div><div class="cch nu">89% participación</div></div>
+            <div class="card"><div class="clbl">Total participantes</div><div class="cval" id="db-res-participantes">1.024</div><div class="cch nu">de 1.500 colaboradores</div></div>
           </div>
           <div class="g21">
             <div class="card">
@@ -511,7 +511,7 @@
               <div class="sparkline"><div class="sb" style="height:45%"></div><div class="sb" style="height:50%"></div><div class="sb" style="height:48%"></div><div class="sb" style="height:58%"></div><div class="sb" style="height:55%"></div><div class="sb" style="height:62%"></div><div class="sb" style="height:65%"></div><div class="sb cur" style="height:68%"></div></div>
               <div class="slbls"><div class="slbl">S1</div><div class="slbl">S2</div><div class="slbl">S3</div><div class="slbl">S4</div><div class="slbl">S5</div><div class="slbl">S6</div><div class="slbl">S7</div><div class="slbl cur">Hoy</div></div>
             </div>
-            <div class="card">
+            <div class="card" id="db-res-engagement">
               <div class="ctit">Engagement por módulo</div>
               <div class="mbar"><div class="mbar-h"><span class="mbar-n">🎯 Daily Play</span><span class="mbar-p">89%</span></div><div class="mbar-t"><div class="mbar-f" style="width:89%;background:var(--teal)"></div></div></div>
               <div class="mbar"><div class="mbar-h"><span class="mbar-n">💙 Pulso</span><span class="mbar-p">61%</span></div><div class="mbar-t"><div class="mbar-f" style="width:61%;background:var(--blue)"></div></div></div>
@@ -537,7 +537,7 @@
               </div>
 
               <!-- Rows -->
-              <div style="display:flex;flex-direction:column;gap:2px">
+              <div style="display:flex;flex-direction:column;gap:2px" id="db-res-ranking-rows">
                 <div style="display:grid;grid-template-columns:32px 1fr 80px 80px;align-items:center;padding:10px 12px;border-radius:8px;background:var(--amber-bg)">
                   <span style="font-size:14px">🥇</span>
                   <div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#FCD34D,#F59E0B);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white">MG</div><span style="font-size:13px;font-weight:600">María González</span></div>
@@ -2974,12 +2974,123 @@ async function sbGuardarConfig(clave, valor) {
   } catch(e) { console.error('[Supabase] guardarConfig:', e); }
 }
 
+// ── Cargar y renderizar resumen del dashboard ────────────────
+async function sbCargarResumenAdmin() {
+  try {
+    var r = await Promise.all([
+      _sb.from('respuestas').select('employee_nombre, id'),
+      _sb.from('pulso_respuestas').select('employee_nombre, sentimiento, emoji'),
+      _sb.from('reconocimientos').select('nominado_nombre, nominador_nombre'),
+      _sb.from('rankings').select('*').order('posicion').limit(7)
+    ]);
+    var resp = r[0].data || [];
+    var pulsos = r[1].data || [];
+    var recos = r[2].data || [];
+    var rankings = r[3].data || [];
+
+    // ── Colaboradores activos (participaron en cualquier actividad / 1500 * 100) ──
+    var activosSet = new Set();
+    resp.forEach(function(x) { if(x.employee_nombre) activosSet.add(x.employee_nombre); });
+    pulsos.forEach(function(x) { if(x.employee_nombre) activosSet.add(x.employee_nombre); });
+    recos.forEach(function(x) { if(x.nominador_nombre) activosSet.add(x.nominador_nombre); });
+    var colabActivos = Math.round((activosSet.size / 1500) * 100);
+    _setEl('db-res-activos', colabActivos + '%');
+
+    // ── Sentimiento positivo (desde pulso) ──
+    var posEmojis = ['😄','🎉','😊','🤩'];
+    var pPos = pulsos.filter(function(p){ return posEmojis.includes(p.emoji) || p.sentimiento === 'positivo' || p.sentimiento === 'muy_positivo'; }).length;
+    var pTotal = pulsos.length || 1;
+    var sentimientoPos = Math.round((pPos / pTotal) * 100);
+    _setEl('db-res-sentimiento', sentimientoPos + '%');
+
+    // ── Módulo más activo ──
+    var counts = {
+      'Daily Play': resp.length,
+      'Pulso': pulsos.length,
+      'Reconocimiento': recos.length
+    };
+    var moduloMasActivo = Object.entries(counts).sort(function(a,b){ return b[1]-a[1]; })[0][0];
+    _setEl('db-res-modulo', moduloMasActivo);
+
+    // ── Total participantes (distinct) ──
+    var participantesSet = new Set();
+    resp.forEach(function(x) { if(x.employee_nombre) participantesSet.add(x.employee_nombre); });
+    pulsos.forEach(function(x) { if(x.employee_nombre) participantesSet.add(x.employee_nombre); });
+    var nomUniq = Array.from(new Set(recos.map(function(r){ return r.nominado_nombre; })));
+    var nomrUniq = Array.from(new Set(recos.map(function(r){ return r.nominador_nombre; })));
+    nomUniq.forEach(function(n) { participantesSet.add(n); });
+    nomrUniq.forEach(function(n) { participantesSet.add(n); });
+    var totalParticipantes = participantesSet.size;
+    _setEl('db-res-participantes', totalParticipantes.toLocaleString('es-CL'));
+
+    // ── Engagement bars (Daily Play %, Pulso %, Reconocimientos %) ──
+    var total = resp.length + pulsos.length + recos.length || 1;
+    var dpPct = total > 0 ? Math.round((resp.length / total) * 100) : 0;
+    var pPct = total > 0 ? Math.round((pulsos.length / total) * 100) : 0;
+    var recoPct = total > 0 ? Math.round((recos.length / total) * 100) : 0;
+
+    var engageEl = document.getElementById('db-res-engagement');
+    if (engageEl) {
+      engageEl.innerHTML = '<div class="ctit">Engagement por módulo</div>' +
+        '<div class="mbar"><div class="mbar-h"><span class="mbar-n">🎯 Daily Play</span><span class="mbar-p">'+dpPct+'%</span></div><div class="mbar-t"><div class="mbar-f" style="width:'+dpPct+'%;background:var(--teal)"></div></div></div>' +
+        '<div class="mbar"><div class="mbar-h"><span class="mbar-n">💙 Pulso</span><span class="mbar-p">'+pPct+'%</span></div><div class="mbar-t"><div class="mbar-f" style="width:'+pPct+'%;background:var(--blue)"></div></div></div>' +
+        '<div class="mbar"><div class="mbar-h"><span class="mbar-n">⭐ Reconocimientos</span><span class="mbar-p">'+recoPct+'%</span></div><div class="mbar-t"><div class="mbar-f" style="width:'+recoPct+'%;background:var(--purple)"></div></div></div>';
+    }
+
+    // ── Ranking rows (top 7 desde tabla rankings) ──
+    var rankEl = document.getElementById('db-res-ranking-rows');
+    if (rankEl) {
+      rankEl.innerHTML = '';
+      if (rankings.length === 0) {
+        rankEl.innerHTML = '<div style="font-size:13px;color:var(--text2);text-align:center;padding:12px">Sin ranking aún</div>';
+      } else {
+        var medals = ['🥇','🥈','🥉'];
+        var gradients = [
+          'linear-gradient(135deg,#FCD34D,#F59E0B)',
+          'linear-gradient(135deg,var(--hugo),var(--purple))',
+          'linear-gradient(135deg,var(--teal),#059669)',
+          'linear-gradient(135deg,#EC4899,#DB2777)',
+          'linear-gradient(135deg,#6366F1,#4F46E5)',
+          'linear-gradient(135deg,#F59E0B,#D97706)',
+          'linear-gradient(135deg,#8B5CF6,#7C3AED)'
+        ];
+        rankings.forEach(function(rank, idx) {
+          var medal = medals[idx] || (idx+1);
+          var nombre = rank.nombre || 'Desconocido';
+          var puntos = rank.puntos || 0;
+          var diferencia = rank.diferencia || 0;
+          var ini = nombre.split(' ').map(function(w){ return w[0]||''; }).slice(0,2).join('').toUpperCase();
+          var bgColor = gradients[idx % gradients.length];
+          var bgStyle = idx === 0 ? 'background:var(--amber-bg)' : '';
+          var diffColor = diferencia > 0 ? 'var(--teal)' : (diferencia < 0 ? '#DC2626' : 'var(--text3)');
+          var diffText = diferencia > 0 ? '+'+diferencia : (diferencia < 0 ? ''+diferencia : '—');
+
+          rankEl.innerHTML +=
+            '<div style="display:grid;grid-template-columns:32px 1fr 80px 80px;align-items:center;padding:10px 12px;border-radius:8px;'+bgStyle+'">' +
+            '<span style="font-size:14px">'+medal+'</span>' +
+            '<div style="display:flex;align-items:center;gap:8px">' +
+            '<div style="width:28px;height:28px;border-radius:50%;background:'+bgColor+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white">'+ini+'</div>' +
+            '<span style="font-size:13px;font-weight:'+(idx === 0 ? '600' : '500')+'">'+nombre+'</span>' +
+            '</div>' +
+            '<span style="font-size:13px;font-weight:700;text-align:right;color:var(--text)">'+puntos+'</span>' +
+            '<span style="font-size:12px;text-align:right;color:'+diffColor+'">'+diffText+'</span>' +
+            '</div>';
+        });
+      }
+    }
+  } catch(e) {
+    console.error('[Supabase] sbCargarResumenAdmin:', e);
+  }
+}
+
 // ══════════════════════════════════════════════════════════════
 //  INIT: cargar dinámicas y métricas desde Supabase al abrir
 // ══════════════════════════════════════════════════════════════
 sbCargarDinamicasAdmin();
 sbCargarMetricasAdmin();
+sbCargarResumenAdmin();
 setInterval(sbCargarMetricasAdmin, 15000);  // refresca métricas cada 15s
+setInterval(sbCargarResumenAdmin, 15000);  // refresca resumen cada 15s
 
 // Realtime: notificar al admin cuando llegan respuestas
 _sb.channel('admin-metrics')

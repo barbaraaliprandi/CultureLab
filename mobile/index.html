@@ -924,7 +924,7 @@ body {
       <div class="pb-label">¿Cómo te sentís?</div>
     </div>
 
-    <div class="overlay open" id="ov-pulse">
+    <div class="overlay" id="ov-pulse">
       <div class="sheet">
         <div class="handle"></div>
         <button class="x-btn" onclick="cls('ov-pulse')">✕</button>
@@ -1001,7 +1001,7 @@ body {
       <div class="pb-label">Trivia diaria</div>
     </div>
 
-    <div class="overlay open" id="ov-daily">
+    <div class="overlay" id="ov-daily">
       <div class="sheet">
         <div class="handle"></div>
         <button class="x-btn" onclick="cls('ov-daily')">✕</button>
@@ -1089,7 +1089,7 @@ body {
       <div class="pb-label">Trivia diaria</div>
     </div>
 
-    <div class="overlay open" id="ov-daily2">
+    <div class="overlay" id="ov-daily2">
       <div class="sheet">
         <div class="handle"></div>
         <button class="x-btn" onclick="cls('ov-daily2')">✕</button>
@@ -1165,7 +1165,7 @@ body {
       <div class="ni"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Nuestra Cu...<div class="ni-dot"></div></div>
       <div class="ni"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Perfil<div class="ni-dot"></div></div>
     </div>
-    <div class="overlay open" id="ov-rec">
+    <div class="overlay" id="ov-rec">
       <div class="sheet">
         <div class="handle"></div>
         <button class="x-btn" onclick="cls('ov-rec')">✕</button>
@@ -3016,25 +3016,35 @@ async function sbCargarYMostrarDinamicas() {
 function sbMostrarDinamica(din) {
   if (din.tipo === 'pulso') {
     window._sbPulsoId = din.id;
-    // Mostrar la pantalla de Pulso si no está activa
-    var sPulse = document.getElementById('s-pulse');
-    if (sPulse && !document.getElementById('ov-pulse').classList.contains('open')) {
-      var bubble = document.getElementById('pulse-bubble');
-      if (bubble) bubble.style.display = 'flex';
+    // Abrir overlay de Pulso directamente (UX demo)
+    var ovP = document.getElementById('ov-pulse');
+    if (ovP && !ovP.classList.contains('open')) {
+      ovP.classList.add('open');
+      if (typeof pStep === 'function') pStep('ps1');
+      if (typeof resetPulse === 'function') resetPulse();
     }
     sbToast('💛 Nuevo Pulso disponible — ¿Cómo te sentís hoy?');
   }
   if (din.tipo === 'daily_play') {
     window._sbDailyPlay = din;
     if (din.preguntas) din.preguntas.sort(function(a,b){ return a.orden-b.orden; });
-    var bubble2 = document.getElementById('daily-bubble');
-    if (bubble2) bubble2.style.display = 'flex';
     sbPopularTrivia('ov-daily', din);
+    // Abrir overlay de trivia directamente
+    var ovD = document.getElementById('ov-daily');
+    if (ovD && !ovD.classList.contains('open')) {
+      ovD.classList.add('open');
+      if (typeof dReset === 'function') dReset();
+    }
     sbToast('🎯 Nueva trivia disponible — ¡Jugá ahora!');
   }
   if (din.tipo === 'reconocimiento') {
     window._sbRecoId = din.id;
-    var bubble3 = document.querySelector('#s-recognition') || document.getElementById('s-recognition');
+    // Abrir overlay de reconocimiento directamente
+    var ovR = document.getElementById('ov-rec');
+    if (ovR && !ovR.classList.contains('open')) {
+      ovR.classList.add('open');
+      if (typeof rStep === 'function') rStep('rs0');
+    }
     sbToast('⭐ Reconocimientos activados — ¡Nominá a un compañero!');
   }
 }
