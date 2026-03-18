@@ -2784,9 +2784,11 @@ async function sbGuardarConfig(clave, valor) {
 }
 
 // ══════════════════════════════════════════════════════════════
-//  HOOKS: inyectar llamadas a Supabase en funciones existentes
+//  HOOKS: parchear funciones existentes
+//  NOTA: los scripts están al final del <body> → DOM ya cargado,
+//  DOMContentLoaded ya disparó. Ejecutamos directamente.
 // ══════════════════════════════════════════════════════════════
-window.addEventListener('DOMContentLoaded', function() {
+(function patchSupabase() {
 
   // ── Patch saveDailyPlay ──────────────────────────────────
   const _origSaveDP = window.saveDailyPlay;
@@ -2827,7 +2829,7 @@ window.addEventListener('DOMContentLoaded', function() {
   };
 
   console.log('[Supabase] Admin hooks activos ✅');
-});
+})();
 </script>
 
 </body>

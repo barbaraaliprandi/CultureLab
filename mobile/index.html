@@ -3130,8 +3130,9 @@ async function sbRenderRanking() {
 
 // ══════════════════════════════════════════════════════════════
 //  HOOKS sobre funciones existentes
+//  Ejecutamos directamente (DOM ya cargado al final del body)
 // ══════════════════════════════════════════════════════════════
-window.addEventListener('DOMContentLoaded', async function() {
+(async function patchMobile() {
 
   // ── Patch pStep: capturar envío de Pulso ────────────────────
   const _origPStep = window.pStep;
@@ -3172,7 +3173,7 @@ window.addEventListener('DOMContentLoaded', async function() {
   await sbPopularTrivia('ov-daily');
 
   console.log('[Supabase] Mobile v2 activo ✅');
-});
+})();
 </script>
 
 </body>
