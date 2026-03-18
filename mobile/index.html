@@ -840,18 +840,21 @@ body {
   const SUPABASE_KEY = 'sb_publishable_ntiR_If1OhPm-AnheVsuZQ_b6MbwX0U';
   const _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  // Notificación toast helper
+  // Notificación toast helper — dentro del phone, no fuera
   function sbToast(msg, ok=true) {
-    let t = document.querySelector('.sb-toast');
-    if (!t) { t = document.createElement('div'); t.className = 'sb-toast'; document.body.appendChild(t);
-      Object.assign(t.style, {position:'fixed',bottom:'20px',right:'20px',padding:'12px 18px',borderRadius:'10px',
-        fontFamily:'sans-serif',fontSize:'14px',fontWeight:'600',zIndex:'9999',transition:'opacity .3s',opacity:'0',pointerEvents:'none'}); }
+    var phone = document.querySelector('.phone');
+    if (!phone) return;
+    var t = phone.querySelector('.sb-toast');
+    if (!t) { t = document.createElement('div'); t.className = 'sb-toast'; phone.appendChild(t);
+      Object.assign(t.style, {position:'absolute',bottom:'70px',left:'50%',transform:'translateX(-50%)',
+        padding:'10px 16px',borderRadius:'20px',fontFamily:'sans-serif',fontSize:'12px',fontWeight:'600',
+        zIndex:'500',transition:'opacity .3s',opacity:'0',pointerEvents:'none',whiteSpace:'nowrap',maxWidth:'90%'}); }
     t.textContent = msg;
     t.style.background = ok ? '#10B981' : '#EF4444';
     t.style.color = 'white';
     t.style.opacity = '1';
     clearTimeout(t._to);
-    t._to = setTimeout(() => { t.style.opacity = '0'; }, 3000);
+    t._to = setTimeout(function(){ t.style.opacity = '0'; }, 3000);
   }
 </script>
 
@@ -3016,36 +3019,33 @@ async function sbCargarYMostrarDinamicas() {
 function sbMostrarDinamica(din) {
   if (din.tipo === 'pulso') {
     window._sbPulsoId = din.id;
-    // Abrir overlay de Pulso directamente (UX demo)
+    // Abrir overlay de Pulso directamente dentro del phone
     var ovP = document.getElementById('ov-pulse');
     if (ovP && !ovP.classList.contains('open')) {
       ovP.classList.add('open');
       if (typeof pStep === 'function') pStep('ps1');
       if (typeof resetPulse === 'function') resetPulse();
     }
-    sbToast('💛 Nuevo Pulso disponible — ¿Cómo te sentís hoy?');
   }
   if (din.tipo === 'daily_play') {
     window._sbDailyPlay = din;
     if (din.preguntas) din.preguntas.sort(function(a,b){ return a.orden-b.orden; });
     sbPopularTrivia('ov-daily', din);
-    // Abrir overlay de trivia directamente
+    // Abrir overlay de trivia directamente dentro del phone
     var ovD = document.getElementById('ov-daily');
     if (ovD && !ovD.classList.contains('open')) {
       ovD.classList.add('open');
       if (typeof dReset === 'function') dReset();
     }
-    sbToast('🎯 Nueva trivia disponible — ¡Jugá ahora!');
   }
   if (din.tipo === 'reconocimiento') {
     window._sbRecoId = din.id;
-    // Abrir overlay de reconocimiento directamente
+    // Abrir overlay de reconocimiento directamente dentro del phone
     var ovR = document.getElementById('ov-rec');
     if (ovR && !ovR.classList.contains('open')) {
       ovR.classList.add('open');
       if (typeof rStep === 'function') rStep('rs0');
     }
-    sbToast('⭐ Reconocimientos activados — ¡Nominá a un compañero!');
   }
 }
 
