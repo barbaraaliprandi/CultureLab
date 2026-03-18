@@ -2060,15 +2060,21 @@ function toggleDin(id){
   var d=dinamicas.find(function(x){return x.id===id;});
   if(!d||d.status==='pasada') return;
   var nuevoEstado = d.status==='activa' ? 'inactiva' : 'activa';
+  console.log('[Admin] toggleDin id='+id+' sbId='+d.sbId+' nuevoEstado='+nuevoEstado);
   d.status = nuevoEstado;
   render(); showToast(d.type+' '+(nuevoEstado==='activa'?'activada':'pausada'));
   // Persistir en Supabase y recargar lista
   if (d.sbId) {
-    _sb.from('dinamicas').update({ estado: nuevoEstado }).eq('id', d.sbId)
-      .then(function(res){
-        if(res.error) console.error('[Supabase] toggleDin error:', res.error);
-        else sbCargarDinamicasAdmin();
-      });
+    (async function(){
+      try {
+        var res = await _sb.from('dinamicas').update({ estado: nuevoEstado }).eq('id', d.sbId).select();
+        console.log('[Supabase] toggleDin result:', JSON.stringify(res));
+        if (res.error) { console.error('[Supabase] toggleDin error:', res.error); showToast('❌ Error al pausar en Supabase', false); }
+        else { console.log('[Supabase] toggleDin OK, rows:', res.data ? res.data.length : 0); sbCargarDinamicasAdmin(); }
+      } catch(e) { console.error('[Supabase] toggleDin exception:', e); }
+    })();
+  } else {
+    console.warn('[Admin] toggleDin: dinámica sin sbId, no se persiste');
   }
 }
 function eliminarDin(id){
@@ -2079,12 +2085,17 @@ function eliminarDin(id){
   render(); showToast('Dinámica eliminada');
   // Eliminar en Supabase (y sus preguntas asociadas) y recargar
   if (d.sbId) {
-    _sb.from('preguntas').delete().eq('dinamica_id', d.sbId)
-      .then(function(){ return _sb.from('dinamicas').delete().eq('id', d.sbId); })
-      .then(function(res){
-        if(res.error) console.error('[Supabase] eliminarDin error:', res.error);
+    console.log('[Admin] eliminarDin sbId='+d.sbId);
+    (async function(){
+      try {
+        await _sb.from('respuestas').delete().eq('dinamica_id', d.sbId);
+        await _sb.from('preguntas').delete().eq('dinamica_id', d.sbId);
+        var res = await _sb.from('dinamicas').delete().eq('id', d.sbId).select();
+        console.log('[Supabase] eliminarDin result:', JSON.stringify(res));
+        if (res.error) { console.error('[Supabase] eliminarDin error:', res.error); showToast('❌ Error eliminando', false); }
         else sbCargarDinamicasAdmin();
-      });
+      } catch(e) { console.error('[Supabase] eliminarDin exception:', e); }
+    })();
   }
 }
 function closeAllRowPopovers(){
