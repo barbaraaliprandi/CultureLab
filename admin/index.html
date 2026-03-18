@@ -2587,9 +2587,11 @@ function removeRule(idx){
 function updateRulePreview(){ /* visual only — no-op */ }
 
 function showToast(msg){
-  document.getElementById('tmsg').textContent=msg;
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2800);
+  var el = document.getElementById('tmsg');
+  if (!el) return;
+  el.textContent = msg;
+  var t = el.parentElement;
+  if (t) { t.classList.add('show'); setTimeout(function(){ t.classList.remove('show'); }, 2800); }
 }
 
 /* ══ DATE VALIDATION ══ */
