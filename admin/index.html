@@ -2784,52 +2784,49 @@ async function sbGuardarConfig(clave, valor) {
 }
 
 // ══════════════════════════════════════════════════════════════
-//  HOOKS: parchear funciones existentes
-//  NOTA: los scripts están al final del <body> → DOM ya cargado,
-//  DOMContentLoaded ya disparó. Ejecutamos directamente.
+//  HOOKS via Event Capture (más confiable que parchear funciones)
+//  El capture listener dispara ANTES que el onclick inline,
+//  por lo que podemos leer el form antes de que se limpie.
 // ══════════════════════════════════════════════════════════════
-(function patchSupabase() {
+document.addEventListener('click', function(e) {
+  const target = e.target.closest ? e.target : e.target.parentElement;
 
-  // ── Patch saveDailyPlay ──────────────────────────────────
-  const _origSaveDP = window.saveDailyPlay;
-  window.saveDailyPlay = function() {
-    // ⚠️ Leer datos ANTES de llamar al original (que cierra y limpia el form)
+  // ── Botón "Activar dinámica" de Daily Play ────────────────
+  if (e.target.closest('#btn-save')) {
     const nombre = document.getElementById('dp-name')?.value.trim() || 'Daily Play';
-    const estado = 'activa'; // dp-status no existe como select, siempre activa
     const preguntas = [];
-    document.querySelectorAll('#questions-list .q-card').forEach(card => {
-      const texto = card.querySelector('input[type=text].finput')?.value
-                 || card.querySelector('.field input[type=text]')?.value
-                 || card.querySelector('.finput')?.value || '';
-      const opciones = Array.from(card.querySelectorAll('.opt-row input[type=text]')).map(i => i.value.trim()).filter(v => v);
-      const correctaIdx = Array.from(card.querySelectorAll('.opt-row')).findIndex(r => r.classList.contains('ok'));
-      if (texto.trim()) preguntas.push({ texto: texto.trim(), opciones, correcta: correctaIdx >= 0 ? correctaIdx : 0 });
+    document.querySelectorAll('#questions-list .q-card').forEach(function(card) {
+      // El input del enunciado es el .finput dentro del primer .field
+      const inputs = card.querySelectorAll('input[type=text]');
+      // El primero que NO es parte de .opt-row es el enunciado
+      let textoInput = null;
+      inputs.forEach(function(inp) { if (!inp.closest('.opt-row') && !textoInput) textoInput = inp; });
+      const texto = textoInput ? textoInput.value.trim() : '';
+      const opciones = Array.from(card.querySelectorAll('.opt-row input[type=text]')).map(function(i){ return i.value.trim(); }).filter(Boolean);
+      const correctaIdx = Array.from(card.querySelectorAll('.opt-row')).findIndex(function(r){ return r.classList.contains('ok'); });
+      if (texto) preguntas.push({ texto: texto, opciones: opciones, correcta: correctaIdx >= 0 ? correctaIdx : 0 });
     });
-    console.log('[Supabase] Guardando Daily Play:', nombre, preguntas);
-    // Llamar original después de haber leído los datos
-    _origSaveDP && _origSaveDP();
-    sbCrearDailyPlay(nombre, estado, preguntas);
-  };
+    console.log('[Supabase] Daily Play capturado:', nombre, JSON.stringify(preguntas));
+    sbCrearDailyPlay(nombre, 'activa', preguntas);
+  }
 
-  // ── Patch savePulse ──────────────────────────────────────
-  const _origSavePulse = window.savePulse;
-  window.savePulse = function() {
-    // Leer datos ANTES de que el original cierre el form
+  // ── Botón "Activar dinámica" de Pulso ────────────────────
+  if (e.target.closest('#pulse-btn-save')) {
     const nombre = document.getElementById('pulse-name')?.value.trim() || 'Pulso';
-    const estado = document.getElementById('pulse-status')?.value || 'activa';
-    _origSavePulse && _origSavePulse();
-    sbCrearPulso(nombre, estado);
-  };
+    console.log('[Supabase] Pulso capturado:', nombre);
+    sbCrearPulso(nombre, 'activa');
+  }
 
-  // ── Patch activarReconocimiento ──────────────────────────
-  const _origSaveReco = window.activarReconocimiento;
-  window.activarReconocimiento = function() {
-    _origSaveReco && _origSaveReco();
+  // ── Botón "Activar reconocimientos" ──────────────────────
+  const btnPri = e.target.closest('.btn-pri');
+  if (btnPri && btnPri.textContent.includes('Activar reconocimientos')) {
+    console.log('[Supabase] Reconocimiento capturado');
     sbCrearReconocimiento('Reconocimiento', 'activa');
-  };
+  }
 
-  console.log('[Supabase] Admin hooks activos ✅');
-})();
+}, true); // true = capture phase, dispara ANTES del onclick
+
+console.log('[Supabase] Admin event capture activo ✅');
 </script>
 
 </body>
