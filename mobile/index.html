@@ -955,7 +955,7 @@ body {
             <div class="c-title">¡Gracias por tu respuesta!</div>
             <div class="c-sub">Registrado de forma anónima.<br>Ayudás a construir un mejor ambiente.</div>
             <div class="c-stats">
-              <div class="cs"><div class="cs-v">891</div><div class="cs-l">respuestas hoy</div></div>
+              <div class="cs"><div class="cs-v" id="ps2-count">891</div><div class="cs-l">respuestas hoy</div></div>
             </div>
           </div>
         </div>
@@ -3107,6 +3107,10 @@ async function sbEnviarPulso(emoji, sentimiento, motivos) {
     });
     await sbActualizarRanking(5, 'pulso');
     sbToast('💛 Pulso enviado — +5 puntos');
+    // Actualizar contador de respuestas hoy en ps2
+    var cntRes = await _sb.from('pulso_respuestas').select('id', { count: 'exact', head: true });
+    var countEl = document.getElementById('ps2-count');
+    if (countEl && cntRes.count !== null) countEl.textContent = cntRes.count;
     setTimeout(sbRenderRanking, 800);
   } catch(e) { console.error('[Supabase] enviarPulso:', e); }
 }

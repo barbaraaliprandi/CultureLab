@@ -602,10 +602,10 @@
 
           <!-- KPIs — números en negro -->
           <div class="g4" style="margin-bottom:20px">
-            <div class="card"><div class="clbl">Respuestas totales</div><div class="cval">912</div><div class="cch nu">preguntas respondidas</div></div>
-            <div class="card"><div class="clbl">Preguntas ignoradas</div><div class="cval">188</div><div class="cch nu">sin respuesta</div></div>
-            <div class="card"><div class="clbl">Tasa de respuesta</div><div class="cval">83%</div><div class="cch up">↑ 4% vs. período anterior</div></div>
-            <div class="card"><div class="clbl">Respuestas correctas</div><div class="cval">73%</div><div class="cch nu">de las respondidas</div></div>
+            <div class="card"><div class="clbl">Respuestas totales</div><div class="cval" id="db-dp-total">912</div><div class="cch nu">preguntas respondidas</div></div>
+            <div class="card"><div class="clbl">Preguntas ignoradas</div><div class="cval" id="db-dp-ignored">188</div><div class="cch nu">sin respuesta</div></div>
+            <div class="card"><div class="clbl">Tasa de respuesta</div><div class="cval" id="db-dp-rate">83%</div><div class="cch up">↑ 4% vs. período anterior</div></div>
+            <div class="card"><div class="clbl">Respuestas correctas</div><div class="cval" id="db-dp-correct">73%</div><div class="cch nu">de las respondidas</div></div>
           </div>
 
           <div class="g21" style="margin-bottom:20px">
@@ -618,7 +618,7 @@
             </div>
             <div class="card">
               <div class="ctit">Respondidas vs. ignoradas por pregunta</div>
-              <div style="display:flex;flex-direction:column;gap:14px;margin-top:4px">
+              <div id="db-dp-questions" style="display:flex;flex-direction:column;gap:14px;margin-top:4px">
                 <!-- Pregunta 1 -->
                 <div>
                   <div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">¿Qué valor representa al equipo?</div>
@@ -680,10 +680,10 @@
 
           <!-- KPIs — sin "Pulsos activos", números en negro -->
           <div class="g4" style="margin-bottom:20px">
-            <div class="card"><div class="clbl">Respuestas totales</div><div class="cval">124</div><div class="cch nu">para este pulso</div></div>
+            <div class="card"><div class="clbl">Respuestas totales</div><div class="cval" id="db-pulse-total">124</div><div class="cch nu">para este pulso</div></div>
             <div class="card">
               <div class="clbl">Sentimiento positivo</div>
-              <div class="cval">70%</div>
+              <div class="cval" id="db-pulse-pos">70%</div>
               <div class="cch up">↑ 5% vs. pulso anterior</div>
               <div style="font-size:10px;color:var(--text3);margin-top:4px;display:flex;align-items:center;gap:4px">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
@@ -692,20 +692,20 @@
             </div>
             <div class="card">
               <div class="clbl">Sentimiento negativo</div>
-              <div class="cval">12%</div>
+              <div class="cval" id="db-pulse-neg">12%</div>
               <div class="cch nu">atención recomendada</div>
               <div style="font-size:10px;color:var(--text3);margin-top:4px;display:flex;align-items:center;gap:4px">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                 Respondió entre mal y muy mal
               </div>
             </div>
-            <div class="card"><div class="clbl">Sin respuesta</div><div class="cval">18%</div><div class="cch nu">no respondieron</div></div>
+            <div class="card"><div class="clbl">Sin respuesta</div><div class="cval" id="db-pulse-sin">18%</div><div class="cch nu">no respondieron</div></div>
           </div>
 
           <!-- Solo distribución, sin tendencia -->
           <div class="card" style="max-width:560px">
             <div class="ctit">Distribución de respuestas</div>
-            <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+            <div id="db-pulse-dist" style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
               <div class="srow">
                 <div class="sem">😄</div>
                 <div class="strk"><div class="sfl" style="width:45%;background:#1A9370"></div></div>
@@ -743,9 +743,9 @@
           <div class="card" style="margin-top:20px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
               <div class="ctit" style="margin-bottom:0">Respuestas abiertas</div>
-              <span style="font-size:12px;color:var(--text2);font-weight:500">32 comentarios</span>
+              <span id="db-pulse-comment-count" style="font-size:12px;color:var(--text2);font-weight:500">32 comentarios</span>
             </div>
-            <div style="display:flex;flex-direction:column;gap:8px">
+            <div id="db-pulse-comments" style="display:flex;flex-direction:column;gap:8px">
 
               <div style="padding:12px 14px;background:var(--bg);border-radius:10px;border-left:3px solid #1A9370">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
@@ -780,7 +780,7 @@
               </div>
 
             </div>
-            <button style="width:100%;margin-top:12px;padding:10px;background:none;border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;font-family:'Roboto',sans-serif;transition:background .15s" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='none'">Ver todos los comentarios (32)</button>
+            <button style="width:100%;margin-top:12px;padding:10px;background:none;border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;font-family:'Roboto',sans-serif;transition:background .15s" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='none'" id="db-pulse-btn-all">Ver todos los comentarios (32)</button>
           </div>
         </div>
 
@@ -797,15 +797,15 @@
           </div>
           <!-- KPIs -->
           <div class="g4" style="margin-bottom:20px">
-            <div class="card"><div class="clbl">Nominaciones</div><div class="cval">47</div><div class="cch up">↑ 8 vs. semana anterior</div></div>
-            <div class="card"><div class="clbl">Colaboradores nominados</div><div class="cval">31</div><div class="cch nu">de 1.500</div></div>
+            <div class="card"><div class="clbl">Nominaciones</div><div class="cval" id="db-reco-total">47</div><div class="cch up">↑ 8 vs. semana anterior</div></div>
+            <div class="card"><div class="clbl">Colaboradores nominados</div><div class="cval" id="db-reco-nominados">31</div><div class="cch nu">de 1.500</div></div>
             <div class="card"><div class="clbl">Categoría más votada</div><div class="cval" style="font-size:16px;line-height:2.4">Trabajo en equipo</div><div class="cch nu">18 votos</div></div>
-            <div class="card"><div class="clbl">Participación</div><div class="cval">24%</div><div class="cch nu">nomina o es nominado</div></div>
+            <div class="card"><div class="clbl">Participación</div><div class="cval" id="db-reco-part">24%</div><div class="cch nu">nomina o es nominado</div></div>
           </div>
           <div class="g21" style="margin-bottom:20px">
             <div class="card">
               <div class="ctit">Top 5 colaboradores reconocidos</div>
-              <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
+              <div id="db-reco-top5" style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
                 <div style="display:flex;align-items:center;gap:12px"><div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#FCD34D,#F59E0B);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0">MG</div><div style="flex:1;font-size:13px;font-weight:500">María González</div><span style="font-size:12px;font-weight:700;color:var(--text)">8 votos</span></div>
                 <div style="display:flex;align-items:center;gap:12px"><div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--hugo),var(--purple));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0">JR</div><div style="flex:1;font-size:13px;font-weight:500">Juan Ramírez</div><span style="font-size:12px;font-weight:700;color:var(--text)">6 votos</span></div>
                 <div style="display:flex;align-items:center;gap:12px"><div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--teal),#059669);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0">LF</div><div style="flex:1;font-size:13px;font-weight:500">Lucía Fernández</div><span style="font-size:12px;font-weight:700;color:var(--text)">5 votos</span></div>
@@ -814,12 +814,12 @@
               </div>
             </div>
             <div class="card">
-              <div class="ctit">Votos por categoría</div>
+              <div class="ctit">Votos por categoría</div><div id="db-reco-cats">
               <div class="mbar"><div class="mbar-h"><span class="mbar-n">Trabajo en equipo</span><span class="mbar-p">38%</span></div><div class="mbar-t"><div class="mbar-f" style="width:38%;background:var(--purple)"></div></div></div>
               <div class="mbar"><div class="mbar-h"><span class="mbar-n">Innovación</span><span class="mbar-p">27%</span></div><div class="mbar-t"><div class="mbar-f" style="width:27%;background:var(--purple)"></div></div></div>
               <div class="mbar"><div class="mbar-h"><span class="mbar-n">Liderazgo</span><span class="mbar-p">22%</span></div><div class="mbar-t"><div class="mbar-f" style="width:22%;background:var(--purple)"></div></div></div>
               <div class="mbar"><div class="mbar-h"><span class="mbar-n">Excelencia</span><span class="mbar-p">13%</span></div><div class="mbar-t"><div class="mbar-f" style="width:13%;background:var(--purple)"></div></div></div>
-            </div>
+            </div></div>
           </div>
         </div>
 
@@ -2805,22 +2805,165 @@ async function sbCrearReconocimiento(nombre, estado) {
   } catch(e) { sbToast('❌ Error guardando Reconocimiento', false); console.error(e); }
 }
 
-// ── Cargar respuestas para métricas ──────────────────────────
-async function sbCargarMetricas() {
+// ── Helper: set text content ──────────────────────────────────
+function _setEl(id, val) {
+  var el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+var _emojiLabel = { '😄':'Muy bien','🙂':'Bien','😐':'Neutro','😕':'Mal','😡':'Muy mal','😊':'Bien','🤩':'Excelente','😔':'Triste','😢':'Mal','🎉':'Genial' };
+
+// ── Cargar y renderizar métricas del dashboard ────────────────
+async function sbCargarMetricasAdmin() {
   try {
-    const [resp, pulsos, recos, ranking] = await Promise.all([
+    var r = await Promise.all([
       _sb.from('respuestas').select('*'),
       _sb.from('pulso_respuestas').select('*'),
       _sb.from('reconocimientos').select('*'),
-      _sb.from('rankings').select('*').order('puntos_total', { ascending: false }).limit(10)
+      _sb.from('preguntas').select('id, texto, dinamica_id').order('orden')
     ]);
-    return {
-      respuestas: resp.data || [],
-      pulsos: pulsos.data || [],
-      reconocimientos: recos.data || [],
-      ranking: ranking.data || []
-    };
-  } catch(e) { console.error('[Supabase] cargarMetricas:', e); return {}; }
+    var resp  = r[0].data || [];
+    var pulsos = r[1].data || [];
+    var recos  = r[2].data || [];
+    var pregs  = r[3].data || [];
+
+    // ── Daily Play KPIs ──────────────────────────────────────
+    var answered = resp.filter(function(x){ return x.respuesta_elegida !== null && x.respuesta_elegida !== undefined; });
+    var ignored  = resp.filter(function(x){ return x.respuesta_elegida === null || x.respuesta_elegida === undefined; });
+    var correct  = resp.filter(function(x){ return x.es_correcta === true; });
+    _setEl('db-dp-total',   resp.length);
+    _setEl('db-dp-ignored', ignored.length);
+    _setEl('db-dp-rate',    resp.length > 0 ? Math.round((answered.length/resp.length)*100)+'%' : '—');
+    _setEl('db-dp-correct', answered.length > 0 ? Math.round((correct.length/answered.length)*100)+'%' : '—');
+
+    // Questions breakdown
+    var qEl = document.getElementById('db-dp-questions');
+    if (qEl && pregs.length > 0) {
+      qEl.innerHTML = '';
+      pregs.forEach(function(p) {
+        var pResp = resp.filter(function(x){ return x.pregunta_id === p.id; });
+        var pAns  = pResp.filter(function(x){ return x.respuesta_elegida !== null; });
+        var pTot  = pResp.length || 1;
+        var pct   = Math.round((pAns.length / pTot) * 100);
+        qEl.innerHTML +=
+          '<div><div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(p.texto||'Pregunta')+'</div>'+
+          '<div style="display:flex;gap:6px;align-items:center"><div style="flex:1;height:8px;border-radius:4px;background:var(--bg2);overflow:hidden;display:flex">'+
+          '<div style="width:'+pct+'%;background:var(--hugo);border-radius:4px 0 0 4px"></div>'+
+          '<div style="flex:1;background:#E5E7EB"></div></div></div>'+
+          '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-top:4px">'+
+          '<span>Respondidas: <strong style="color:var(--text)">'+pct+'%</strong></span>'+
+          '<span>Ignoradas: <strong style="color:var(--text)">'+(100-pct)+'%</strong></span></div></div>';
+      });
+    }
+
+    // ── Pulso KPIs ───────────────────────────────────────────
+    var pTotal = pulsos.length;
+    _setEl('db-pulse-total', pTotal);
+    var posEmojis = ['😄','🎉','😊','🤩'];
+    var negEmojis = ['😡','😤','😢','😭','😕','😔'];
+    var pPos = pulsos.filter(function(p){ return posEmojis.includes(p.emoji) || p.sentimiento === 'positivo' || p.sentimiento === 'muy_positivo'; }).length;
+    var pNeg = pulsos.filter(function(p){ return negEmojis.includes(p.emoji) || p.sentimiento === 'negativo' || p.sentimiento === 'muy_negativo'; }).length;
+    var pNeu = pTotal - pPos - pNeg;
+    var pB   = pTotal || 1;
+    _setEl('db-pulse-pos', Math.round((pPos/pB)*100)+'%');
+    _setEl('db-pulse-neg', Math.round((pNeg/pB)*100)+'%');
+    _setEl('db-pulse-sin', Math.round((pNeu/pB)*100)+'%');
+
+    // Emoji distribution bars
+    var emojiCnt = {};
+    pulsos.forEach(function(p){ emojiCnt[p.emoji] = (emojiCnt[p.emoji]||0)+1; });
+    var distEl = document.getElementById('db-pulse-dist');
+    if (distEl && pTotal > 0) {
+      distEl.innerHTML = '';
+      Object.entries(emojiCnt).sort(function(a,b){ return b[1]-a[1]; }).forEach(function(kv){
+        var em = kv[0]; var cnt = kv[1];
+        var pct = Math.round((cnt/pTotal)*100);
+        distEl.innerHTML +=
+          '<div class="mbar"><div class="mbar-h"><span class="mbar-n">'+em+' '+(_emojiLabel[em]||em)+'</span><span class="mbar-p">'+pct+'% ('+cnt+')</span></div>'+
+          '<div class="mbar-t"><div class="mbar-f" style="width:'+pct+'%;background:var(--hugo)"></div></div></div>';
+      });
+    }
+
+    // Comments
+    var coms = pulsos.filter(function(p){ return p.comentario && p.comentario.trim().length > 0; });
+    var ccEl = document.getElementById('db-pulse-comment-count');
+    if (ccEl) ccEl.textContent = coms.length + ' comentarios';
+    var btnAll = document.getElementById('db-pulse-btn-all');
+    if (btnAll) btnAll.textContent = 'Ver todos los comentarios ('+coms.length+')';
+    var comEl = document.getElementById('db-pulse-comments');
+    if (comEl) {
+      comEl.innerHTML = '';
+      var cmap = { positivo:'#1A9370', muy_positivo:'#059669', bien:'#86EFAC', neutro:'#D1D5DB', negativo:'#FCA5A5', muy_negativo:'#EF4444' };
+      if (coms.length === 0) {
+        comEl.innerHTML = '<div style="font-size:13px;color:var(--text2);padding:12px;text-align:center">Sin comentarios aún</div>';
+      } else {
+        coms.slice(0,5).forEach(function(p) {
+          var border = cmap[p.sentimiento] || '#D1D5DB';
+          var fecha  = new Date(p.created_at).toLocaleString('es-CL',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+          comEl.innerHTML +=
+            '<div style="padding:12px 14px;background:var(--bg);border-radius:10px;border-left:3px solid '+border+'">'+
+            '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'+
+            '<span style="font-size:11px;color:var(--text3)">'+fecha+'</span>'+
+            '<span style="font-size:11px;font-weight:600;color:var(--text2)">'+(p.emoji||'')+'</span></div>'+
+            '<p style="font-size:13px;color:var(--text);line-height:1.5;margin:0">"'+p.comentario+'"</p></div>';
+        });
+      }
+    }
+
+    // ── Reconocimientos KPIs ─────────────────────────────────
+    _setEl('db-reco-total', recos.length);
+    var nomUniq = Array.from(new Set(recos.map(function(r){ return r.nominado_nombre; })));
+    var nomrUniq = Array.from(new Set(recos.map(function(r){ return r.nominador_nombre; })));
+    _setEl('db-reco-nominados', nomUniq.length);
+    var totalPart = new Set(nomUniq.concat(nomrUniq)).size;
+    _setEl('db-reco-part', recos.length > 0 ? Math.round((totalPart/1500)*1000)/10+'%' : '0%');
+
+    // Top 5 nominated
+    var votosMap = {};
+    recos.forEach(function(r){ votosMap[r.nominado_nombre] = (votosMap[r.nominado_nombre]||0)+1; });
+    var top5 = Object.entries(votosMap).sort(function(a,b){ return b[1]-a[1]; }).slice(0,5);
+    var rColors = ['linear-gradient(135deg,#FCD34D,#F59E0B)','linear-gradient(135deg,var(--hugo),var(--purple))','linear-gradient(135deg,var(--teal),#059669)','linear-gradient(135deg,#EC4899,#DB2777)','linear-gradient(135deg,#6366F1,#4F46E5)'];
+    var top5El = document.getElementById('db-reco-top5');
+    if (top5El) {
+      top5El.innerHTML = '';
+      if (top5.length === 0) {
+        top5El.innerHTML = '<div style="font-size:13px;color:var(--text2);text-align:center;padding:12px">Sin reconocimientos aún</div>';
+      } else {
+        top5.forEach(function(kv, i) {
+          var nom = kv[0]; var cnt = kv[1];
+          var ini = nom.split(' ').map(function(w){ return w[0]||''; }).slice(0,2).join('').toUpperCase();
+          top5El.innerHTML +=
+            '<div style="display:flex;align-items:center;gap:12px">'+
+            '<div style="width:28px;height:28px;border-radius:50%;background:'+rColors[i%rColors.length]+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0">'+ini+'</div>'+
+            '<div style="flex:1;font-size:13px;font-weight:500">'+nom+'</div>'+
+            '<span style="font-size:12px;font-weight:700;color:var(--text)">'+cnt+' votos</span></div>';
+        });
+      }
+    }
+
+    // Categories
+    var catsMap = {};
+    recos.forEach(function(r){
+      var vals = Array.isArray(r.valores) ? r.valores : [];
+      vals.forEach(function(v){ catsMap[v] = (catsMap[v]||0)+1; });
+    });
+    var catsEl = document.getElementById('db-reco-cats');
+    if (catsEl) {
+      var catArr = Object.entries(catsMap).sort(function(a,b){ return b[1]-a[1]; });
+      var cTot = catArr.reduce(function(s,x){ return s+x[1]; },0) || 1;
+      if (catArr.length > 0) {
+        catsEl.innerHTML = '';
+        catArr.forEach(function(kv){
+          var cat = kv[0]; var cnt = kv[1];
+          var pct = Math.round((cnt/cTot)*100);
+          catsEl.innerHTML +=
+            '<div class="mbar"><div class="mbar-h"><span class="mbar-n">'+cat+'</span><span class="mbar-p">'+pct+'%</span></div>'+
+            '<div class="mbar-t"><div class="mbar-f" style="width:'+pct+'%;background:var(--purple)"></div></div></div>';
+        });
+      }
+    }
+
+  } catch(e) { console.error('[Supabase] cargarMetricasAdmin:', e); }
 }
 
 // ── Guardar configuración ────────────────────────────────────
@@ -2832,9 +2975,11 @@ async function sbGuardarConfig(clave, valor) {
 }
 
 // ══════════════════════════════════════════════════════════════
-//  INIT: cargar dinámicas desde Supabase al abrir el admin
+//  INIT: cargar dinámicas y métricas desde Supabase al abrir
 // ══════════════════════════════════════════════════════════════
 sbCargarDinamicasAdmin();
+sbCargarMetricasAdmin();
+setInterval(sbCargarMetricasAdmin, 15000);  // refresca métricas cada 15s
 
 // Realtime: notificar al admin cuando llegan respuestas
 _sb.channel('admin-metrics')
