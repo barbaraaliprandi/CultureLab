@@ -2057,14 +2057,35 @@ function render(){
 }
 
 function toggleDin(id){
-  const d=dinamicas.find(x=>x.id===id);
+  var d=dinamicas.find(function(x){return x.id===id;});
   if(!d||d.status==='pasada') return;
-  d.status=d.status==='activa'?'inactiva':'activa';
-  render(); showToast(d.type+' '+(d.status==='activa'?'activada':'pausada'));
+  var nuevoEstado = d.status==='activa' ? 'inactiva' : 'activa';
+  d.status = nuevoEstado;
+  render(); showToast(d.type+' '+(nuevoEstado==='activa'?'activada':'pausada'));
+  // Persistir en Supabase y recargar lista
+  if (d.sbId) {
+    _sb.from('dinamicas').update({ estado: nuevoEstado }).eq('id', d.sbId)
+      .then(function(res){
+        if(res.error) console.error('[Supabase] toggleDin error:', res.error);
+        else sbCargarDinamicasAdmin();
+      });
+  }
 }
 function eliminarDin(id){
-  dinamicas = dinamicas.filter(x=>x.id!==id);
+  var d=dinamicas.find(function(x){return x.id===id;});
+  if(!d) return;
+  if(!confirm('¿Estás seguro de que querés eliminar "'+d.title+'"? Esta acción no se puede deshacer.')) return;
+  dinamicas = dinamicas.filter(function(x){return x.id!==id;});
   render(); showToast('Dinámica eliminada');
+  // Eliminar en Supabase (y sus preguntas asociadas) y recargar
+  if (d.sbId) {
+    _sb.from('preguntas').delete().eq('dinamica_id', d.sbId)
+      .then(function(){ return _sb.from('dinamicas').delete().eq('id', d.sbId); })
+      .then(function(res){
+        if(res.error) console.error('[Supabase] eliminarDin error:', res.error);
+        else sbCargarDinamicasAdmin();
+      });
+  }
 }
 function closeAllRowPopovers(){
   document.querySelectorAll('.row-popover.show').forEach(p=>p.classList.remove('show'));
@@ -2076,9 +2097,60 @@ function toggleRowPopover(e, id){
   closeAllRowPopovers();
   if(!wasOpen) pop.classList.add('show');
 }
-function editDin(id){
-  const d=dinamicas.find(x=>x.id===id);
-  if(d&&d.typeKey==='daily') openDailyPlay();
+async function editDin(id){
+  var d = dinamicas.find(function(x){ return x.id===id; });
+  if (!d) return;
+
+  if (d.typeKey === 'daily') {
+    openDailyPlay();
+    // Pre-popular nombre
+    var nameInput = document.getElementById('dp-name');
+    if (nameInput) nameInput.value = d.title || '';
+    // Guardar referencia al sbId para actualizar en vez de crear
+    window._editingSbId = d.sbId || null;
+    // Cargar preguntas desde Supabase
+    if (d.sbId) {
+      try {
+        var res = await _sb.from('preguntas').select('*').eq('dinamica_id', d.sbId).order('orden');
+        var pregs = res.data || [];
+        if (pregs.length > 0) {
+          document.getElementById('questions-list').innerHTML = '';
+          qCount = 0;
+          pregs.forEach(function(p) {
+            addQuestion();
+            var cards = document.querySelectorAll('#questions-list .q-card');
+            var card = cards[cards.length - 1];
+            if (!card) return;
+            // Rellenar texto de pregunta
+            var inputs = card.querySelectorAll('input[type=text]');
+            var textoInput = null;
+            inputs.forEach(function(inp){ if (!inp.closest('.opt-row') && !textoInput) textoInput = inp; });
+            if (textoInput) textoInput.value = p.texto || '';
+            // Rellenar opciones
+            var optInputs = card.querySelectorAll('.opt-row input[type=text]');
+            if (p.opciones && p.opciones.length) {
+              p.opciones.forEach(function(op, i) {
+                if (optInputs[i]) optInputs[i].value = op;
+              });
+              // Marcar la correcta
+              var optRows = card.querySelectorAll('.opt-row');
+              optRows.forEach(function(r){ r.classList.remove('ok'); });
+              if (optRows[p.respuesta_correcta]) optRows[p.respuesta_correcta].classList.add('ok');
+            }
+          });
+        }
+      } catch(e) { console.error('[Supabase] editDin preguntas:', e); }
+    }
+  }
+  if (d.typeKey === 'pulse') {
+    openPulse();
+    var pulseNameInput = document.getElementById('pulse-name');
+    if (pulseNameInput) pulseNameInput.value = d.title || '';
+    window._editingSbId = d.sbId || null;
+  }
+  if (d.typeKey === 'reco') {
+    showToast('Edición de Reconocimiento próximamente');
+  }
 }
 function duplicar(id){
   const d=dinamicas.find(x=>x.id===id);
@@ -2222,7 +2294,14 @@ function saveDailyPlay(){
       var correctaIdx = Array.from(card.querySelectorAll('.opt-row')).findIndex(function(r){ return r.classList.contains('ok'); });
       if(texto) preguntas.push({ texto: texto, opciones: opciones, correcta: correctaIdx >= 0 ? correctaIdx : 0 });
     });
-    if(typeof sbCrearDailyPlay === 'function') sbCrearDailyPlay(name, 'activa', preguntas);
+    if (window._editingSbId) {
+      // Editando: actualizar en Supabase
+      if(typeof sbActualizarDailyPlay === 'function') sbActualizarDailyPlay(window._editingSbId, name, preguntas);
+      window._editingSbId = null;
+    } else {
+      // Creando nueva
+      if(typeof sbCrearDailyPlay === 'function') sbCrearDailyPlay(name, 'activa', preguntas);
+    }
   })();
   // ──────────────────────────────────────────────────────────
   dinamicas.unshift({id:nextId++,typeKey:'daily',type:'Daily Play',title:name,start:fmt(t),end:fmt(e),status,part:0,sumaPuntos:rankingActive?ptsActive:false});
@@ -2538,6 +2617,7 @@ function validateDates(){
 
 function openDailyPlay(){
   popover.classList.remove('show');
+  window._editingSbId = null; // reset — es creación nueva
   currentStep=0; qCount=0;
   document.getElementById('questions-list').innerHTML='';
   addQuestion();
@@ -2582,6 +2662,7 @@ let pulseSegLabel = 'Sin asignar';
 
 function openPulse(){
   if(document.getElementById('popover')) document.getElementById('popover').classList.remove('show');
+  window._editingSbId = null; // reset — es creación nueva
   pulseStep = 0;
   pulseSegLabel = 'Sin asignar';
   var n = document.getElementById('pulse-name'); if(n) n.value='';
@@ -2783,6 +2864,24 @@ async function sbCrearDailyPlay(nombre, estado, preguntas) {
     sbToast('✅ Daily Play guardado en Supabase');
     return din;
   } catch(e) { sbToast('❌ Error guardando Daily Play', false); console.error(e); return null; }
+}
+
+// ── Actualizar Daily Play existente ──────────────────────────
+async function sbActualizarDailyPlay(sbId, nombre, preguntas) {
+  try {
+    var { error: e1 } = await _sb.from('dinamicas').update({ nombre: nombre }).eq('id', sbId);
+    if (e1) throw e1;
+    // Borrar preguntas viejas y crear nuevas
+    await _sb.from('preguntas').delete().eq('dinamica_id', sbId);
+    if (preguntas && preguntas.length) {
+      var rows = preguntas.map(function(p, i) {
+        return { dinamica_id: sbId, texto: p.texto || p, opciones: p.opciones || [], respuesta_correcta: p.correcta || 0, tiempo_segundos: 15, orden: i };
+      });
+      var { error: e2 } = await _sb.from('preguntas').insert(rows);
+      if (e2) throw e2;
+    }
+    sbToast('✅ Daily Play actualizada');
+  } catch(e) { sbToast('❌ Error actualizando Daily Play', false); console.error(e); }
 }
 
 // ── Crear Pulso ──────────────────────────────────────────────
