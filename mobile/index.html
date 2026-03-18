@@ -2915,145 +2915,263 @@ function clToggleSec(btn, secId) {
 <!-- ═══ SUPABASE — MOBILE FUNCTIONS ═════════════════════ -->
 <script>
 // ══════════════════════════════════════════════════════════════
-//  MOBILE → SUPABASE
-//  Lee dinámicas activas y persiste respuestas del empleado.
+//  MOBILE → SUPABASE  (v2 — render en tiempo real)
 // ══════════════════════════════════════════════════════════════
 
-// Nombre del empleado (podés expandir esto con un login)
+// Nombre del empleado activo
 let _empleadoNombre = localStorage.getItem('humand_nombre') || 'Colaborador';
-
-function setEmpleado(nombre) {
-  _empleadoNombre = nombre;
-  localStorage.setItem('humand_nombre', nombre);
-}
+function setEmpleado(n) { _empleadoNombre = n; localStorage.setItem('humand_nombre', n); }
 
 // ── Cargar Daily Play activo ─────────────────────────────────
 async function sbCargarDailyPlay() {
   try {
     const { data, error } = await _sb.from('dinamicas')
-      .select('*, preguntas(*)')
-      .eq('tipo', 'daily_play').eq('estado', 'activa')
-      .order('created_at', { ascending: false }).limit(1).single();
+      .select('id, nombre, preguntas(id,texto,opciones,respuesta_correcta,orden)')
+      .eq('tipo','daily_play').eq('estado','activa')
+      .order('created_at',{ascending:false}).limit(1).maybeSingle();
     if (error) throw error;
-    // Ordenar preguntas
     if (data && data.preguntas) data.preguntas.sort((a,b)=>a.orden-b.orden);
     return data;
-  } catch(e) { console.warn('[Supabase] No hay Daily Play activo:', e.message); return null; }
+  } catch(e) { console.warn('[Supabase] sin Daily Play activo:',e.message); return null; }
+}
+
+// ── Poblar UI de trivia con datos reales ─────────────────────
+let _activeDailyPlay = null;
+let _activeQIndex    = 0;
+
+async function sbPopularTrivia(ovId) {
+  const dp = await sbCargarDailyPlay();
+  if (!dp || !dp.preguntas || !dp.preguntas.length) return; // sin datos → usa hardcoded
+  _activeDailyPlay = dp;
+  _activeQIndex = 0;
+  sbRenderPregunta(ovId);
+}
+
+function sbRenderPregunta(ovId) {
+  const ov = document.getElementById(ovId);
+  if (!ov || !_activeDailyPlay) return;
+  const p = _activeDailyPlay.preguntas[_activeQIndex];
+  if (!p) return;
+
+  // Texto de la pregunta
+  const tq = ov.querySelector('.t-q');
+  if (tq) tq.textContent = p.texto;
+
+  // Opciones
+  const opts = ov.querySelectorAll('.opt');
+  if (p.opciones && p.opciones.length) {
+    p.opciones.forEach((op, i) => {
+      if (opts[i]) {
+        opts[i].textContent = op;
+        // reemplazar handler onclick para saber si es correcto
+        const esCorrecta = (i === p.respuesta_correcta);
+        opts[i].onclick = function() { sbDans(this, esCorrecta, ovId); };
+      }
+    });
+  }
+}
+
+function sbDans(btn, esCorrecta, ovId) {
+  // Llamar función original de animación
+  if (ovId === 'ov-daily' && window.dAns) {
+    // replicar lógica visual sin llamar dAns (ya que cambiamos onclick)
+    const ov = document.getElementById(ovId);
+    ov.querySelectorAll('.opt').forEach(o => {
+      o.disabled = true;
+      if (o === btn) o.classList.add(esCorrecta ? 'correct' : 'wrong');
+      else if (o.onclick === null) o.classList.add('wrong');
+    });
+  }
+  const puntos = esCorrecta ? 10 : 0;
+  sbEnviarRespuesta(
+    _activeDailyPlay?.id,
+    _activeDailyPlay?.preguntas[_activeQIndex]?.id,
+    null, esCorrecta, puntos
+  );
+  if (esCorrecta) sbToast('🎯 ¡Correcto! +10 puntos');
 }
 
 // ── Enviar respuesta a trivia ────────────────────────────────
 async function sbEnviarRespuesta(dinamicaId, preguntaId, elegida, esCorrecta, puntos) {
   try {
-    const { error } = await _sb.from('respuestas').insert({
-      dinamica_id: dinamicaId, pregunta_id: preguntaId,
+    await _sb.from('respuestas').insert({
+      dinamica_id: dinamicaId || null,
+      pregunta_id: preguntaId || null,
       empleado_nombre: _empleadoNombre,
-      respuesta_elegida: elegida, es_correcta: esCorrecta,
+      respuesta_elegida: elegida,
+      es_correcta: esCorrecta,
       puntos_ganados: puntos
     });
-    if (error) throw error;
-    await sbActualizarRanking(puntos, 'daily');
+    if (puntos > 0) await sbActualizarRanking(puntos, 'daily');
   } catch(e) { console.error('[Supabase] enviarRespuesta:', e); }
 }
 
 // ── Enviar Pulso ─────────────────────────────────────────────
 async function sbEnviarPulso(dinamicaId, emoji, sentimiento, motivos) {
   try {
-    const { error } = await _sb.from('pulso_respuestas').insert({
-      dinamica_id: dinamicaId, emoji, sentimiento,
-      motivos: motivos || [], anonimo: true
+    await _sb.from('pulso_respuestas').insert({
+      dinamica_id: dinamicaId || null,
+      emoji, sentimiento, motivos: motivos || [], anonimo: true
     });
-    if (error) throw error;
     await sbActualizarRanking(5, 'pulso');
     sbToast('💛 Pulso enviado — +5 puntos');
+    setTimeout(sbRenderRanking, 500); // refrescar ranking tras 500ms
   } catch(e) { console.error('[Supabase] enviarPulso:', e); }
 }
 
 // ── Enviar Reconocimiento ────────────────────────────────────
 async function sbEnviarReconocimiento(dinamicaId, nominado, tipo, mensaje) {
   try {
-    const { error } = await _sb.from('reconocimientos').insert({
-      dinamica_id: dinamicaId,
+    await _sb.from('reconocimientos').insert({
+      dinamica_id: dinamicaId || null,
       nominador_nombre: _empleadoNombre,
       nominado_nombre: nominado,
       tipo_reconocimiento: tipo, mensaje, valores: []
     });
-    if (error) throw error;
     await sbActualizarRanking(3, 'reconocimiento');
     sbToast('⭐ Reconocimiento enviado — +3 puntos');
   } catch(e) { console.error('[Supabase] enviarReconocimiento:', e); }
 }
 
-// ── Actualizar ranking ───────────────────────────────────────
+// ── Actualizar ranking en Supabase ───────────────────────────
 async function sbActualizarRanking(puntos, tipo) {
   try {
-    const { data: existing } = await _sb.from('rankings')
-      .select('*').eq('empleado_nombre', _empleadoNombre).maybeSingle();
+    const { data: ex } = await _sb.from('rankings')
+      .select('id,puntos_total,puntos_daily,puntos_pulso,puntos_reconocimiento')
+      .eq('empleado_nombre', _empleadoNombre)
+      .limit(1).maybeSingle();
 
-    if (existing) {
-      const upd = { puntos_total: existing.puntos_total + puntos, updated_at: new Date().toISOString() };
-      if (tipo==='daily') upd.puntos_daily = existing.puntos_daily + puntos;
-      if (tipo==='pulso') upd.puntos_pulso = existing.puntos_pulso + puntos;
-      if (tipo==='reconocimiento') upd.puntos_reconocimiento = existing.puntos_reconocimiento + puntos;
-      await _sb.from('rankings').update(upd).eq('id', existing.id);
+    if (ex) {
+      const upd = {
+        puntos_total: (ex.puntos_total||0) + puntos,
+        updated_at: new Date().toISOString()
+      };
+      if (tipo==='daily')          upd.puntos_daily          = (ex.puntos_daily||0) + puntos;
+      if (tipo==='pulso')          upd.puntos_pulso          = (ex.puntos_pulso||0) + puntos;
+      if (tipo==='reconocimiento') upd.puntos_reconocimiento = (ex.puntos_reconocimiento||0) + puntos;
+      const { error } = await _sb.from('rankings').update(upd).eq('id', ex.id);
+      if (error) throw error;
     } else {
-      const ins = { empleado_nombre: _empleadoNombre, puntos_total: puntos };
-      if (tipo==='daily') ins.puntos_daily = puntos;
-      if (tipo==='pulso') ins.puntos_pulso = puntos;
-      if (tipo==='reconocimiento') ins.puntos_reconocimiento = puntos;
-      await _sb.from('rankings').insert(ins);
+      const ins = {
+        empleado_nombre: _empleadoNombre,
+        puntos_total: puntos,
+        puntos_daily: tipo==='daily' ? puntos : 0,
+        puntos_pulso: tipo==='pulso' ? puntos : 0,
+        puntos_reconocimiento: tipo==='reconocimiento' ? puntos : 0
+      };
+      const { error } = await _sb.from('rankings').insert(ins);
+      if (error) throw error;
     }
+    console.log('[Supabase] ranking actualizado:', _empleadoNombre, '+'+puntos, tipo);
   } catch(e) { console.error('[Supabase] actualizarRanking:', e); }
 }
 
-// ── Cargar ranking ───────────────────────────────────────────
-async function sbCargarRanking() {
+// ── Renderizar ranking real en la UI ─────────────────────────
+const AVATAR_COLORS = ['#4361EE','#10B981','#F59E0B','#8B5CF6','#EC4899','#EF4444','#06B6D4'];
+
+function getInitials(name) {
+  return name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+}
+
+async function sbRenderRanking() {
   try {
     const { data, error } = await _sb.from('rankings')
-      .select('*').order('puntos_total', { ascending: false }).limit(10);
-    if (error) throw error;
-    return data || [];
-  } catch(e) { console.error('[Supabase] cargarRanking:', e); return []; }
+      .select('empleado_nombre,puntos_total')
+      .order('puntos_total',{ascending:false}).limit(10);
+    if (error || !data || !data.length) return;
+
+    const medalas = ['🥇','🥈','🥉'];
+    const rankColors = ['#F59E0B','#9CA3AF','#CD7F32'];
+
+    // ── 1. Ranking principal en Culture Lab (#cl-tab-inicio) ──
+    const clContainer = document.querySelector('#cl-tab-inicio');
+    if (clContainer) {
+      const clRows = clContainer.querySelectorAll('.cl-lb-row');
+      data.forEach((row, i) => {
+        if (clRows[i]) {
+          const medal = clRows[i].querySelector('.cl-lb-medal');
+          if (medal) medal.textContent = medalas[i] || String(i+1);
+          const av = clRows[i].querySelector('.cl-lb-av');
+          if (av) { av.textContent = getInitials(row.empleado_nombre); av.style.background = AVATAR_COLORS[i % AVATAR_COLORS.length]; }
+          const name = clRows[i].querySelector('.cl-lb-name');
+          if (name) {
+            const isMe = row.empleado_nombre === _empleadoNombre;
+            name.textContent = isMe ? row.empleado_nombre + ' (vos)' : row.empleado_nombre;
+          }
+          const pts = clRows[i].querySelector('.cl-lb-pts');
+          if (pts) pts.textContent = row.puntos_total.toLocaleString();
+          const sub = clRows[i].querySelector('.cl-lb-sub');
+          if (sub) sub.textContent = '⚡ ' + row.puntos_total + ' pts';
+          if (row.empleado_nombre === _empleadoNombre) clRows[i].classList.add('me');
+          else clRows[i].classList.remove('me');
+        }
+      });
+    }
+
+    // ── 2. Mini-ranking post trivia (.lb-row en ov-daily) ──────
+    const lbContainers = document.querySelectorAll('.lb-row');
+    if (lbContainers.length >= data.length) {
+      data.slice(0,5).forEach((row, i) => {
+        if (lbContainers[i]) {
+          const nameEl = lbContainers[i].querySelector('.lb-name');
+          const ptsEl  = lbContainers[i].querySelector('.lb-pts');
+          const rankEl = lbContainers[i].querySelector('.lb-rank');
+          if (nameEl) nameEl.textContent = row.empleado_nombre;
+          if (ptsEl)  ptsEl.textContent  = row.puntos_total.toLocaleString() + ' pts';
+          if (rankEl) { rankEl.textContent = String(i+1); rankEl.className = 'lb-rank' + (i<3?' r'+(i+1):''); }
+          lbContainers[i].classList.toggle('lb-you', row.empleado_nombre === _empleadoNombre);
+        }
+      });
+    }
+
+    console.log('[Supabase] ranking renderizado:', data.length, 'entradas');
+  } catch(e) { console.error('[Supabase] renderRanking:', e); }
 }
 
 // ══════════════════════════════════════════════════════════════
-//  HOOKS: conectar botones existentes con Supabase
+//  HOOKS sobre funciones existentes
 // ══════════════════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', async function() {
 
-  // ── Patch pStep (envío de Pulso) ─────────────────────────
+  // ── Patch pStep: capturar envío de Pulso ────────────────────
   const _origPStep = window.pStep;
   window.pStep = function(step) {
     _origPStep && _origPStep(step);
-    // Cuando se confirma el pulso (paso ps2 = confirmación)
     if (step === 'ps2') {
-      const emojiSel = document.querySelector('.emoji-btn.sel');
+      const emojiSel = document.querySelector('#ov-pulse .emoji-btn.sel');
       const emoji    = emojiSel ? emojiSel.textContent.trim().split('\n')[0] : '';
-      const lbl      = emojiSel ? emojiSel.querySelector('.emoji-lbl')?.textContent : '';
-      const motivos  = Array.from(document.querySelectorAll('.chip.on')).map(c=>c.textContent.trim());
-      // intentar obtener dinamica_id activa (puede ser null en prototipo sin datos)
+      const lbl      = emojiSel ? emojiSel.querySelector('.emoji-lbl')?.textContent || '' : '';
+      const motivos  = Array.from(document.querySelectorAll('#ov-pulse .chip.on')).map(c=>c.textContent.trim());
       sbEnviarPulso(null, emoji, lbl, motivos);
     }
   };
 
-  // ── Patch dAns (respuesta trivia Daily Play) ─────────────
-  const _origDAns = window.dAns;
-  window.dAns = function(btn, correcta) {
-    _origDAns && _origDAns(btn, correcta);
-    const puntos = correcta ? 10 : 0;
-    sbEnviarRespuesta(null, null, null, correcta, puntos);
-    if (correcta) sbToast('🎯 ¡Correcto! +10 puntos');
+  // ── Patch reopenDaily: cargar trivia real al abrir ──────────
+  const _origReopenDaily = window.reopenDaily;
+  window.reopenDaily = async function() {
+    _origReopenDaily && _origReopenDaily();
+    await sbPopularTrivia('ov-daily');
   };
 
-  // ── Patch d2Ans (trivia 2) ────────────────────────────────
-  const _origD2Ans = window.d2Ans;
-  window.d2Ans = function(btn, correcta) {
-    _origD2Ans && _origD2Ans(btn, correcta);
-    const puntos = correcta ? 10 : 0;
-    sbEnviarRespuesta(null, null, null, correcta, puntos);
-    if (correcta) sbToast('🎯 ¡Correcto! +10 puntos');
+  // ── Patch reopenDaily2: ídem para trivia 2 ──────────────────
+  const _origReopenDaily2 = window.reopenDaily2;
+  window.reopenDaily2 = async function() {
+    _origReopenDaily2 && _origReopenDaily2();
+    await sbPopularTrivia('ov-daily2');
   };
 
-  console.log('[Supabase] Mobile hooks activos ✅');
+  // ── Patch goToCultureLabRanking: refrescar al abrir ranking ─
+  const _origGoRanking = window.goToCultureLabRanking;
+  window.goToCultureLabRanking = async function() {
+    _origGoRanking && _origGoRanking();
+    await sbRenderRanking();
+  };
+
+  // ── Al cargar la app: renderizar ranking y precargar trivia ─
+  await sbRenderRanking();
+  await sbPopularTrivia('ov-daily');
+
+  console.log('[Supabase] Mobile v2 activo ✅');
 });
 </script>
 
