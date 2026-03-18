@@ -2938,8 +2938,8 @@ function clToggleSec(btn, secId) {
 
 <!-- ═══ SUPABASE — MOBILE v3 ════════════════════════════ -->
 
-<!-- Selector de nombre (aparece al cargar) -->
-<div id="sb-name-picker" style="display:none;position:fixed;inset:0;background:rgba(10,15,40,.85);z-index:9999;display:flex;align-items:center;justify-content:center;">
+<!-- Selector de nombre (OCULTO — nombre rota automáticamente) -->
+<div id="sb-name-picker" style="display:none !important;position:fixed;inset:0;background:rgba(10,15,40,.85);z-index:9999;align-items:center;justify-content:center;">
   <div style="background:white;border-radius:24px;padding:32px 24px;width:320px;box-shadow:0 24px 60px rgba(0,0,0,.3);">
     <div style="text-align:center;margin-bottom:20px;">
       <div style="font-size:32px;margin-bottom:8px;">👋</div>
@@ -2960,7 +2960,11 @@ const SB_NAMES = [
   'Ricardo Jiménez','María López','Tomás Herrera','Sofía Ramos'
 ];
 
-let _empleadoNombre = 'Carolina Meoniz';
+// Nombre rota con cada recarga para generar data distinta en demos
+var _nameIdx = parseInt(localStorage.getItem('humand_name_idx') || '0', 10);
+if (_nameIdx >= SB_NAMES.length) _nameIdx = 0;
+let _empleadoNombre = SB_NAMES[_nameIdx];
+localStorage.setItem('humand_name_idx', String((_nameIdx + 1) % SB_NAMES.length));
 
 // ── Mostrar selector de nombre ───────────────────────────────
 function sbMostrarSelectorNombre() {
