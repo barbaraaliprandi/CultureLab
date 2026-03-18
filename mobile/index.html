@@ -2912,268 +2912,294 @@ function clToggleSec(btn, secId) {
 
 </script>
 
-<!-- ═══ SUPABASE — MOBILE FUNCTIONS ═════════════════════ -->
+<!-- ═══ SUPABASE — MOBILE v3 ════════════════════════════ -->
+
+<!-- Selector de nombre (aparece al cargar) -->
+<div id="sb-name-picker" style="display:none;position:fixed;inset:0;background:rgba(10,15,40,.85);z-index:9999;display:flex;align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:24px;padding:32px 24px;width:320px;box-shadow:0 24px 60px rgba(0,0,0,.3);">
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="font-size:32px;margin-bottom:8px;">👋</div>
+      <div style="font-size:18px;font-weight:700;color:#1E2B6E;">¿Quién sos?</div>
+      <div style="font-size:13px;color:#9CA3AF;margin-top:4px;">Seleccioná tu nombre para el ranking</div>
+    </div>
+    <div id="sb-name-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+  </div>
+</div>
+
 <script>
 // ══════════════════════════════════════════════════════════════
-//  MOBILE → SUPABASE  (v2 — render en tiempo real)
+//  MOBILE v3 — Supabase Realtime + nombre fake
 // ══════════════════════════════════════════════════════════════
 
-// Nombre del empleado activo
-let _empleadoNombre = localStorage.getItem('humand_nombre') || 'Colaborador';
-function setEmpleado(n) { _empleadoNombre = n; localStorage.setItem('humand_nombre', n); }
+const SB_NAMES = [
+  'Carolina Meoniz','Valeria Andrade','Daniela Soto',
+  'Ricardo Jiménez','María López','Tomás Herrera','Sofía Ramos'
+];
 
-// ── Cargar Daily Play activo ─────────────────────────────────
-async function sbCargarDailyPlay() {
+let _empleadoNombre = localStorage.getItem('humand_nombre') || null;
+
+// ── Mostrar selector de nombre ───────────────────────────────
+function sbMostrarSelectorNombre() {
+  const picker = document.getElementById('sb-name-picker');
+  const list   = document.getElementById('sb-name-list');
+  if (!picker || !list) return;
+  list.innerHTML = '';
+  SB_NAMES.forEach(function(n) {
+    var btn = document.createElement('button');
+    btn.textContent = n;
+    Object.assign(btn.style, {
+      padding:'12px 16px', borderRadius:'12px', border:'2px solid #E5E7EB',
+      background:'white', fontSize:'14px', fontWeight:'600', color:'#1E2B6E',
+      cursor:'pointer', textAlign:'left', fontFamily:'inherit',
+      transition:'all .15s'
+    });
+    btn.onmouseenter = function(){ btn.style.borderColor='#4361EE'; btn.style.background='#EEF2FF'; };
+    btn.onmouseleave = function(){ btn.style.borderColor='#E5E7EB'; btn.style.background='white'; };
+    btn.onclick = function() {
+      _empleadoNombre = n;
+      localStorage.setItem('humand_nombre', n);
+      picker.style.display = 'none';
+      sbInit();
+    };
+    list.appendChild(btn);
+  });
+  picker.style.display = 'flex';
+}
+
+// ── Init: cargar dinámicas activas + suscribir Realtime ──────
+async function sbInit() {
+  await sbCargarYMostrarDinamicas();
+  await sbRenderRanking();
+  sbSuscribirRealtime();
+}
+
+// ── Cargar dinámicas activas y mostrar bubbles/modals ────────
+async function sbCargarYMostrarDinamicas() {
   try {
     const { data, error } = await _sb.from('dinamicas')
-      .select('id, nombre, preguntas(id,texto,opciones,respuesta_correcta,orden)')
-      .eq('tipo','daily_play').eq('estado','activa')
-      .order('created_at',{ascending:false}).limit(1).maybeSingle();
+      .select('id, tipo, nombre, preguntas(id,texto,opciones,respuesta_correcta,orden)')
+      .eq('estado', 'activa');
     if (error) throw error;
-    if (data && data.preguntas) data.preguntas.sort((a,b)=>a.orden-b.orden);
-    return data;
-  } catch(e) { console.warn('[Supabase] sin Daily Play activo:',e.message); return null; }
+    (data || []).forEach(function(din) { sbMostrarDinamica(din); });
+  } catch(e) { console.error('[Supabase] cargarDinamicas:', e); }
 }
 
-// ── Poblar UI de trivia con datos reales ─────────────────────
-let _activeDailyPlay = null;
-let _activeQIndex    = 0;
-
-async function sbPopularTrivia(ovId) {
-  const dp = await sbCargarDailyPlay();
-  if (!dp || !dp.preguntas || !dp.preguntas.length) return; // sin datos → usa hardcoded
-  _activeDailyPlay = dp;
-  _activeQIndex = 0;
-  sbRenderPregunta(ovId);
+// ── Mostrar la bubble/modal correcta según tipo ──────────────
+function sbMostrarDinamica(din) {
+  if (din.tipo === 'pulso') {
+    window._sbPulsoId = din.id;
+    // Mostrar la pantalla de Pulso si no está activa
+    var sPulse = document.getElementById('s-pulse');
+    if (sPulse && !document.getElementById('ov-pulse').classList.contains('open')) {
+      var bubble = document.getElementById('pulse-bubble');
+      if (bubble) bubble.style.display = 'flex';
+    }
+    sbToast('💛 Nuevo Pulso disponible — ¿Cómo te sentís hoy?');
+  }
+  if (din.tipo === 'daily_play') {
+    window._sbDailyPlay = din;
+    if (din.preguntas) din.preguntas.sort(function(a,b){ return a.orden-b.orden; });
+    var bubble2 = document.getElementById('daily-bubble');
+    if (bubble2) bubble2.style.display = 'flex';
+    sbPopularTrivia('ov-daily', din);
+    sbToast('🎯 Nueva trivia disponible — ¡Jugá ahora!');
+  }
+  if (din.tipo === 'reconocimiento') {
+    window._sbRecoId = din.id;
+    var bubble3 = document.querySelector('#s-recognition') || document.getElementById('s-recognition');
+    sbToast('⭐ Reconocimientos activados — ¡Nominá a un compañero!');
+  }
 }
 
-function sbRenderPregunta(ovId) {
-  const ov = document.getElementById(ovId);
-  if (!ov || !_activeDailyPlay) return;
-  const p = _activeDailyPlay.preguntas[_activeQIndex];
-  if (!p) return;
-
-  // Texto de la pregunta
-  const tq = ov.querySelector('.t-q');
+// ── Poblar trivia con datos reales ───────────────────────────
+function sbPopularTrivia(ovId, din) {
+  if (!din || !din.preguntas || !din.preguntas.length) return;
+  var p = din.preguntas[0];
+  var ov = document.getElementById(ovId);
+  if (!ov) return;
+  var tq = ov.querySelector('.t-q');
   if (tq) tq.textContent = p.texto;
-
-  // Opciones
-  const opts = ov.querySelectorAll('.opt');
+  var opts = ov.querySelectorAll('.opt');
   if (p.opciones && p.opciones.length) {
-    p.opciones.forEach((op, i) => {
+    p.opciones.forEach(function(op, i) {
       if (opts[i]) {
         opts[i].textContent = op;
-        // reemplazar handler onclick para saber si es correcto
-        const esCorrecta = (i === p.respuesta_correcta);
-        opts[i].onclick = function() { sbDans(this, esCorrecta, ovId); };
+        var esCorrecta = (i === p.respuesta_correcta);
+        (function(btn, correcto, pregId, dinId) {
+          btn.onclick = function() {
+            sbDans(btn, correcto, dinId, pregId);
+          };
+        })(opts[i], esCorrecta, p.id, din.id);
       }
     });
   }
 }
 
-function sbDans(btn, esCorrecta, ovId) {
-  // Llamar función original de animación
-  if (ovId === 'ov-daily' && window.dAns) {
-    // replicar lógica visual sin llamar dAns (ya que cambiamos onclick)
-    const ov = document.getElementById(ovId);
-    ov.querySelectorAll('.opt').forEach(o => {
+// ── Respuesta de trivia ──────────────────────────────────────
+function sbDans(btn, esCorrecta, dinId, pregId) {
+  // Animación visual original
+  var ov = btn.closest('.overlay');
+  if (ov) {
+    ov.querySelectorAll('.opt').forEach(function(o) {
       o.disabled = true;
       if (o === btn) o.classList.add(esCorrecta ? 'correct' : 'wrong');
-      else if (o.onclick === null) o.classList.add('wrong');
     });
   }
-  const puntos = esCorrecta ? 10 : 0;
-  sbEnviarRespuesta(
-    _activeDailyPlay?.id,
-    _activeDailyPlay?.preguntas[_activeQIndex]?.id,
-    null, esCorrecta, puntos
-  );
+  var puntos = esCorrecta ? 10 : 0;
+  sbEnviarRespuesta(dinId, pregId, esCorrecta, puntos);
   if (esCorrecta) sbToast('🎯 ¡Correcto! +10 puntos');
+  else sbToast('❌ Incorrecto — sin puntos esta vez');
 }
 
-// ── Enviar respuesta a trivia ────────────────────────────────
-async function sbEnviarRespuesta(dinamicaId, preguntaId, elegida, esCorrecta, puntos) {
+// ── Suscribir Realtime: nuevas dinámicas ─────────────────────
+function sbSuscribirRealtime() {
+  _sb.channel('mobile-dinamicas')
+    .on('postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'dinamicas' },
+      function(payload) {
+        if (payload.new && payload.new.estado === 'activa') {
+          // Cargar preguntas si es daily_play
+          if (payload.new.tipo === 'daily_play') {
+            _sb.from('preguntas').select('*').eq('dinamica_id', payload.new.id)
+              .order('orden').then(function(res) {
+                payload.new.preguntas = res.data || [];
+                sbMostrarDinamica(payload.new);
+              });
+          } else {
+            sbMostrarDinamica(payload.new);
+          }
+        }
+      }
+    )
+    .subscribe(function(status) {
+      console.log('[Supabase] Realtime:', status);
+    });
+}
+
+// ── Guardar respuesta de trivia ──────────────────────────────
+async function sbEnviarRespuesta(dinId, pregId, esCorrecta, puntos) {
   try {
     await _sb.from('respuestas').insert({
-      dinamica_id: dinamicaId || null,
-      pregunta_id: preguntaId || null,
-      empleado_nombre: _empleadoNombre,
-      respuesta_elegida: elegida,
-      es_correcta: esCorrecta,
-      puntos_ganados: puntos
+      dinamica_id: dinId || null, pregunta_id: pregId || null,
+      empleado_nombre: _empleadoNombre || 'Anónimo',
+      es_correcta: esCorrecta, puntos_ganados: puntos
     });
     if (puntos > 0) await sbActualizarRanking(puntos, 'daily');
+    setTimeout(sbRenderRanking, 800);
   } catch(e) { console.error('[Supabase] enviarRespuesta:', e); }
 }
 
-// ── Enviar Pulso ─────────────────────────────────────────────
-async function sbEnviarPulso(dinamicaId, emoji, sentimiento, motivos) {
+// ── Guardar respuesta de Pulso ───────────────────────────────
+async function sbEnviarPulso(emoji, sentimiento, motivos) {
   try {
     await _sb.from('pulso_respuestas').insert({
-      dinamica_id: dinamicaId || null,
-      emoji, sentimiento, motivos: motivos || [], anonimo: true
+      dinamica_id: window._sbPulsoId || null,
+      emoji: emoji, sentimiento: sentimiento,
+      motivos: motivos || [], anonimo: true
     });
     await sbActualizarRanking(5, 'pulso');
     sbToast('💛 Pulso enviado — +5 puntos');
-    setTimeout(sbRenderRanking, 500); // refrescar ranking tras 500ms
+    setTimeout(sbRenderRanking, 800);
   } catch(e) { console.error('[Supabase] enviarPulso:', e); }
 }
 
-// ── Enviar Reconocimiento ────────────────────────────────────
-async function sbEnviarReconocimiento(dinamicaId, nominado, tipo, mensaje) {
+// ── Guardar reconocimiento ───────────────────────────────────
+async function sbEnviarReconocimiento(nominado, tipo, mensaje) {
   try {
     await _sb.from('reconocimientos').insert({
-      dinamica_id: dinamicaId || null,
-      nominador_nombre: _empleadoNombre,
-      nominado_nombre: nominado,
-      tipo_reconocimiento: tipo, mensaje, valores: []
+      dinamica_id: window._sbRecoId || null,
+      nominador_nombre: _empleadoNombre || 'Anónimo',
+      nominado_nombre: nominado, tipo_reconocimiento: tipo, mensaje: mensaje, valores: []
     });
     await sbActualizarRanking(3, 'reconocimiento');
     sbToast('⭐ Reconocimiento enviado — +3 puntos');
   } catch(e) { console.error('[Supabase] enviarReconocimiento:', e); }
 }
 
-// ── Actualizar ranking en Supabase ───────────────────────────
+// ── Actualizar ranking ───────────────────────────────────────
 async function sbActualizarRanking(puntos, tipo) {
+  var nombre = _empleadoNombre || 'Anónimo';
   try {
-    const { data: ex } = await _sb.from('rankings')
-      .select('id,puntos_total,puntos_daily,puntos_pulso,puntos_reconocimiento')
-      .eq('empleado_nombre', _empleadoNombre)
-      .limit(1).maybeSingle();
-
+    var res = await _sb.from('rankings').select('id,puntos_total,puntos_daily,puntos_pulso,puntos_reconocimiento')
+      .eq('empleado_nombre', nombre).limit(1).maybeSingle();
+    var ex = res.data;
     if (ex) {
-      const upd = {
-        puntos_total: (ex.puntos_total||0) + puntos,
-        updated_at: new Date().toISOString()
-      };
-      if (tipo==='daily')          upd.puntos_daily          = (ex.puntos_daily||0) + puntos;
-      if (tipo==='pulso')          upd.puntos_pulso          = (ex.puntos_pulso||0) + puntos;
-      if (tipo==='reconocimiento') upd.puntos_reconocimiento = (ex.puntos_reconocimiento||0) + puntos;
-      const { error } = await _sb.from('rankings').update(upd).eq('id', ex.id);
-      if (error) throw error;
+      var upd = { puntos_total: (ex.puntos_total||0)+puntos, updated_at: new Date().toISOString() };
+      if (tipo==='daily')          upd.puntos_daily          = (ex.puntos_daily||0)+puntos;
+      if (tipo==='pulso')          upd.puntos_pulso          = (ex.puntos_pulso||0)+puntos;
+      if (tipo==='reconocimiento') upd.puntos_reconocimiento = (ex.puntos_reconocimiento||0)+puntos;
+      await _sb.from('rankings').update(upd).eq('id', ex.id);
     } else {
-      const ins = {
-        empleado_nombre: _empleadoNombre,
-        puntos_total: puntos,
-        puntos_daily: tipo==='daily' ? puntos : 0,
-        puntos_pulso: tipo==='pulso' ? puntos : 0,
-        puntos_reconocimiento: tipo==='reconocimiento' ? puntos : 0
-      };
-      const { error } = await _sb.from('rankings').insert(ins);
-      if (error) throw error;
+      var ins = { empleado_nombre: nombre, puntos_total: puntos,
+        puntos_daily: tipo==='daily'?puntos:0,
+        puntos_pulso: tipo==='pulso'?puntos:0,
+        puntos_reconocimiento: tipo==='reconocimiento'?puntos:0 };
+      await _sb.from('rankings').insert(ins);
     }
-    console.log('[Supabase] ranking actualizado:', _empleadoNombre, '+'+puntos, tipo);
-  } catch(e) { console.error('[Supabase] actualizarRanking:', e); }
+  } catch(e) { console.error('[Supabase] ranking:', e); }
 }
 
-// ── Renderizar ranking real en la UI ─────────────────────────
-const AVATAR_COLORS = ['#4361EE','#10B981','#F59E0B','#8B5CF6','#EC4899','#EF4444','#06B6D4'];
-
-function getInitials(name) {
-  return name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
-}
-
+// ── Renderizar ranking en la UI ──────────────────────────────
 async function sbRenderRanking() {
   try {
-    const { data, error } = await _sb.from('rankings')
-      .select('empleado_nombre,puntos_total')
+    var res = await _sb.from('rankings').select('empleado_nombre,puntos_total')
       .order('puntos_total',{ascending:false}).limit(10);
-    if (error || !data || !data.length) return;
-
-    const medalas = ['🥇','🥈','🥉'];
-    const rankColors = ['#F59E0B','#9CA3AF','#CD7F32'];
-
-    // ── 1. Ranking principal en Culture Lab (#cl-tab-inicio) ──
-    const clContainer = document.querySelector('#cl-tab-inicio');
-    if (clContainer) {
-      const clRows = clContainer.querySelectorAll('.cl-lb-row');
-      data.forEach((row, i) => {
-        if (clRows[i]) {
-          const medal = clRows[i].querySelector('.cl-lb-medal');
-          if (medal) medal.textContent = medalas[i] || String(i+1);
-          const av = clRows[i].querySelector('.cl-lb-av');
-          if (av) { av.textContent = getInitials(row.empleado_nombre); av.style.background = AVATAR_COLORS[i % AVATAR_COLORS.length]; }
-          const name = clRows[i].querySelector('.cl-lb-name');
-          if (name) {
-            const isMe = row.empleado_nombre === _empleadoNombre;
-            name.textContent = isMe ? row.empleado_nombre + ' (vos)' : row.empleado_nombre;
-          }
-          const pts = clRows[i].querySelector('.cl-lb-pts');
-          if (pts) pts.textContent = row.puntos_total.toLocaleString();
-          const sub = clRows[i].querySelector('.cl-lb-sub');
-          if (sub) sub.textContent = '⚡ ' + row.puntos_total + ' pts';
-          if (row.empleado_nombre === _empleadoNombre) clRows[i].classList.add('me');
-          else clRows[i].classList.remove('me');
-        }
-      });
-    }
-
-    // ── 2. Mini-ranking post trivia (.lb-row en ov-daily) ──────
-    const lbContainers = document.querySelectorAll('.lb-row');
-    if (lbContainers.length >= data.length) {
-      data.slice(0,5).forEach((row, i) => {
-        if (lbContainers[i]) {
-          const nameEl = lbContainers[i].querySelector('.lb-name');
-          const ptsEl  = lbContainers[i].querySelector('.lb-pts');
-          const rankEl = lbContainers[i].querySelector('.lb-rank');
-          if (nameEl) nameEl.textContent = row.empleado_nombre;
-          if (ptsEl)  ptsEl.textContent  = row.puntos_total.toLocaleString() + ' pts';
-          if (rankEl) { rankEl.textContent = String(i+1); rankEl.className = 'lb-rank' + (i<3?' r'+(i+1):''); }
-          lbContainers[i].classList.toggle('lb-you', row.empleado_nombre === _empleadoNombre);
-        }
-      });
-    }
-
-    console.log('[Supabase] ranking renderizado:', data.length, 'entradas');
+    var data = res.data || [];
+    if (!data.length) return;
+    var medals = ['🥇','🥈','🥉'];
+    // Culture Lab ranking
+    var clRows = document.querySelectorAll('#cl-tab-inicio .cl-lb-row');
+    data.forEach(function(row, i) {
+      if (!clRows[i]) return;
+      var medal = clRows[i].querySelector('.cl-lb-medal');
+      if (medal) medal.textContent = medals[i] || String(i+1);
+      var av = clRows[i].querySelector('.cl-lb-av');
+      var colors = ['#4361EE','#10B981','#F59E0B','#8B5CF6','#EC4899'];
+      if (av) { av.textContent = row.empleado_nombre.split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase(); av.style.background = colors[i%colors.length]; }
+      var name = clRows[i].querySelector('.cl-lb-name');
+      if (name) name.textContent = row.empleado_nombre === _empleadoNombre ? row.empleado_nombre+' (vos)' : row.empleado_nombre;
+      var pts = clRows[i].querySelector('.cl-lb-pts');
+      if (pts) pts.textContent = row.puntos_total.toLocaleString();
+      var sub = clRows[i].querySelector('.cl-lb-sub');
+      if (sub) sub.textContent = '⚡ '+row.puntos_total+' pts';
+      clRows[i].classList.toggle('me', row.empleado_nombre === _empleadoNombre);
+    });
+    // Mini ranking post-trivia
+    var lbRows = document.querySelectorAll('.lb-row');
+    data.slice(0,5).forEach(function(row, i) {
+      if (!lbRows[i]) return;
+      var nameEl = lbRows[i].querySelector('.lb-name');
+      var ptsEl  = lbRows[i].querySelector('.lb-pts');
+      var rankEl = lbRows[i].querySelector('.lb-rank');
+      if (nameEl) nameEl.textContent = row.empleado_nombre;
+      if (ptsEl)  ptsEl.textContent  = row.puntos_total.toLocaleString()+' pts';
+      if (rankEl) { rankEl.textContent = String(i+1); rankEl.className = 'lb-rank'+(i<3?' r'+(i+1):''); }
+      lbRows[i].classList.toggle('lb-you', row.empleado_nombre === _empleadoNombre);
+    });
   } catch(e) { console.error('[Supabase] renderRanking:', e); }
 }
 
-// ══════════════════════════════════════════════════════════════
-//  HOOKS sobre funciones existentes
-//  Ejecutamos directamente (DOM ya cargado al final del body)
-// ══════════════════════════════════════════════════════════════
-(async function patchMobile() {
+// ── Hook Pulso: capturar envío ───────────────────────────────
+var _origPStep = window.pStep;
+window.pStep = function(step) {
+  _origPStep && _origPStep(step);
+  if (step === 'ps2') {
+    var emojiSel = document.querySelector('#ov-pulse .emoji-btn.sel');
+    var emoji    = emojiSel ? emojiSel.textContent.trim().charAt(0) : '';
+    var lbl      = emojiSel ? (emojiSel.querySelector('.emoji-lbl')||{}).textContent||'' : '';
+    var motivos  = Array.from(document.querySelectorAll('#ov-pulse .chip.on')).map(function(c){return c.textContent.trim();});
+    sbEnviarPulso(emoji, lbl, motivos);
+  }
+};
 
-  // ── Patch pStep: capturar envío de Pulso ────────────────────
-  const _origPStep = window.pStep;
-  window.pStep = function(step) {
-    _origPStep && _origPStep(step);
-    if (step === 'ps2') {
-      const emojiSel = document.querySelector('#ov-pulse .emoji-btn.sel');
-      const emoji    = emojiSel ? emojiSel.textContent.trim().split('\n')[0] : '';
-      const lbl      = emojiSel ? emojiSel.querySelector('.emoji-lbl')?.textContent || '' : '';
-      const motivos  = Array.from(document.querySelectorAll('#ov-pulse .chip.on')).map(c=>c.textContent.trim());
-      sbEnviarPulso(null, emoji, lbl, motivos);
-    }
-  };
+// ── Arranque ─────────────────────────────────────────────────
+if (!_empleadoNombre) {
+  sbMostrarSelectorNombre();
+} else {
+  sbInit();
+}
 
-  // ── Patch reopenDaily: cargar trivia real al abrir ──────────
-  const _origReopenDaily = window.reopenDaily;
-  window.reopenDaily = async function() {
-    _origReopenDaily && _origReopenDaily();
-    await sbPopularTrivia('ov-daily');
-  };
-
-  // ── Patch reopenDaily2: ídem para trivia 2 ──────────────────
-  const _origReopenDaily2 = window.reopenDaily2;
-  window.reopenDaily2 = async function() {
-    _origReopenDaily2 && _origReopenDaily2();
-    await sbPopularTrivia('ov-daily2');
-  };
-
-  // ── Patch goToCultureLabRanking: refrescar al abrir ranking ─
-  const _origGoRanking = window.goToCultureLabRanking;
-  window.goToCultureLabRanking = async function() {
-    _origGoRanking && _origGoRanking();
-    await sbRenderRanking();
-  };
-
-  // ── Al cargar la app: renderizar ranking y precargar trivia ─
-  await sbRenderRanking();
-  await sbPopularTrivia('ov-daily');
-
-  console.log('[Supabase] Mobile v2 activo ✅');
-})();
+console.log('[Supabase] Mobile v3 activo ✅');
 </script>
 
 </body>

@@ -1923,6 +1923,9 @@ function activarReconocimiento(){
   const fmt = d => { const p=d.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; };
   const fin = document.getElementById('reco-fecha-fin')?.value;
   const finFmt = fin ? fmt(fin) : fmt(inicio.replace(/(\d{4})-(\d{2})-(\d{2})/,(_,y,m,d)=>`${y}-${m}-${String(parseInt(d)+30).padStart(2,'0')}`));
+  // ── Supabase ───────────────────────────────────────────────
+  if(typeof sbCrearReconocimiento === 'function') sbCrearReconocimiento('Reconocimiento semanal', 'activa');
+  // ──────────────────────────────────────────────────────────
   dinamicas.unshift({id:nextId++,typeKey:'reco',type:'Reconocimiento',title:'Reconocimiento semanal · activo',start:fmt(inicio),end:fin?fmt(fin):finFmt,status:'activa',part:0,sumaPuntos:rankingActive});
   closeRecoDrawer();
   setV('dinamicas');
@@ -2180,6 +2183,21 @@ function saveDailyPlay(){
   const ptsActive = document.getElementById('dp-pts-active')?.checked !== false;
   const fmt=d=>`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
   const t=new Date(); const e=new Date(t); e.setDate(e.getDate()+30);
+  // ── Supabase: guardar ANTES de cerrar el form ──────────────
+  (function(){
+    var preguntas = [];
+    document.querySelectorAll('#questions-list .q-card').forEach(function(card){
+      var inputs = card.querySelectorAll('input[type=text]');
+      var textoEl = null;
+      inputs.forEach(function(inp){ if(!inp.closest('.opt-row') && !textoEl) textoEl = inp; });
+      var texto = textoEl ? textoEl.value.trim() : '';
+      var opciones = Array.from(card.querySelectorAll('.opt-row input[type=text]')).map(function(i){ return i.value.trim(); }).filter(Boolean);
+      var correctaIdx = Array.from(card.querySelectorAll('.opt-row')).findIndex(function(r){ return r.classList.contains('ok'); });
+      if(texto) preguntas.push({ texto: texto, opciones: opciones, correcta: correctaIdx >= 0 ? correctaIdx : 0 });
+    });
+    if(typeof sbCrearDailyPlay === 'function') sbCrearDailyPlay(name, 'activa', preguntas);
+  })();
+  // ──────────────────────────────────────────────────────────
   dinamicas.unshift({id:nextId++,typeKey:'daily',type:'Daily Play',title:name,start:fmt(t),end:fmt(e),status,part:0,sumaPuntos:rankingActive?ptsActive:false});
   closeDailyPlay();
   setV('dinamicas');
@@ -2648,6 +2666,9 @@ function savePulse(){
   var status = document.getElementById('pulse-status')?.value || 'activa';
   var fmt = function(d){ return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear(); };
   var t = new Date(); var e = new Date(t); e.setDate(e.getDate()+7);
+  // ── Supabase: guardar ANTES de cerrar el form ──────────────
+  if(typeof sbCrearPulso === 'function') sbCrearPulso(name, 'activa');
+  // ──────────────────────────────────────────────────────────
   dinamicas.unshift({id:nextId++, typeKey:'pulse', type:'Pulso', title:name, start:fmt(t), end:fmt(e), status:status, part:0, sumaPuntos:rankingActive&&(document.getElementById('pulse-pts-active')?.checked!==false)});
   closePulse();
   setV('dinamicas');
@@ -2784,49 +2805,21 @@ async function sbGuardarConfig(clave, valor) {
 }
 
 // ══════════════════════════════════════════════════════════════
-//  HOOKS via Event Capture (más confiable que parchear funciones)
-//  El capture listener dispara ANTES que el onclick inline,
-//  por lo que podemos leer el form antes de que se limpie.
+//  REALTIME: refrescar métricas cuando llegan respuestas nuevas
 // ══════════════════════════════════════════════════════════════
-document.addEventListener('click', function(e) {
-  const target = e.target.closest ? e.target : e.target.parentElement;
+_sb.channel('admin-metrics')
+  .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'respuestas' }, function() {
+    sbToast('📊 Nueva respuesta de trivia recibida');
+  })
+  .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'pulso_respuestas' }, function() {
+    sbToast('💛 Nueva respuesta de pulso recibida');
+  })
+  .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'reconocimientos' }, function() {
+    sbToast('⭐ Nuevo reconocimiento recibido');
+  })
+  .subscribe();
 
-  // ── Botón "Activar dinámica" de Daily Play ────────────────
-  if (e.target.closest('#btn-save')) {
-    const nombre = document.getElementById('dp-name')?.value.trim() || 'Daily Play';
-    const preguntas = [];
-    document.querySelectorAll('#questions-list .q-card').forEach(function(card) {
-      // El input del enunciado es el .finput dentro del primer .field
-      const inputs = card.querySelectorAll('input[type=text]');
-      // El primero que NO es parte de .opt-row es el enunciado
-      let textoInput = null;
-      inputs.forEach(function(inp) { if (!inp.closest('.opt-row') && !textoInput) textoInput = inp; });
-      const texto = textoInput ? textoInput.value.trim() : '';
-      const opciones = Array.from(card.querySelectorAll('.opt-row input[type=text]')).map(function(i){ return i.value.trim(); }).filter(Boolean);
-      const correctaIdx = Array.from(card.querySelectorAll('.opt-row')).findIndex(function(r){ return r.classList.contains('ok'); });
-      if (texto) preguntas.push({ texto: texto, opciones: opciones, correcta: correctaIdx >= 0 ? correctaIdx : 0 });
-    });
-    console.log('[Supabase] Daily Play capturado:', nombre, JSON.stringify(preguntas));
-    sbCrearDailyPlay(nombre, 'activa', preguntas);
-  }
-
-  // ── Botón "Activar dinámica" de Pulso ────────────────────
-  if (e.target.closest('#pulse-btn-save')) {
-    const nombre = document.getElementById('pulse-name')?.value.trim() || 'Pulso';
-    console.log('[Supabase] Pulso capturado:', nombre);
-    sbCrearPulso(nombre, 'activa');
-  }
-
-  // ── Botón "Activar reconocimientos" ──────────────────────
-  const btnPri = e.target.closest('.btn-pri');
-  if (btnPri && btnPri.textContent.includes('Activar reconocimientos')) {
-    console.log('[Supabase] Reconocimiento capturado');
-    sbCrearReconocimiento('Reconocimiento', 'activa');
-  }
-
-}, true); // true = capture phase, dispara ANTES del onclick
-
-console.log('[Supabase] Admin event capture activo ✅');
+console.log('[Supabase] Admin listo ✅');
 </script>
 
 </body>
