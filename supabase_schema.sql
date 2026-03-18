@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS dinamicas (
   descripcion TEXT,
   estado      TEXT DEFAULT 'activa' CHECK (estado IN ('activa','inactiva','borrador','finalizada')),
   puntos_base INTEGER DEFAULT 10,
-  created_at  TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  created_at  TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  deleted_at  TIMESTAMP WITH TIME ZONE DEFAULT NULL
 );
 
 -- 2. Preguntas (para Daily Play)

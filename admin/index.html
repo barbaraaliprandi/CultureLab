@@ -1892,6 +1892,7 @@ async function sbCargarDinamicasAdmin() {
   try {
     const { data, error } = await _sb.from('dinamicas')
       .select('id, tipo, nombre, estado, created_at')
+      .is('deleted_at', null)
       .order('created_at', { ascending: false });
     if (error) throw error;
     if (!data || !data.length) return;
@@ -2080,19 +2081,17 @@ function toggleDin(id){
 function eliminarDin(id){
   var d=dinamicas.find(function(x){return x.id===id;});
   if(!d) return;
-  if(!confirm('¿Estás seguro de que querés eliminar "'+d.title+'"? Esta acción no se puede deshacer.')) return;
+  if(!confirm('¿Estás seguro de que querés eliminar "'+d.title+'"?')) return;
   dinamicas = dinamicas.filter(function(x){return x.id!==id;});
   render(); showToast('Dinámica eliminada');
-  // Eliminar en Supabase (y sus preguntas asociadas) y recargar
+  // Soft delete: marcar deleted_at en Supabase (no borra el registro)
   if (d.sbId) {
-    console.log('[Admin] eliminarDin sbId='+d.sbId);
+    console.log('[Admin] eliminarDin (soft) sbId='+d.sbId);
     (async function(){
       try {
-        await _sb.from('respuestas').delete().eq('dinamica_id', d.sbId);
-        await _sb.from('preguntas').delete().eq('dinamica_id', d.sbId);
-        var res = await _sb.from('dinamicas').delete().eq('id', d.sbId).select();
+        var res = await _sb.from('dinamicas').update({ deleted_at: new Date().toISOString(), estado: 'inactiva' }).eq('id', d.sbId).select();
         console.log('[Supabase] eliminarDin result:', JSON.stringify(res));
-        if (res.error) { console.error('[Supabase] eliminarDin error:', res.error); showToast('❌ Error eliminando', false); }
+        if (res.error) { console.error('[Supabase] eliminarDin error:', res.error); showToast('❌ Error eliminando'); }
         else sbCargarDinamicasAdmin();
       } catch(e) { console.error('[Supabase] eliminarDin exception:', e); }
     })();

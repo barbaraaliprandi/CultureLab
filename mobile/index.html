@@ -3126,6 +3126,7 @@ async function sbPolling() {
     var res = await _sb.from('dinamicas')
       .select('id, tipo, nombre, estado')
       .eq('estado', 'activa')
+      .is('deleted_at', null)
       .order('created_at', { ascending: false });
     if (res.error) { console.error('[Supabase] polling query error:', res.error); return; }
     var data = res.data || [];
