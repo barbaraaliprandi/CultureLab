@@ -670,14 +670,23 @@ body {
 /* ── Hero card ── */
 .cl-hero {
   background: linear-gradient(180deg, #3851d8 0%, #2c35a1 100%);
-  border-radius: 0; padding: 24px 16px 72px 16px; color: white; margin-bottom: 0;
+  border-radius: 0; padding: 24px 16px 80px 16px; color: white; margin-bottom: 0;
   font-family: var(--font); position: relative; overflow: visible;
 }
 .cl-hero > div:last-child {
   position: absolute; bottom: -40px; left: 16px; right: 16px;
   background: #ffffff; border-radius: 16px;
   box-shadow: -1px 4px 8px 0px rgba(223,224,230,0.6);
-  padding: 16px; display: flex; flex-direction: row; gap: 12px; z-index: 10;
+  padding: 16px; display: flex; flex-direction: row; align-items: center; gap: 12px; z-index: 10;
+}
+.cl-hero > div:last-child > div:first-child {
+  background: transparent !important; border-radius: 0 !important;
+  box-shadow: none !important; flex: 1; display: flex; align-items: center; gap: 10px; padding: 0 !important;
+}
+.cl-hero > div:last-child > div:last-child {
+  background: #f1f4fd !important; border: 1px solid #c5d4f8; border-radius: 8px !important;
+  box-shadow: none !important; padding: 8px 16px !important; flex-shrink: 0;
+  font-size: 14px; font-weight: 700; color: #29317f;
 }
 .cl-hero-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
 .cl-av {
