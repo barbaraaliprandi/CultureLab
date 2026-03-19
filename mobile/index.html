@@ -2241,7 +2241,8 @@ body {
 
         <!-- Ranking table (Figma reference) -->
         <div style="margin-top:16px">
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;margin-bottom:4px">
+          <div class="cl-dyn-section-lbl">Ranking del mes</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;margin-bottom:4px;background:var(--neu-50);border-radius:10px 10px 0 0">
             <div style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--hu-600)">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
               Jugador
@@ -3024,9 +3025,9 @@ async function sbRenderCultureLab() {
         parent.appendChild(empty);
       } else {
         var dynStyles = {
-          pulso:         { cls:'pulse', icon:'💜', sub:'Check-in diario · +5 pts', mod:'pulse' },
-          daily_play:    { cls:'daily', icon:'⚡', sub:'Trivia del día · hasta +30 pts', mod:'daily' },
-          reconocimiento:{ cls:'pulse', icon:'⭐', sub:'Reconocé a tu equipo · +3 pts', mod:'recognition' }
+          pulso:         { cls:'pulse', icon:'💜', sub:'Suma hasta +5pts', mod:'pulse' },
+          daily_play:    { cls:'daily', icon:'⚡', sub:'Suma hasta +30pts', mod:'daily' },
+          reconocimiento:{ cls:'pulse', icon:'⭐', sub:'Suma hasta +3pts', mod:'recognition' }
         };
         dyns.forEach(function(din) {
           var s = dynStyles[din.tipo] || { cls:'daily', icon:'🎯', sub:'', mod:'pulse' };
@@ -3305,7 +3306,7 @@ async function sbRenderRanking() {
         rowEl.style.padding = '10px 12px';
         rowEl.style.borderRadius = '10px';
         rowEl.style.borderBottom = '1px solid var(--neu-100)';
-        if (isMe) rowEl.style.background = 'var(--hu-50)';
+        if (isMe) { rowEl.style.background = 'var(--hu-50)'; rowEl.style.borderLeft = '3px solid var(--hu-600)'; }
 
         // Arrow indicator (up/down/same)
         var arrow = '—';
