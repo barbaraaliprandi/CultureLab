@@ -3123,11 +3123,11 @@ function sbMostrarDinamica(din) {
     // Cargar metadata + contador real de respuestas
     (async function() {
       try {
-        // Contador real
-        var cntRes = await _sb.from('pulso_respuestas').select('id', { count: 'exact', head: true })
-          .eq('dinamica_id', din.id);
+        // Contador real de respuestas
+        var cntRes = await _sb.from('pulso_respuestas').select('id').eq('dinamica_id', din.id);
+        var totalResp = (cntRes.data && cntRes.data.length) ? cntRes.data.length : 0;
         var countEl = document.getElementById('ps2-count');
-        if (countEl && cntRes.count !== null) countEl.textContent = cntRes.count;
+        if (countEl) countEl.textContent = totalResp;
         var dinRes = await _sb.from('dinamicas').select('descripcion').eq('id', din.id).single();
         var meta = {};
         if (dinRes.data && dinRes.data.descripcion) {
@@ -3275,11 +3275,13 @@ async function sbUsuarioYaRespondio(dinId, tipo) {
   try {
     var tabla = tipo === 'daily_play' ? 'respuestas' : tipo === 'pulso' ? 'pulso_respuestas' : 'reconocimientos';
     var campo = tipo === 'reconocimiento' ? 'nominador_nombre' : 'empleado_nombre';
-    // Todas las tablas ahora tienen empleado_nombre (pulso incluido)
-    var res = await _sb.from(tabla).select('id', { count: 'exact', head: true })
+    var res = await _sb.from(tabla).select('id')
       .eq('dinamica_id', dinId)
-      .eq(campo, _empleadoNombre);
-    return (res.count || 0) > 0;
+      .eq(campo, _empleadoNombre)
+      .limit(1);
+    var found = (res.data && res.data.length > 0);
+    console.log('[Supabase] yaRespondio? tabla='+tabla+' din='+dinId+' user='+_empleadoNombre+' → '+found);
+    return found;
   } catch(e) { console.warn('[Supabase] checkRespondio:', e); return false; }
 }
 
@@ -3354,11 +3356,12 @@ async function sbEnviarPulso(emoji, sentimiento, motivos) {
     sbToast('💛 Pulso enviado — +' + ptsPulso + ' puntos');
     // Actualizar contador real de respuestas de este pulso
     if (window._sbPulsoId) {
-      var cntRes = await _sb.from('pulso_respuestas').select('id', { count: 'exact', head: true })
+      var cntRes = await _sb.from('pulso_respuestas').select('id')
         .eq('dinamica_id', window._sbPulsoId);
-      console.log('[Supabase] pulso count result:', JSON.stringify(cntRes));
+      var totalResp = (cntRes.data && cntRes.data.length) ? cntRes.data.length : 0;
+      console.log('[Supabase] pulso count: ' + totalResp);
       var countEl = document.getElementById('ps2-count');
-      if (countEl) countEl.textContent = (cntRes.count !== null && cntRes.count !== undefined) ? cntRes.count : '1';
+      if (countEl) countEl.textContent = totalResp;
     }
     setTimeout(sbRenderRanking, 800);
     // Refrescar Culture Lab cards (quitar esta dinámica de las activas)
