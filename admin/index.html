@@ -2363,11 +2363,53 @@ function addQuestion(){
         <div class="opt-row" id="q${id}-o1"><button class="opt-ck" onclick="setOk(${id},1,'single')">○</button><input type="text" placeholder="Opción B"></div>
         <div class="opt-row" id="q${id}-o2"><button class="opt-ck" onclick="setOk(${id},2,'single')">○</button><input type="text" placeholder="Opción C"></div>
       </div>
+      <button type="button" class="btn-add-opt" onclick="addOption(${id})" style="margin-top:8px;display:flex;align-items:center;gap:6px;padding:8px 14px;background:none;border:1px dashed #c5d4f8;border-radius:8px;font-size:13px;font-weight:600;color:#29317f;cursor:pointer;font-family:'Roboto',sans-serif;transition:all .15s;width:100%;justify-content:center" onmouseover="this.style.background='#f1f4fd'" onmouseout="this.style.background='none'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Agregar opción
+      </button>
     </div>`;
   document.getElementById('questions-list').appendChild(el);
 }
 function removeQ(id){
   document.getElementById('q-'+id)?.remove();
+}
+
+function addOption(qId) {
+  var optsList = document.getElementById('q'+qId+'-opts');
+  if (!optsList) return;
+  var existing = optsList.querySelectorAll('.opt-row').length;
+  var letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  var letter = letters[existing] || String(existing + 1);
+  var optId = 'q'+qId+'-o'+existing;
+  var row = document.createElement('div');
+  row.className = 'opt-row';
+  row.id = optId;
+  row.innerHTML = '<button class="opt-ck" onclick="setOk('+qId+','+existing+',&quot;single&quot;)">○</button>' +
+    '<input type="text" placeholder="Opción '+letter+'">' +
+    '<button type="button" onclick="removeOption(&quot;'+optId+'&quot;,'+qId+')" style="background:none;border:none;cursor:pointer;color:#9CA3AF;font-size:16px;padding:4px;flex-shrink:0" title="Eliminar opción">✕</button>';
+  optsList.appendChild(row);
+}
+function removeOption(optId, qId) {
+  var row = document.getElementById(optId);
+  if (!row) return;
+  var wasOk = row.classList.contains('ok');
+  row.remove();
+  // Si se eliminó la correcta, marcar la primera como correcta
+  if (wasOk) {
+    var optsList = document.getElementById('q'+qId+'-opts');
+    if (optsList) {
+      var first = optsList.querySelector('.opt-row');
+      if (first) { first.classList.add('ok'); var ck = first.querySelector('.opt-ck'); if (ck) ck.textContent = '✓'; }
+    }
+  }
+  // Re-numerar los onclick de setOk
+  var optsList = document.getElementById('q'+qId+'-opts');
+  if (optsList) {
+    optsList.querySelectorAll('.opt-row').forEach(function(r, i) {
+      var ck = r.querySelector('.opt-ck');
+      if (ck) ck.setAttribute('onclick', "setOk("+qId+","+i+",'single')");
+    });
+  }
 }
 
 function updateCount(el,id,max){
