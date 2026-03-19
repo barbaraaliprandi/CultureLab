@@ -2111,14 +2111,47 @@ async function editDin(id){
   var d = dinamicas.find(function(x){ return x.id===id; });
   if (!d) return;
 
+  // Cargar metadata guardada en descripcion (JSON)
+  var meta = {};
+  if (d.sbId) {
+    try {
+      var dinRes = await _sb.from('dinamicas').select('descripcion').eq('id', d.sbId).single();
+      if (dinRes.data && dinRes.data.descripcion) {
+        try { meta = JSON.parse(dinRes.data.descripcion); } catch(e) { meta = {}; }
+      }
+    } catch(e) { console.warn('[Supabase] editDin meta:', e); }
+  }
+
   if (d.typeKey === 'daily') {
     openDailyPlay();
-    // Pre-popular nombre
+    window._editingSbId = d.sbId || null;
+    // Nombre
     var nameInput = document.getElementById('dp-name');
     if (nameInput) nameInput.value = d.title || '';
-    // Guardar referencia al sbId para actualizar en vez de crear
-    window._editingSbId = d.sbId || null;
-    // Cargar preguntas desde Supabase
+    // Descripción
+    var descInput = document.getElementById('dp-desc');
+    if (descInput && meta.descripcion) descInput.value = meta.descripcion;
+    // Fechas
+    var startInput = document.getElementById('dp-start');
+    var endInput = document.getElementById('dp-end');
+    if (startInput && meta.fecha_inicio) startInput.value = meta.fecha_inicio;
+    if (endInput && meta.fecha_fin) endInput.value = meta.fecha_fin;
+    // Puntos
+    var ptsCheck = document.getElementById('dp-pts-active');
+    if (ptsCheck && meta.puntos_activos !== undefined) ptsCheck.checked = meta.puntos_activos;
+    // Audiencia
+    var resSeg = document.getElementById('res-seg');
+    if (resSeg && meta.audiencia && meta.audiencia !== 'Sin asignar') {
+      resSeg.textContent = meta.audiencia;
+      // Si es "Toda la comunidad", activar el visual
+      if (meta.audiencia.indexOf('comunidad') !== -1) {
+        var cards = document.getElementById('colab-cards');
+        var activa = document.getElementById('colab-comunidad-activa');
+        if (cards) cards.classList.add('hidden');
+        if (activa) activa.classList.remove('hidden');
+      }
+    }
+    // Preguntas
     if (d.sbId) {
       try {
         var res = await _sb.from('preguntas').select('*').eq('dinamica_id', d.sbId).order('orden');
@@ -2128,21 +2161,16 @@ async function editDin(id){
           qCount = 0;
           pregs.forEach(function(p) {
             addQuestion();
-            var cards = document.querySelectorAll('#questions-list .q-card');
-            var card = cards[cards.length - 1];
+            var qCards = document.querySelectorAll('#questions-list .q-card');
+            var card = qCards[qCards.length - 1];
             if (!card) return;
-            // Rellenar texto de pregunta
             var inputs = card.querySelectorAll('input[type=text]');
             var textoInput = null;
             inputs.forEach(function(inp){ if (!inp.closest('.opt-row') && !textoInput) textoInput = inp; });
             if (textoInput) textoInput.value = p.texto || '';
-            // Rellenar opciones
             var optInputs = card.querySelectorAll('.opt-row input[type=text]');
             if (p.opciones && p.opciones.length) {
-              p.opciones.forEach(function(op, i) {
-                if (optInputs[i]) optInputs[i].value = op;
-              });
-              // Marcar la correcta
+              p.opciones.forEach(function(op, i) { if (optInputs[i]) optInputs[i].value = op; });
               var optRows = card.querySelectorAll('.opt-row');
               optRows.forEach(function(r){ r.classList.remove('ok'); });
               if (optRows[p.respuesta_correcta]) optRows[p.respuesta_correcta].classList.add('ok');
@@ -2152,12 +2180,31 @@ async function editDin(id){
       } catch(e) { console.error('[Supabase] editDin preguntas:', e); }
     }
   }
+
   if (d.typeKey === 'pulse') {
     openPulse();
+    window._editingSbId = d.sbId || null;
+    // Nombre
     var pulseNameInput = document.getElementById('pulse-name');
     if (pulseNameInput) pulseNameInput.value = d.title || '';
-    window._editingSbId = d.sbId || null;
+    // Fechas
+    var pStart = document.getElementById('pulse-start');
+    var pEnd = document.getElementById('pulse-end');
+    if (pStart && meta.fecha_inicio) pStart.value = meta.fecha_inicio;
+    if (pEnd && meta.fecha_fin) pEnd.value = meta.fecha_fin;
+    // Respuesta abierta
+    var openCheck = document.getElementById('pulse-open-field');
+    if (openCheck && meta.respuesta_abierta) openCheck.checked = true;
+    var openLabel = document.getElementById('pulse-open-label');
+    if (openLabel && meta.respuesta_abierta_label) openLabel.value = meta.respuesta_abierta_label;
+    // Puntos
+    var pPts = document.getElementById('pulse-pts-active');
+    if (pPts && meta.puntos_activos !== undefined) pPts.checked = meta.puntos_activos;
+    // Audiencia
+    var pSeg = document.getElementById('pres-seg');
+    if (pSeg && meta.audiencia) pSeg.textContent = meta.audiencia;
   }
+
   if (d.typeKey === 'reco') {
     showToast('Edición de Reconocimiento próximamente');
   }
@@ -2304,13 +2351,19 @@ function saveDailyPlay(){
       var correctaIdx = Array.from(card.querySelectorAll('.opt-row')).findIndex(function(r){ return r.classList.contains('ok'); });
       if(texto) preguntas.push({ texto: texto, opciones: opciones, correcta: correctaIdx >= 0 ? correctaIdx : 0 });
     });
+    // Recopilar metadata extra del form
+    var meta = {
+      fecha_inicio: document.getElementById('dp-start') ? document.getElementById('dp-start').value : '',
+      fecha_fin: document.getElementById('dp-end') ? document.getElementById('dp-end').value : '',
+      descripcion: document.getElementById('dp-desc') ? document.getElementById('dp-desc').value.trim() : '',
+      puntos_activos: document.getElementById('dp-pts-active') ? document.getElementById('dp-pts-active').checked : true,
+      audiencia: document.getElementById('res-seg') ? document.getElementById('res-seg').textContent.trim() : 'Sin asignar'
+    };
     if (window._editingSbId) {
-      // Editando: actualizar en Supabase
-      if(typeof sbActualizarDailyPlay === 'function') sbActualizarDailyPlay(window._editingSbId, name, preguntas);
+      if(typeof sbActualizarDailyPlay === 'function') sbActualizarDailyPlay(window._editingSbId, name, preguntas, meta);
       window._editingSbId = null;
     } else {
-      // Creando nueva
-      if(typeof sbCrearDailyPlay === 'function') sbCrearDailyPlay(name, 'activa', preguntas);
+      if(typeof sbCrearDailyPlay === 'function') sbCrearDailyPlay(name, 'activa', preguntas, meta);
     }
   })();
   // ──────────────────────────────────────────────────────────
@@ -2786,8 +2839,21 @@ function savePulse(){
   var status = document.getElementById('pulse-status')?.value || 'activa';
   var fmt = function(d){ return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear(); };
   var t = new Date(); var e = new Date(t); e.setDate(e.getDate()+7);
-  // ── Supabase: guardar ANTES de cerrar el form ──────────────
-  if(typeof sbCrearPulso === 'function') sbCrearPulso(name, 'activa');
+  // ── Supabase: guardar con metadata ──────────────────────────
+  var pulseMeta = {
+    fecha_inicio: document.getElementById('pulse-start') ? document.getElementById('pulse-start').value : '',
+    fecha_fin: document.getElementById('pulse-end') ? document.getElementById('pulse-end').value : '',
+    respuesta_abierta: document.getElementById('pulse-open-field') ? document.getElementById('pulse-open-field').checked : false,
+    respuesta_abierta_label: document.getElementById('pulse-open-label') ? document.getElementById('pulse-open-label').value.trim() : '',
+    puntos_activos: document.getElementById('pulse-pts-active') ? document.getElementById('pulse-pts-active').checked : true,
+    audiencia: document.getElementById('pres-seg') ? document.getElementById('pres-seg').textContent.trim() : 'Sin asignar'
+  };
+  if (window._editingSbId) {
+    if(typeof sbActualizarPulso === 'function') sbActualizarPulso(window._editingSbId, name, pulseMeta);
+    window._editingSbId = null;
+  } else {
+    if(typeof sbCrearPulso === 'function') sbCrearPulso(name, 'activa', pulseMeta);
+  }
   // ──────────────────────────────────────────────────────────
   dinamicas.unshift({id:nextId++, typeKey:'pulse', type:'Pulso', title:name, start:fmt(t), end:fmt(e), status:status, part:0, sumaPuntos:rankingActive&&(document.getElementById('pulse-pts-active')?.checked!==false)});
   closePulse();
@@ -2856,11 +2922,12 @@ async function sbCargarDinamicas() {
 }
 
 // ── Crear Daily Play ─────────────────────────────────────────
-async function sbCrearDailyPlay(nombre, estado, preguntas) {
+async function sbCrearDailyPlay(nombre, estado, preguntas, meta) {
   try {
+    var metaJson = JSON.stringify(meta || {});
     const { data: din, error: e1 } = await _sb
       .from('dinamicas')
-      .insert({ tipo: 'daily_play', nombre, estado, descripcion: '' })
+      .insert({ tipo: 'daily_play', nombre: nombre, estado: estado, descripcion: metaJson })
       .select().single();
     if (e1) throw e1;
 
@@ -2879,9 +2946,10 @@ async function sbCrearDailyPlay(nombre, estado, preguntas) {
 }
 
 // ── Actualizar Daily Play existente ──────────────────────────
-async function sbActualizarDailyPlay(sbId, nombre, preguntas) {
+async function sbActualizarDailyPlay(sbId, nombre, preguntas, meta) {
   try {
-    var { error: e1 } = await _sb.from('dinamicas').update({ nombre: nombre }).eq('id', sbId);
+    var metaJson = JSON.stringify(meta || {});
+    var { error: e1 } = await _sb.from('dinamicas').update({ nombre: nombre, descripcion: metaJson }).eq('id', sbId);
     if (e1) throw e1;
     // Borrar preguntas viejas y crear nuevas
     await _sb.from('preguntas').delete().eq('dinamica_id', sbId);
@@ -2897,13 +2965,24 @@ async function sbActualizarDailyPlay(sbId, nombre, preguntas) {
 }
 
 // ── Crear Pulso ──────────────────────────────────────────────
-async function sbCrearPulso(nombre, estado) {
+async function sbCrearPulso(nombre, estado, meta) {
   try {
+    var metaJson = JSON.stringify(meta || {});
     const { error } = await _sb.from('dinamicas')
-      .insert({ tipo: 'pulso', nombre, estado, descripcion: '' });
+      .insert({ tipo: 'pulso', nombre: nombre, estado: estado, descripcion: metaJson });
     if (error) throw error;
     sbToast('✅ Pulso guardado en Supabase');
   } catch(e) { sbToast('❌ Error guardando Pulso', false); console.error(e); }
+}
+
+// ── Actualizar Pulso existente ───────────────────────────────
+async function sbActualizarPulso(sbId, nombre, meta) {
+  try {
+    var metaJson = JSON.stringify(meta || {});
+    var { error } = await _sb.from('dinamicas').update({ nombre: nombre, descripcion: metaJson }).eq('id', sbId);
+    if (error) throw error;
+    sbToast('✅ Pulso actualizado');
+  } catch(e) { sbToast('❌ Error actualizando Pulso', false); console.error(e); }
 }
 
 // ── Crear Reconocimiento ─────────────────────────────────────
