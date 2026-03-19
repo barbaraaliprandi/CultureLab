@@ -516,10 +516,7 @@
         <div id="dbv-resumen">
           <!-- Card Resumen general -->
           <div class="card" style="margin-bottom:20px">
-            <div style="margin-bottom:16px">
-              <div class="ctit">Resumen general de todas las dinámicas</div>
-              <div style="font-size:13px;color:var(--text2)">Obtené un análisis global de tus dinámicas</div>
-            </div>
+            <div class="ctit" style="margin-bottom:12px">Resumen general de todas las dinámicas</div>
             <div class="g4">
               <div><div class="clbl">Preguntas respondidas</div><div class="cval" id="db-res-activos">0</div><div class="cch nu" id="db-res-activos-cmp">de un total de 0 preguntas</div></div>
               <div><div class="clbl">Colaboradores activos</div><div class="cval" id="db-res-sentimiento">0%</div><div class="cch" id="db-res-sentimiento-cmp"></div></div>
@@ -542,71 +539,7 @@
             </div>
           </div>
 
-          <!-- Ranking — solo si ranking activo -->
-          <div id="db-ranking-block" class="hidden" style="margin-top:20px">
-            <div class="card">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-                <div class="ctit" style="margin-bottom:0"><span style="display:inline-flex;align-items:center;gap:6px"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 21l8 0" /><path d="M12 17l0 4" /><path d="M7 4l10 0" /><path d="M17 4v8a5 5 0 0 1 -10 0v-8" /><path d="M5 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M19 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /></svg> Ranking del período</span></div>
-                <span style="font-size:12px;color:var(--text2);font-weight:500">Top 10 · período actual</span>
-              </div>
-
-              <!-- Header -->
-              <div style="display:grid;grid-template-columns:32px 1fr 80px 80px;gap:0;padding:6px 12px;background:var(--bg2);border-radius:8px;margin-bottom:8px">
-                <span style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em">#</span>
-                <span style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em">Colaborador</span>
-                <span style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;text-align:right">Pts</span>
-                <span style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;text-align:right">Dif.</span>
-              </div>
-
-              <!-- Rows -->
-              <div style="display:flex;flex-direction:column;gap:2px" id="db-res-ranking-rows">
-                <div style="display:grid;grid-template-columns:32px 1fr 80px 80px;align-items:center;padding:10px 12px;border-radius:8px;background:var(--amber-bg)">
-                  <span style="font-size:14px">🥇</span>
-                  <div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#FCD34D,#F59E0B);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white">MG</div><span style="font-size:13px;font-weight:600">María González</span></div>
-                  <span style="font-size:13px;font-weight:700;text-align:right;color:var(--text)">1.240</span>
-                  <span style="font-size:12px;text-align:right;color:var(--teal)">+85</span>
-                </div>
-                <div style="display:grid;grid-template-columns:32px 1fr 80px 80px;align-items:center;padding:10px 12px;border-radius:8px">
-                  <span style="font-size:14px">🥈</span>
-                  <div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--hugo),var(--purple));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white">JR</div><span style="font-size:13px;font-weight:500">Juan Ramírez</span></div>
-                  <span style="font-size:13px;font-weight:700;text-align:right;color:var(--text)">1.180</span>
-                  <span style="font-size:12px;text-align:right;color:var(--teal)">+60</span>
-                </div>
-                <div style="display:grid;grid-template-columns:32px 1fr 80px 80px;align-items:center;padding:10px 12px;border-radius:8px">
-                  <span style="font-size:14px">🥉</span>
-                  <div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--teal),#059669);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white">LF</div><span style="font-size:13px;font-weight:500">Lucía Fernández</span></div>
-                  <span style="font-size:13px;font-weight:700;text-align:right;color:var(--text)">1.095</span>
-                  <span style="font-size:12px;text-align:right;color:var(--teal)">+45</span>
-                </div>
-                <div style="display:grid;grid-template-columns:32px 1fr 80px 80px;align-items:center;padding:10px 12px;border-radius:8px">
-                  <span style="font-size:13px;font-weight:600;color:var(--text2)">4</span>
-                  <div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#EC4899,#DB2777);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white">AS</div><span style="font-size:13px;font-weight:500">Ana Sofía M.</span></div>
-                  <span style="font-size:13px;font-weight:700;text-align:right;color:var(--text)">980</span>
-                  <span style="font-size:12px;text-align:right;color:var(--text3)">—</span>
-                </div>
-                <div style="display:grid;grid-template-columns:32px 1fr 80px 80px;align-items:center;padding:10px 12px;border-radius:8px">
-                  <span style="font-size:13px;font-weight:600;color:var(--text2)">5</span>
-                  <div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#6366F1,#4F46E5);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white">CT</div><span style="font-size:13px;font-weight:500">Carlos Torres</span></div>
-                  <span style="font-size:13px;font-weight:700;text-align:right;color:var(--text)">870</span>
-                  <span style="font-size:12px;text-align:right;color:#DC2626">−20</span>
-                </div>
-                <div style="display:grid;grid-template-columns:32px 1fr 80px 80px;align-items:center;padding:10px 12px;border-radius:8px">
-                  <span style="font-size:13px;font-weight:600;color:var(--text2)">6</span>
-                  <div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#F59E0B,#D97706);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white">DH</div><span style="font-size:13px;font-weight:500">Diego Hernández</span></div>
-                  <span style="font-size:13px;font-weight:700;text-align:right;color:var(--text)">810</span>
-                  <span style="font-size:12px;text-align:right;color:var(--teal)">+30</span>
-                </div>
-                <div style="display:grid;grid-template-columns:32px 1fr 80px 80px;align-items:center;padding:10px 12px;border-radius:8px">
-                  <span style="font-size:13px;font-weight:600;color:var(--text2)">7</span>
-                  <div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#8B5CF6,#7C3AED);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white">VL</div><span style="font-size:13px;font-weight:500">Valentina López</span></div>
-                  <span style="font-size:13px;font-weight:700;text-align:right;color:var(--text)">755</span>
-                  <span style="font-size:12px;text-align:right;color:var(--text3)">—</span>
-                </div>
-              </div>
-
-              <button style="width:100%;margin-top:12px;padding:10px;background:none;border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;font-family:'Roboto',sans-serif;transition:background .15s" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='none'">Ver ranking completo</button>
-            </div>
-          </div>
+          <!-- Ranking eliminado del dashboard -->
         </div>
 
         <!-- ═══ TRIVIA DIARIA ═══ -->
