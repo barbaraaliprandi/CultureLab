@@ -2339,6 +2339,7 @@ function saveDailyPlay(){
   const ptsActive = document.getElementById('dp-pts-active')?.checked !== false;
   const fmt=d=>`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
   const t=new Date(); const e=new Date(t); e.setDate(e.getDate()+30);
+  var isEditing = !!window._editingSbId;
   // ── Supabase: guardar ANTES de cerrar el form ──────────────
   (function(){
     var preguntas = [];
@@ -2351,7 +2352,6 @@ function saveDailyPlay(){
       var correctaIdx = Array.from(card.querySelectorAll('.opt-row')).findIndex(function(r){ return r.classList.contains('ok'); });
       if(texto) preguntas.push({ texto: texto, opciones: opciones, correcta: correctaIdx >= 0 ? correctaIdx : 0 });
     });
-    // Recopilar metadata extra del form
     var meta = {
       fecha_inicio: document.getElementById('dp-start') ? document.getElementById('dp-start').value : '',
       fecha_fin: document.getElementById('dp-end') ? document.getElementById('dp-end').value : '',
@@ -2359,7 +2359,7 @@ function saveDailyPlay(){
       puntos_activos: document.getElementById('dp-pts-active') ? document.getElementById('dp-pts-active').checked : true,
       audiencia: document.getElementById('res-seg') ? document.getElementById('res-seg').textContent.trim() : 'Sin asignar'
     };
-    if (window._editingSbId) {
+    if (isEditing) {
       if(typeof sbActualizarDailyPlay === 'function') sbActualizarDailyPlay(window._editingSbId, name, preguntas, meta);
       window._editingSbId = null;
     } else {
@@ -2367,10 +2367,13 @@ function saveDailyPlay(){
     }
   })();
   // ──────────────────────────────────────────────────────────
-  dinamicas.unshift({id:nextId++,typeKey:'daily',type:'Daily Play',title:name,start:fmt(t),end:fmt(e),status,part:0,sumaPuntos:rankingActive?ptsActive:false});
+  if (!isEditing) {
+    dinamicas.unshift({id:nextId++,typeKey:'daily',type:'Daily Play',title:name,start:fmt(t),end:fmt(e),status,part:0,sumaPuntos:rankingActive?ptsActive:false});
+  }
   closeDailyPlay();
-  setV('dinamicas');
-  showToast('Daily Play guardada · '+(status==='activa'?'activa de inmediato':'guardada como borrador'));
+  // Recargar desde Supabase para reflejar cambios reales
+  setTimeout(function(){ sbCargarDinamicasAdmin(); }, 500);
+  showToast(isEditing ? 'Daily Play actualizada' : 'Daily Play guardada · '+(status==='activa'?'activa de inmediato':'guardada como borrador'));
 }
 
 /* ══ CONFIG ══ */
@@ -2839,6 +2842,7 @@ function savePulse(){
   var status = document.getElementById('pulse-status')?.value || 'activa';
   var fmt = function(d){ return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear(); };
   var t = new Date(); var e = new Date(t); e.setDate(e.getDate()+7);
+  var isEditing = !!window._editingSbId;
   // ── Supabase: guardar con metadata ──────────────────────────
   var pulseMeta = {
     fecha_inicio: document.getElementById('pulse-start') ? document.getElementById('pulse-start').value : '',
@@ -2848,17 +2852,19 @@ function savePulse(){
     puntos_activos: document.getElementById('pulse-pts-active') ? document.getElementById('pulse-pts-active').checked : true,
     audiencia: document.getElementById('pres-seg') ? document.getElementById('pres-seg').textContent.trim() : 'Sin asignar'
   };
-  if (window._editingSbId) {
+  if (isEditing) {
     if(typeof sbActualizarPulso === 'function') sbActualizarPulso(window._editingSbId, name, pulseMeta);
     window._editingSbId = null;
   } else {
     if(typeof sbCrearPulso === 'function') sbCrearPulso(name, 'activa', pulseMeta);
   }
   // ──────────────────────────────────────────────────────────
-  dinamicas.unshift({id:nextId++, typeKey:'pulse', type:'Pulso', title:name, start:fmt(t), end:fmt(e), status:status, part:0, sumaPuntos:rankingActive&&(document.getElementById('pulse-pts-active')?.checked!==false)});
+  if (!isEditing) {
+    dinamicas.unshift({id:nextId++, typeKey:'pulse', type:'Pulso', title:name, start:fmt(t), end:fmt(e), status:status, part:0, sumaPuntos:rankingActive&&(document.getElementById('pulse-pts-active')?.checked!==false)});
+  }
   closePulse();
-  setV('dinamicas');
-  showToast('Pulso guardado · '+(status==='activa'?'activo de inmediato':'guardado como borrador'));
+  setTimeout(function(){ sbCargarDinamicasAdmin(); }, 500);
+  showToast(isEditing ? 'Pulso actualizado' : 'Pulso guardado · '+(status==='activa'?'activo de inmediato':'guardado como borrador'));
 }
 
 function confirmarColabPulse(type, label){
