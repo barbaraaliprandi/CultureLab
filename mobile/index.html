@@ -947,16 +947,16 @@ body {
         <button class="x-btn" onclick="cls('ov-pulse')">✕</button>
         <div id="ps1" class="step on">
           <div class="badge badge-blue">💛 Pulso &amp; Sentimiento</div>
-          <div class="sh-title">¿Cómo te sentís hoy?</div>
-          <div class="sh-sub">Tu respuesta es anónima · 15 comentarios</div>
+          <div class="sh-title" id="pulse-modal-title">¿Cómo te sentís hoy?</div>
+          <div class="sh-sub" id="pulse-modal-sub">Tu respuesta es anónima</div>
           <div class="emoji-row">
-            <button class="emoji-btn" onclick="selEmoji(this,'😄','Muy bien')">😄<span class="emoji-lbl">Muy bien</span></button>
-            <button class="emoji-btn" onclick="selEmoji(this,'😊','Bien')">😊<span class="emoji-lbl">Bien</span></button>
-            <button class="emoji-btn" onclick="selEmoji(this,'😐','Regular')">😐<span class="emoji-lbl">Regular</span></button>
-            <button class="emoji-btn" onclick="selEmoji(this,'😞','Mal')">😞<span class="emoji-lbl">Mal</span></button>
             <button class="emoji-btn" onclick="selEmoji(this,'😤','Muy mal')">😤<span class="emoji-lbl">Muy mal</span></button>
+            <button class="emoji-btn" onclick="selEmoji(this,'😞','Mal')">😞<span class="emoji-lbl">Mal</span></button>
+            <button class="emoji-btn" onclick="selEmoji(this,'😐','Regular')">😐<span class="emoji-lbl">Regular</span></button>
+            <button class="emoji-btn" onclick="selEmoji(this,'😊','Bien')">😊<span class="emoji-lbl">Bien</span></button>
+            <button class="emoji-btn" onclick="selEmoji(this,'😄','Muy bien')">😄<span class="emoji-lbl">Muy bien</span></button>
           </div>
-          <div style="margin-top:14px;">
+          <div id="pulse-open-response-section" style="margin-top:14px;">
             <div style="font-size:11px;font-weight:600;color:#9CA3AF;margin-bottom:6px;display:flex;align-items:center;gap:6px;">
               <span>💬 ¿Querés agregar algo más?</span>
               <span style="font-size:10px;font-weight:400;color:#D1D5DB;font-style:italic;">opcional</span>
@@ -3095,6 +3095,23 @@ function sbMostrarDinamica(din) {
   console.log('[Supabase] sbMostrarDinamica tipo=' + din.tipo);
   if (din.tipo === 'pulso') {
     window._sbPulsoId = din.id;
+    // Setear título del modal con el nombre de la dinámica
+    var titleEl = document.getElementById('pulse-modal-title');
+    if (titleEl) titleEl.textContent = din.nombre || '¿Cómo te sentís hoy?';
+    // Cargar metadata para respuesta abierta
+    (async function() {
+      try {
+        var dinRes = await _sb.from('dinamicas').select('descripcion').eq('id', din.id).single();
+        var meta = {};
+        if (dinRes.data && dinRes.data.descripcion) {
+          try { meta = JSON.parse(dinRes.data.descripcion); } catch(e) {}
+        }
+        var openSection = document.getElementById('pulse-open-response-section');
+        if (openSection) {
+          openSection.style.display = meta.respuesta_abierta ? '' : 'none';
+        }
+      } catch(e) { console.warn('[Supabase] pulse meta:', e); }
+    })();
     // Pulso vive en s-pulse (ya activa por default), abrir overlay
     _sbActivarPantalla('s-pulse');
     var ovP = document.getElementById('ov-pulse');
