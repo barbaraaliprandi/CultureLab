@@ -1891,27 +1891,50 @@ const SB_TYPE_LABEL = { daily_play:'Trivia diaria', pulso:'Pulso', reconocimient
 async function sbCargarDinamicasAdmin() {
   try {
     const { data, error } = await _sb.from('dinamicas')
-      .select('id, tipo, nombre, estado, created_at')
+      .select('id, tipo, nombre, estado, descripcion, created_at')
       .is('deleted_at', null)
       .order('created_at', { ascending: false });
     if (error) throw error;
-    if (!data || !data.length) return;
+    if (!data || !data.length) { dinamicas = []; render(); return; }
     const fmt = function(iso) {
+      if (!iso) return '—';
       const d = new Date(iso);
       return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
     };
+    const fmtDate = function(dateStr) {
+      if (!dateStr) return '—';
+      // dateStr puede ser "2026-03-18" (input date) o ISO
+      var parts = dateStr.split('-');
+      if (parts.length === 3) return parts[2]+'/'+parts[1]+'/'+parts[0];
+      return fmt(dateStr);
+    };
+    var hoy = new Date(); hoy.setHours(0,0,0,0);
     dinamicas = data.map(function(d) {
+      var meta = {};
+      try { if (d.descripcion) meta = JSON.parse(d.descripcion); } catch(e) {}
+      var fechaInicio = meta.fecha_inicio || '';
+      var fechaFin = meta.fecha_fin || '';
+      // Determinar estado: si tiene fecha_fin y ya pasó → finalizada
+      var estado = d.estado;
+      if (fechaFin && estado === 'activa') {
+        var finDate = new Date(fechaFin + 'T23:59:59');
+        if (finDate < hoy) {
+          estado = 'pasada';
+          // Actualizar en Supabase si cambió
+          _sb.from('dinamicas').update({ estado: 'inactiva' }).eq('id', d.id);
+        }
+      }
       return {
         id: nextId++,
         sbId: d.id,
         typeKey: SB_TIPO_MAP[d.tipo] || d.tipo,
         type: SB_TYPE_LABEL[d.tipo] || d.tipo,
         title: d.nombre,
-        start: fmt(d.created_at),
-        end: fmt(d.created_at),
-        status: d.estado === 'activa' ? 'activa' : d.estado,
+        start: fechaInicio ? fmtDate(fechaInicio) : fmt(d.created_at),
+        end: fechaFin ? fmtDate(fechaFin) : fmt(d.created_at),
+        status: estado,
         part: 0,
-        sumaPuntos: false
+        sumaPuntos: meta.puntos_activos !== undefined ? meta.puntos_activos : false
       };
     });
     render();
@@ -2127,6 +2150,16 @@ async function editDin(id){
     } catch(e) { console.warn('[Supabase] editDin meta:', e); }
   }
 
+  // Verificar si la dinámica tiene respuestas (para bloquear toggle de puntos)
+  var tieneRespuestas = false;
+  if (d.sbId) {
+    try {
+      var tabla = d.typeKey === 'daily' ? 'respuestas' : d.typeKey === 'pulse' ? 'pulso_respuestas' : 'reconocimientos';
+      var cntRes = await _sb.from(tabla).select('id', { count: 'exact', head: true }).eq('dinamica_id', d.sbId);
+      tieneRespuestas = (cntRes.count || 0) > 0;
+    } catch(e) { console.warn('[Supabase] check respuestas:', e); }
+  }
+
   if (d.typeKey === 'daily') {
     openDailyPlay();
     window._editingSbId = d.sbId || null;
@@ -2141,9 +2174,20 @@ async function editDin(id){
     var endInput = document.getElementById('dp-end');
     if (startInput && meta.fecha_inicio) startInput.value = meta.fecha_inicio;
     if (endInput && meta.fecha_fin) endInput.value = meta.fecha_fin;
-    // Puntos
+    // Puntos — bloquear si ya tiene respuestas
     var ptsCheck = document.getElementById('dp-pts-active');
-    if (ptsCheck && meta.puntos_activos !== undefined) ptsCheck.checked = meta.puntos_activos;
+    if (ptsCheck) {
+      if (meta.puntos_activos !== undefined) ptsCheck.checked = meta.puntos_activos;
+      if (tieneRespuestas) {
+        ptsCheck.disabled = true;
+        ptsCheck.parentElement.style.opacity = '0.5';
+        ptsCheck.parentElement.title = 'No se puede modificar — esta dinámica ya tiene respuestas';
+      } else {
+        ptsCheck.disabled = false;
+        ptsCheck.parentElement.style.opacity = '';
+        ptsCheck.parentElement.title = '';
+      }
+    }
     // Audiencia
     var resSeg = document.getElementById('res-seg');
     if (resSeg && meta.audiencia && meta.audiencia !== 'Sin asignar') {
@@ -2202,9 +2246,20 @@ async function editDin(id){
     if (openCheck && meta.respuesta_abierta) openCheck.checked = true;
     var openLabel = document.getElementById('pulse-open-label');
     if (openLabel && meta.respuesta_abierta_label) openLabel.value = meta.respuesta_abierta_label;
-    // Puntos
+    // Puntos — bloquear si ya tiene respuestas
     var pPts = document.getElementById('pulse-pts-active');
-    if (pPts && meta.puntos_activos !== undefined) pPts.checked = meta.puntos_activos;
+    if (pPts) {
+      if (meta.puntos_activos !== undefined) pPts.checked = meta.puntos_activos;
+      if (tieneRespuestas) {
+        pPts.disabled = true;
+        pPts.parentElement.style.opacity = '0.5';
+        pPts.parentElement.title = 'No se puede modificar — esta dinámica ya tiene respuestas';
+      } else {
+        pPts.disabled = false;
+        pPts.parentElement.style.opacity = '';
+        pPts.parentElement.title = '';
+      }
+    }
     // Audiencia
     var pSeg = document.getElementById('pres-seg');
     if (pSeg && meta.audiencia) pSeg.textContent = meta.audiencia;
@@ -2328,13 +2383,17 @@ function updateResumen(){
   const rs = document.getElementById('res-seg');        // populated by colab functions
   const rst = document.getElementById('res-status');    if(rst) rst.textContent = statusTxt;
 
-  // Points row
+  // Points row — mostrar valores configurados
   const ptsRow = document.getElementById('res-pts-row');
   const ptsVal = document.getElementById('res-pts');
   if(ptsRow){ ptsRow.style.display = rankingActive ? '' : 'none'; }
   if(ptsVal && rankingActive){
     const ptsOn = document.getElementById('dp-pts-active')?.checked !== false;
-    ptsVal.textContent = ptsOn ? 'Suma puntos al ranking' : 'No suma puntos';
+    if (ptsOn) {
+      ptsVal.textContent = '✅ Activo · 10 pts respuesta correcta + bonus velocidad';
+    } else {
+      ptsVal.textContent = '❌ No suma puntos al ranking';
+    }
   }
 }
 
@@ -2838,7 +2897,11 @@ function pulseUpdateResumen(){
   if(ptsRow){ ptsRow.style.display = rankingActive ? '' : 'none'; }
   if(ptsVal && rankingActive){
     var active = document.getElementById('pulse-pts-active')?.checked;
-    ptsVal.textContent = active ? 'Suma puntos al ranking' : 'No suma puntos';
+    if (active) {
+      ptsVal.textContent = '✅ Activo · 5 pts por respuesta';
+    } else {
+      ptsVal.textContent = '❌ No suma puntos al ranking';
+    }
   }
   // Disponibilidad — solo fechas
   var ps = document.getElementById('pres-start'); if(ps) ps.textContent = start;
