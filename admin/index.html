@@ -514,11 +514,18 @@
 
         <!-- ═══ RESUMEN ═══ -->
         <div id="dbv-resumen">
-          <div class="g4" style="margin-bottom:20px">
-            <div class="card"><div class="clbl">Colaboradores activos</div><div class="cval" id="db-res-activos">68%</div><div class="cch" id="db-res-activos-cmp"></div></div>
-            <div class="card"><div class="clbl">Sentimiento positivo</div><div class="cval" id="db-res-sentimiento">70%</div><div class="cch" id="db-res-sentimiento-cmp"></div></div>
-            <div class="card"><div class="clbl">Módulo más activo</div><div class="cval" id="db-res-modulo" style="font-size:18px;line-height:2.2">Trivia diaria</div><div class="cch nu">89% participación</div></div>
-            <div class="card"><div class="clbl">Total participantes</div><div class="cval" id="db-res-participantes">1.024</div><div class="cch nu">de 1.500 colaboradores</div></div>
+          <!-- Card Resumen general -->
+          <div class="card" style="margin-bottom:20px">
+            <div style="margin-bottom:16px">
+              <div class="ctit">Resumen general de todas las dinámicas</div>
+              <div style="font-size:13px;color:var(--text2)">Obtené un análisis global de tus dinámicas</div>
+            </div>
+            <div class="g4">
+              <div><div class="clbl">Preguntas respondidas</div><div class="cval" id="db-res-activos">0</div><div class="cch nu" id="db-res-activos-cmp">de un total de 0 preguntas</div></div>
+              <div><div class="clbl">Colaboradores activos</div><div class="cval" id="db-res-sentimiento">0%</div><div class="cch" id="db-res-sentimiento-cmp"></div></div>
+              <div><div class="clbl">Tipo de dinámica más activa</div><div class="cval" id="db-res-modulo" style="font-size:18px;line-height:2.2">—</div><div class="cch nu" id="db-res-modulo-sub">0% participación</div></div>
+              <div><div class="clbl">Tasa de respuesta</div><div class="cval" id="db-res-participantes">0%</div><div class="cch nu" id="db-res-participantes-cmp">de los usuarios del batch</div></div>
+            </div>
           </div>
           <div class="g21">
             <div class="card">
@@ -3346,64 +3353,67 @@ async function sbGuardarConfig(clave, valor) {
 // ── Cargar y renderizar resumen del dashboard ────────────────
 async function sbCargarResumenAdmin() {
   try {
+    var SB_TOTAL_USERS = 7;
     var r = await Promise.all([
-      _sb.from('respuestas').select('employee_nombre, id'),
-      _sb.from('pulso_respuestas').select('employee_nombre, sentimiento, emoji'),
+      _sb.from('respuestas').select('empleado_nombre, id'),
+      _sb.from('pulso_respuestas').select('empleado_nombre, sentimiento, emoji'),
       _sb.from('reconocimientos').select('nominado_nombre, nominador_nombre'),
-      _sb.from('rankings').select('*').order('posicion').limit(7)
+      _sb.from('rankings').select('*').order('puntos_total', { ascending: false }).limit(7)
     ]);
     var resp = r[0].data || [];
     var pulsos = r[1].data || [];
     var recos = r[2].data || [];
     var rankings = r[3].data || [];
 
-    // ── Colaboradores activos (participaron en cualquier actividad / 1500 * 100) ──
+    // ── Preguntas respondidas (total respuestas trivia + pulso) ──
+    var totalRespuestas = resp.length + pulsos.length;
+    _setEl('db-res-activos', totalRespuestas.toLocaleString('es-CL'));
+    var activosCmp = document.getElementById('db-res-activos-cmp');
+    if (activosCmp) activosCmp.textContent = 'de todas las dinámicas';
+
+    // ── Colaboradores activos (% de usuarios que participaron) ──
     var activosSet = new Set();
-    resp.forEach(function(x) { if(x.employee_nombre) activosSet.add(x.employee_nombre); });
-    pulsos.forEach(function(x) { if(x.employee_nombre) activosSet.add(x.employee_nombre); });
+    resp.forEach(function(x) { if(x.empleado_nombre) activosSet.add(x.empleado_nombre); });
+    pulsos.forEach(function(x) { if(x.empleado_nombre) activosSet.add(x.empleado_nombre); });
     recos.forEach(function(x) { if(x.nominador_nombre) activosSet.add(x.nominador_nombre); });
-    var colabActivos = Math.round((activosSet.size / 1500) * 100);
-    _setEl('db-res-activos', colabActivos + '%');
+    var colabPct = Math.round((activosSet.size / SB_TOTAL_USERS) * 100);
+    _setEl('db-res-sentimiento', colabPct + '%');
+    var sentCmp = document.getElementById('db-res-sentimiento-cmp');
+    if (sentCmp) sentCmp.textContent = activosSet.size + ' de ' + SB_TOTAL_USERS + ' usuarios';
 
-    // ── Sentimiento positivo (desde pulso) ──
-    var posEmojis = ['😄','🎉','😊','🤩'];
-    var pPos = pulsos.filter(function(p){ return posEmojis.includes(p.emoji) || p.sentimiento === 'positivo' || p.sentimiento === 'muy_positivo'; }).length;
-    var pTotal = pulsos.length || 1;
-    var sentimientoPos = Math.round((pPos / pTotal) * 100);
-    _setEl('db-res-sentimiento', sentimientoPos + '%');
-
-    // ── Módulo más activo ──
+    // ── Tipo de dinámica más activa ──
     var counts = {
       'Trivia diaria': resp.length,
       'Pulso': pulsos.length,
       'Reconocimiento': recos.length
     };
-    var moduloMasActivo = Object.entries(counts).sort(function(a,b){ return b[1]-a[1]; })[0][0];
+    var sorted = Object.entries(counts).sort(function(a,b){ return b[1]-a[1]; });
+    var moduloMasActivo = sorted[0][1] > 0 ? sorted[0][0] : '—';
+    var moduloTotal = resp.length + pulsos.length + recos.length || 1;
+    var moduloPct = sorted[0][1] > 0 ? Math.round((sorted[0][1] / moduloTotal) * 100) : 0;
     _setEl('db-res-modulo', moduloMasActivo);
+    var moduloSub = document.getElementById('db-res-modulo-sub');
+    if (moduloSub) moduloSub.textContent = moduloPct + '% participación';
 
-    // ── Total participantes (distinct) ──
-    var participantesSet = new Set();
-    resp.forEach(function(x) { if(x.employee_nombre) participantesSet.add(x.employee_nombre); });
-    pulsos.forEach(function(x) { if(x.employee_nombre) participantesSet.add(x.employee_nombre); });
-    var nomUniq = Array.from(new Set(recos.map(function(r){ return r.nominado_nombre; })));
-    var nomrUniq = Array.from(new Set(recos.map(function(r){ return r.nominador_nombre; })));
-    nomUniq.forEach(function(n) { participantesSet.add(n); });
-    nomrUniq.forEach(function(n) { participantesSet.add(n); });
-    var totalParticipantes = participantesSet.size;
-    _setEl('db-res-participantes', totalParticipantes.toLocaleString('es-CL'));
+    // ── Tasa de respuesta ──
+    var totalResp = resp.length + pulsos.length;
+    var tasaPct = SB_TOTAL_USERS > 0 ? Math.round((activosSet.size / SB_TOTAL_USERS) * 100) : 0;
+    _setEl('db-res-participantes', tasaPct + '%');
+    var partCmp = document.getElementById('db-res-participantes-cmp');
+    if (partCmp) partCmp.textContent = activosSet.size + ' de ' + SB_TOTAL_USERS + ' usuarios respondieron';
 
-    // ── Engagement bars (Daily Play %, Pulso %, Reconocimientos %) ──
+    // ── Engagement bars (Trivia diaria %, Pulso %, Reconocimientos %) ──
     var total = resp.length + pulsos.length + recos.length || 1;
-    var dpPct = total > 0 ? Math.round((resp.length / total) * 100) : 0;
-    var pPct = total > 0 ? Math.round((pulsos.length / total) * 100) : 0;
-    var recoPct = total > 0 ? Math.round((recos.length / total) * 100) : 0;
+    var dpPct = Math.round((resp.length / total) * 100);
+    var pPct = Math.round((pulsos.length / total) * 100);
+    var recoPct = Math.round((recos.length / total) * 100);
 
     var engageEl = document.getElementById('db-res-engagement');
     if (engageEl) {
-      engageEl.innerHTML = '<div class="ctit">Participación por módulo</div>' +
-        '<div class="mbar"><div class="mbar-h"><span class="mbar-n" style="display:inline-flex;align-items:center;gap:5px"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="1" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="9" /></svg> Daily Play</span><span class="mbar-p">'+dpPct+'%</span></div><div class="mbar-t"><div class="mbar-f" style="width:'+dpPct+'%;background:var(--teal)"></div></div></div>' +
-        '<div class="mbar"><div class="mbar-h"><span class="mbar-n" style="display:inline-flex;align-items:center;gap:5px"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" /></svg> Pulso</span><span class="mbar-p">'+pPct+'%</span></div><div class="mbar-t"><div class="mbar-f" style="width:'+pPct+'%;background:var(--blue)"></div></div></div>' +
-        '<div class="mbar"><div class="mbar-h"><span class="mbar-n" style="display:inline-flex;align-items:center;gap:5px"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" /></svg> Reconocimientos</span><span class="mbar-p">'+recoPct+'%</span></div><div class="mbar-t"><div class="mbar-f" style="width:'+recoPct+'%;background:var(--purple)"></div></div></div>';
+      engageEl.innerHTML = '<div class="ctit">Engagement por tipo de dinámica</div>' +
+        '<div class="mbar"><div class="mbar-h"><span class="mbar-n">Trivia diaria</span><span class="mbar-p">'+dpPct+'%</span></div><div class="mbar-t"><div class="mbar-f" style="width:'+dpPct+'%;background:var(--hugo)"></div></div></div>' +
+        '<div class="mbar"><div class="mbar-h"><span class="mbar-n">Pulso</span><span class="mbar-p">'+pPct+'%</span></div><div class="mbar-t"><div class="mbar-f" style="width:'+pPct+'%;background:var(--hugo)"></div></div></div>' +
+        '<div class="mbar"><div class="mbar-h"><span class="mbar-n">Reconocimientos</span><span class="mbar-p">'+recoPct+'%</span></div><div class="mbar-t"><div class="mbar-f" style="width:'+recoPct+'%;background:var(--hugo)"></div></div></div>';
     }
 
     // ── Ranking rows (top 7 desde tabla rankings) ──
