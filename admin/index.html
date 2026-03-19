@@ -493,15 +493,15 @@
           <button class="db-tab on" id="dbt-resumen"  onclick="setDbTab('resumen')">Resumen</button>
           <button class="db-tab"   id="dbt-daily"     onclick="setDbTab('daily')">🎯 Trivia diaria</button>
           <button class="db-tab"   id="dbt-pulse"     onclick="setDbTab('pulse')">💙 Pulso</button>
-          <button class="db-tab"   id="dbt-reco"      onclick="setDbTab('reco')">⭐ Reconocimientos</button>
-          <button class="db-tab"   id="dbt-misiones"  onclick="setDbTab('misiones')" style="opacity:.45;pointer-events:none">🚀 Misiones</button>
+          <button class="db-tab"   id="dbt-reco"      onclick="setDbTab('reco')" style="opacity:.45;pointer-events:none">⭐ Reconocimientos <span style="background:var(--amber-bg);color:var(--amber);font-size:9px;font-weight:700;padding:1px 6px;border-radius:8px">Próx.</span></button>
+          <button class="db-tab"   id="dbt-misiones"  onclick="setDbTab('misiones')" style="opacity:.45;pointer-events:none">🚀 Misiones <span style="background:var(--amber-bg);color:var(--amber);font-size:9px;font-weight:700;padding:1px 6px;border-radius:8px">Próx.</span></button>
         </div>
 
         <!-- ═══ RESUMEN ═══ -->
         <div id="dbv-resumen">
           <div class="g4" style="margin-bottom:20px">
-            <div class="card"><div class="clbl">Colaboradores activos</div><div class="cval" id="db-res-activos">68%</div><div class="cch up">↑ 12% vs. semana anterior</div></div>
-            <div class="card"><div class="clbl">Sentimiento positivo</div><div class="cval" id="db-res-sentimiento">70%</div><div class="cch up">↑ 5% vs. semana anterior</div></div>
+            <div class="card"><div class="clbl">Colaboradores activos</div><div class="cval" id="db-res-activos">68%</div><div class="cch" id="db-res-activos-cmp"></div></div>
+            <div class="card"><div class="clbl">Sentimiento positivo</div><div class="cval" id="db-res-sentimiento">70%</div><div class="cch" id="db-res-sentimiento-cmp"></div></div>
             <div class="card"><div class="clbl">Módulo más activo</div><div class="cval" id="db-res-modulo" style="font-size:18px;line-height:2.2">Trivia diaria</div><div class="cch nu">89% participación</div></div>
             <div class="card"><div class="clbl">Total participantes</div><div class="cval" id="db-res-participantes">1.024</div><div class="cch nu">de 1.500 colaboradores</div></div>
           </div>
@@ -593,9 +593,7 @@
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;flex-wrap:wrap">
             <span style="font-size:12px;font-weight:600;color:var(--text2)">Trivia:</span>
             <select class="fsel" id="db-daily-select" style="width:auto;min-width:260px" onchange="updateDailyStatus(this)">
-              <option data-status="activa">¿Qué valor representa mejor al equipo? · Mar 2026</option>
-              <option data-status="inactiva">¿Cuál es el pilar estratégico del año? · Feb 2026</option>
-              <option data-status="pasada">Trivia de cultura · Ene 2026</option>
+              <option value="">Cargando...</option>
             </select>
             <span id="db-daily-status" class="sp activa"><span class="sp-dot"></span>Activa</span>
           </div>
@@ -604,7 +602,7 @@
           <div class="g4" style="margin-bottom:20px">
             <div class="card"><div class="clbl">Respuestas totales</div><div class="cval" id="db-dp-total">912</div><div class="cch nu">preguntas respondidas</div></div>
             <div class="card"><div class="clbl">Preguntas ignoradas</div><div class="cval" id="db-dp-ignored">188</div><div class="cch nu">sin respuesta</div></div>
-            <div class="card"><div class="clbl">Tasa de respuesta</div><div class="cval" id="db-dp-rate">83%</div><div class="cch up">↑ 4% vs. período anterior</div></div>
+            <div class="card"><div class="clbl">Tasa de respuesta</div><div class="cval" id="db-dp-rate">83%</div><div class="cch" id="db-dp-rate-cmp"></div></div>
             <div class="card"><div class="clbl">Respuestas correctas</div><div class="cval" id="db-dp-correct">73%</div><div class="cch nu">de las respondidas</div></div>
           </div>
 
@@ -671,10 +669,8 @@
           <!-- Filtro de pulso -->
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px">
             <span style="font-size:12px;font-weight:600;color:var(--text2)">Pulso:</span>
-            <select class="fsel" style="width:auto;min-width:260px">
-              <option>¿Cómo te sentís hoy? · 10 Mar 2026</option>
-              <option>¿Cómo saliste del all-hands? · 5 Mar 2026</option>
-              <option>Pulso post-vacaciones · Feb 2026</option>
+            <select class="fsel" id="db-pulse-select" style="width:auto;min-width:260px">
+              <option value="">Cargando...</option>
             </select>
           </div>
 
@@ -684,7 +680,7 @@
             <div class="card">
               <div class="clbl">Sentimiento positivo</div>
               <div class="cval" id="db-pulse-pos">70%</div>
-              <div class="cch up">↑ 5% vs. pulso anterior</div>
+              <div class="cch" id="db-pulse-pos-cmp"></div>
               <div style="font-size:10px;color:var(--text3);margin-top:4px;display:flex;align-items:center;gap:4px">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                 Respondió entre bien y muy bien
@@ -3311,6 +3307,66 @@ async function sbCargarMetricasAdmin() {
   } catch(e) { console.error('[Supabase] cargarMetricasAdmin:', e); }
 }
 
+// ── Cargar filtros de dinámicas en dashboard ─────────────────
+async function sbCargarFiltrosDashboard() {
+  try {
+    var res = await _sb.from('dinamicas').select('id, tipo, nombre, estado, descripcion')
+      .is('deleted_at', null).order('created_at', { ascending: false });
+    var data = res.data || [];
+    var stLabel = { activa:'Activa', inactiva:'Pausada', finalizada:'Finalizada' };
+
+    // Daily Play select
+    var dpSel = document.getElementById('db-daily-select');
+    if (dpSel) {
+      dpSel.innerHTML = '';
+      var dpDyns = data.filter(function(d){ return d.tipo === 'daily_play'; });
+      if (dpDyns.length === 0) {
+        dpSel.innerHTML = '<option value="">Sin trivias creadas</option>';
+      } else {
+        dpDyns.forEach(function(d) {
+          var meta = {}; try { if (d.descripcion) meta = JSON.parse(d.descripcion); } catch(e) {}
+          var fecha = meta.fecha_inicio ? meta.fecha_inicio : '';
+          var opt = document.createElement('option');
+          opt.value = d.id;
+          opt.setAttribute('data-status', d.estado);
+          opt.textContent = d.nombre + (fecha ? ' · ' + fecha : '') + ' (' + (stLabel[d.estado] || d.estado) + ')';
+          dpSel.appendChild(opt);
+        });
+      }
+    }
+
+    // Pulse select
+    var pSel = document.getElementById('db-pulse-select');
+    if (pSel) {
+      pSel.innerHTML = '';
+      var pDyns = data.filter(function(d){ return d.tipo === 'pulso'; });
+      if (pDyns.length === 0) {
+        pSel.innerHTML = '<option value="">Sin pulsos creados</option>';
+      } else {
+        pDyns.forEach(function(d) {
+          var meta = {}; try { if (d.descripcion) meta = JSON.parse(d.descripcion); } catch(e) {}
+          var fecha = meta.fecha_inicio ? meta.fecha_inicio : '';
+          var opt = document.createElement('option');
+          opt.value = d.id;
+          opt.textContent = d.nombre + (fecha ? ' · ' + fecha : '') + ' (' + (stLabel[d.estado] || d.estado) + ')';
+          pSel.appendChild(opt);
+        });
+      }
+    }
+  } catch(e) { console.error('[Supabase] sbCargarFiltrosDashboard:', e); }
+}
+
+// ── Limpiar descripciones hardcodeadas de métricas ───────────
+function sbLimpiarDescripcionesMetricas() {
+  // Las descripciones comparativas se dejan vacías ya que no tenemos
+  // datos históricos para calcular "vs. período anterior"
+  var ids = ['db-res-activos-cmp', 'db-res-sentimiento-cmp', 'db-dp-rate-cmp', 'db-pulse-pos-cmp'];
+  ids.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = '';
+  });
+}
+
 // ── Guardar configuración ────────────────────────────────────
 async function sbGuardarConfig(clave, valor) {
   try {
@@ -3474,8 +3530,10 @@ sbCargarConfigAdmin().then(function() {
 });
 sbCargarMetricasAdmin();
 sbCargarResumenAdmin();
-setInterval(sbCargarMetricasAdmin, 15000);  // refresca métricas cada 15s
-setInterval(sbCargarResumenAdmin, 15000);  // refresca resumen cada 15s
+sbCargarFiltrosDashboard();
+sbLimpiarDescripcionesMetricas();
+setInterval(sbCargarMetricasAdmin, 15000);
+setInterval(sbCargarResumenAdmin, 15000);
 
 // Realtime: notificar al admin cuando llegan respuestas
 _sb.channel('admin-metrics')
