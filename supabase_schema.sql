@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS respuestas (
 CREATE TABLE IF NOT EXISTS pulso_respuestas (
   id              UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   dinamica_id     UUID REFERENCES dinamicas(id),
+  empleado_nombre TEXT,
   emoji           TEXT NOT NULL,
   sentimiento     TEXT,
   motivos         JSONB DEFAULT '[]',

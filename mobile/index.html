@@ -965,7 +965,7 @@ body {
             <div class="c-title">¡Gracias por tu respuesta!</div>
             <div class="c-sub">Registrado de forma anónima.<br>Ayudás a construir un mejor ambiente.</div>
             <div class="c-stats">
-              <div class="cs"><div class="cs-v" id="ps2-count">891</div><div class="cs-l">respuestas hoy</div></div>
+              <div class="cs"><div class="cs-v" id="ps2-count">0</div><div class="cs-l">respuestas</div></div>
             </div>
           </div>
         </div>
@@ -3120,9 +3120,14 @@ function sbMostrarDinamica(din) {
     // Setear título del modal con el nombre de la dinámica
     var titleEl = document.getElementById('pulse-modal-title');
     if (titleEl) titleEl.textContent = din.nombre || '¿Cómo te sentís hoy?';
-    // Cargar metadata para respuesta abierta
+    // Cargar metadata + contador real de respuestas
     (async function() {
       try {
+        // Contador real
+        var cntRes = await _sb.from('pulso_respuestas').select('id', { count: 'exact', head: true })
+          .eq('dinamica_id', din.id);
+        var countEl = document.getElementById('ps2-count');
+        if (countEl && cntRes.count !== null) countEl.textContent = cntRes.count;
         var dinRes = await _sb.from('dinamicas').select('descripcion').eq('id', din.id).single();
         var meta = {};
         if (dinRes.data && dinRes.data.descripcion) {
@@ -3254,16 +3259,10 @@ async function sbUsuarioYaRespondio(dinId, tipo) {
   try {
     var tabla = tipo === 'daily_play' ? 'respuestas' : tipo === 'pulso' ? 'pulso_respuestas' : 'reconocimientos';
     var campo = tipo === 'reconocimiento' ? 'nominador_nombre' : 'empleado_nombre';
-    var q = _sb.from(tabla).select('id', { count: 'exact', head: true })
-      .eq('dinamica_id', dinId);
-    // pulso_respuestas no tiene empleado_nombre (es anónimo), usar otro approach
-    if (tipo === 'pulso') {
-      // Para pulso anónimo: contar si ya hay una respuesta desde este browser session
-      var sessionKey = 'humand_pulso_' + dinId;
-      return localStorage.getItem(sessionKey) === 'true';
-    }
-    q = q.eq(campo, _empleadoNombre);
-    var res = await q;
+    // Todas las tablas ahora tienen empleado_nombre (pulso incluido)
+    var res = await _sb.from(tabla).select('id', { count: 'exact', head: true })
+      .eq('dinamica_id', dinId)
+      .eq(campo, _empleadoNombre);
     return (res.count || 0) > 0;
   } catch(e) { console.warn('[Supabase] checkRespondio:', e); return false; }
 }
@@ -3322,21 +3321,22 @@ async function sbEnviarRespuesta(dinId, pregId, esCorrecta, puntos) {
 // ── Guardar respuesta de Pulso ───────────────────────────────
 async function sbEnviarPulso(emoji, sentimiento, motivos) {
   try {
+    // Guardar empleado_nombre internamente (anónimo en dashboard, pero trackeable para evitar doble voto)
     await _sb.from('pulso_respuestas').insert({
       dinamica_id: window._sbPulsoId || null,
       emoji: emoji, sentimiento: sentimiento,
-      motivos: motivos || [], anonimo: true
+      motivos: motivos || [], anonimo: true,
+      empleado_nombre: _empleadoNombre || 'Anónimo'
     });
-    // Marcar como respondido para este usuario
-    if (window._sbPulsoId) localStorage.setItem('humand_pulso_' + window._sbPulsoId, 'true');
     await sbActualizarRanking(5, 'pulso');
     sbToast('💛 Pulso enviado — +5 puntos');
-    // Actualizar contador de respuestas de este pulso en ps2
-    var cntQ = _sb.from('pulso_respuestas').select('id', { count: 'exact', head: true });
-    if (window._sbPulsoId) cntQ = cntQ.eq('dinamica_id', window._sbPulsoId);
-    var cntRes = await cntQ;
-    var countEl = document.getElementById('ps2-count');
-    if (countEl && cntRes.count !== null) countEl.textContent = cntRes.count;
+    // Actualizar contador real de respuestas de este pulso
+    if (window._sbPulsoId) {
+      var cntRes = await _sb.from('pulso_respuestas').select('id', { count: 'exact', head: true })
+        .eq('dinamica_id', window._sbPulsoId);
+      var countEl = document.getElementById('ps2-count');
+      if (countEl && cntRes.count !== null) countEl.textContent = cntRes.count;
+    }
     setTimeout(sbRenderRanking, 800);
   } catch(e) { console.error('[Supabase] enviarPulso:', e); }
 }
