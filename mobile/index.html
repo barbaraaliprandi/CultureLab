@@ -3063,6 +3063,30 @@ async function sbRenderReglamento() {
 
     // Reconocimiento — NO mostrar (Próximamente)
 
+    // Premios — mostrar si están configurados y visibilidad lo permite
+    var premiosVis = config.premios_visibilidad || 'No mostrar premios';
+    var premiosOn = config.premios_habilitados === 'true' || config.premios_habilitados === true;
+    var premiosData = {};
+    try { if (config.premios_data) premiosData = JSON.parse(config.premios_data); } catch(e) {}
+    var allPremiosConfigured = premiosData['1'] && premiosData['1'].nombre && premiosData['2'] && premiosData['2'].nombre && premiosData['3'] && premiosData['3'].nombre;
+
+    if (premiosOn && allPremiosConfigured && premiosVis !== 'No mostrar premios') {
+      var medals = { '1':'🥇', '2':'🥈', '3':'🥉' };
+      var labels = { '1':'Primer puesto', '2':'Segundo puesto', '3':'Tercer puesto' };
+      html += '<div style="margin-top:16px;padding:14px;background:white;border-radius:12px;border:1px solid var(--neu-100)">';
+      html += '<div style="font-size:14px;font-weight:600;color:#303036;margin-bottom:12px">🏆 Premios</div>';
+      ['1','2','3'].forEach(function(n) {
+        var p = premiosData[n];
+        if (p && p.nombre) {
+          html += '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;' + (n !== '3' ? 'border-bottom:1px solid #eeeef1;' : '') + '">';
+          html += '<span style="font-size:20px">' + medals[n] + '</span>';
+          html += '<div style="flex:1"><div style="font-size:13px;font-weight:600;color:#303036">' + labels[n] + '</div>';
+          html += '<div style="font-size:12px;color:#636271">' + p.nombre + '</div></div></div>';
+        }
+      });
+      html += '</div>';
+    }
+
     if (html === '') {
       html = '<div style="text-align:center;padding:24px;color:var(--neu-600);font-size:13px">No hay dinámicas con puntos configurados.</div>';
     }

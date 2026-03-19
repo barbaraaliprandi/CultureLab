@@ -2596,6 +2596,10 @@ function saveConfig(){
     sbGuardarConfig('puntos_pulso', JSON.stringify({
       base: pulsoBase ? parseInt(pulsoBase.value) || 0 : 5
     }));
+    // Persistir premios y visibilidad
+    sbGuardarConfig('premios_data', JSON.stringify(premioData));
+    var visSel = document.getElementById('premios-visibilidad');
+    sbGuardarConfig('premios_visibilidad', visSel ? visSel.value : 'No mostrar premios');
   }
 
   showToast('Configuración guardada · Ranking ' + (rankingActive ? 'activado' : 'desactivado'));
@@ -2643,8 +2647,31 @@ function savePremio(){
   preview.style.color = 'var(--teal)';
   row.classList.add('configured');
   const label = premioMeta[currentPremio].label;
+  // Persistir en Supabase
+  if (typeof sbGuardarConfig === 'function') {
+    sbGuardarConfig('premios_data', JSON.stringify(premioData));
+  }
+  // Actualizar visibilidad
+  actualizarVisibilidadPremios();
   closePremioDrawer();
   showToast('Premio guardado · ' + label);
+}
+
+function actualizarVisibilidadPremios() {
+  var allConfigured = premioData[1].nombre && premioData[2].nombre && premioData[3].nombre;
+  var visSel = document.getElementById('premios-visibilidad');
+  if (visSel) {
+    if (!allConfigured) {
+      visSel.value = 'No mostrar premios';
+      visSel.disabled = true;
+      visSel.style.opacity = '0.5';
+      visSel.title = 'Configurá los 3 puestos para habilitar la visibilidad';
+    } else {
+      visSel.disabled = false;
+      visSel.style.opacity = '';
+      visSel.title = '';
+    }
+  }
 }
 
 function setQType(qid, type, btn){
@@ -3570,7 +3597,27 @@ async function sbCargarConfigAdmin() {
     if (diEl) diEl.value = ptsDaily.incorrecta || 0;
     if (ppEl) ppEl.value = ptsPulso.base || 0;
 
-    console.log('[Supabase] Config cargada: ranking=' + rankOn + ' premios=' + premOn + ' periodo=' + periodo + ' pts_daily=' + JSON.stringify(ptsDaily) + ' pts_pulso=' + JSON.stringify(ptsPulso));
+    // Premios data
+    try {
+      if (config.premios_data) {
+        var pd = JSON.parse(config.premios_data);
+        [1,2,3].forEach(function(n) {
+          if (pd[n] && pd[n].nombre) {
+            premioData[n] = pd[n];
+            var preview = document.getElementById('preview-' + n);
+            var row = document.getElementById('premio-row-' + n);
+            if (preview) { preview.textContent = pd[n].nombre + (pd[n].desc ? ' · ' + pd[n].desc.substring(0,40) : ''); preview.style.color = 'var(--teal)'; }
+            if (row) row.classList.add('configured');
+          }
+        });
+      }
+    } catch(e) {}
+    // Premios visibilidad
+    var visSel = document.getElementById('premios-visibilidad');
+    if (visSel && config.premios_visibilidad) visSel.value = config.premios_visibilidad;
+    if (typeof actualizarVisibilidadPremios === 'function') actualizarVisibilidadPremios();
+
+    console.log('[Supabase] Config cargada: ranking=' + rankOn + ' premios=' + premOn + ' periodo=' + periodo);
   } catch(e) { console.error('[Supabase] sbCargarConfigAdmin:', e); }
 }
 
