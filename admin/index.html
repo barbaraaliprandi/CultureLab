@@ -454,7 +454,7 @@
   <header class="hdr">
     <div class="hdr-l">
       <button class="ibtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="7" x2="21" y2="7"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="17" x2="21" y2="17"/></svg></button>
-      <div class="logo">hum<span>and</span></div>
+      <img src="humand-logo.svg" alt="humand" style="height:24px">
       <div class="pill-admin">Admin</div>
     </div>
     <div class="hdr-r">
@@ -478,7 +478,7 @@
       <div class="subs">
         <div class="sub on" id="sub-dashboard" onclick="setV('dashboard')">Dashboard</div>
         <div class="sub off" id="sub-dinamicas" onclick="setV('dinamicas')">Dinámicas</div>
-        <div class="sub off" id="sub-config" onclick="setV('config')">Configuración</div>
+        <div class="sub off" id="sub-config" onclick="setV('config')">Premios</div>
       </div>
       <div class="si"><div class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 9h8" /><path d="M8 13h6" /><path d="M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-5l-5 3v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12z" /></svg></div><div class="lbl">Chats & Calls</div></div>
       <div class="si"><div class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18.364 19.364a9 9 0 1 0 -12.728 0" /><path d="M15.536 16.536a5 5 0 1 0 -7.072 0" /><circle cx="12" cy="13" r="1" /></svg></div><div class="lbl">Live streaming</div></div>
@@ -507,7 +507,7 @@
           <button class="db-tab on" id="dbt-resumen"  onclick="setDbTab('resumen')">Resumen</button>
           <button class="db-tab"   id="dbt-daily"     onclick="setDbTab('daily')"><span style="display:inline-flex;align-items:center;gap:5px"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="1" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="9" /></svg> Daily Play</span></button>
           <button class="db-tab"   id="dbt-pulse"     onclick="setDbTab('pulse')"><span style="display:inline-flex;align-items:center;gap:5px"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" /></svg> Pulso</span></button>
-          <button class="db-tab"   id="dbt-reco"      onclick="setDbTab('reco')" style="opacity:.45;pointer-events:none"><span style="display:inline-flex;align-items:center;gap:5px"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" /></svg> Reconocimientos</span> <span style="font-size:11px;background:var(--amber-bg);color:var(--amber);padding:2px 6px;border-radius:8px;margin-left:4px">Próx.</span></button>
+          <button class="db-tab"   id="dbt-reco"      onclick="setDbTab('reco')" style="opacity:.45;pointer-events:none">⭐ Reconocimientos</button>
           <button class="db-tab"   id="dbt-misiones"  onclick="setDbTab('misiones')" style="opacity:.45;pointer-events:none"><span style="display:inline-flex;align-items:center;gap:5px"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 13a8 8 0 0 1 7 7a6 6 0 0 0 3 -5a9 9 0 0 0 6 -8a3 3 0 0 0 -3 -3a9 9 0 0 0 -8 6a6 6 0 0 0 -5 3" /><path d="M7 14a6 6 0 0 0 -3 6a6 6 0 0 0 6 -3" /><circle cx="15" cy="9" r="1" /></svg> Misiones</span></button>
         </div>
 
@@ -1917,27 +1917,50 @@ const SB_TYPE_LABEL = { daily_play:'Trivia diaria', pulso:'Pulso', reconocimient
 async function sbCargarDinamicasAdmin() {
   try {
     const { data, error } = await _sb.from('dinamicas')
-      .select('id, tipo, nombre, estado, created_at')
+      .select('id, tipo, nombre, estado, descripcion, created_at')
       .is('deleted_at', null)
       .order('created_at', { ascending: false });
     if (error) throw error;
-    if (!data || !data.length) return;
+    if (!data || !data.length) { dinamicas = []; render(); return; }
     const fmt = function(iso) {
+      if (!iso) return '—';
       const d = new Date(iso);
       return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
     };
+    const fmtDate = function(dateStr) {
+      if (!dateStr) return '—';
+      var parts = dateStr.split('-');
+      if (parts.length === 3) return parts[2]+'/'+parts[1]+'/'+parts[0];
+      return fmt(dateStr);
+    };
+    var hoy = new Date(); hoy.setHours(0,0,0,0);
     dinamicas = data.map(function(d) {
+      var meta = {};
+      try { if (d.descripcion) meta = JSON.parse(d.descripcion); } catch(e) {}
+      var fechaInicio = meta.fecha_inicio || '';
+      var fechaFin = meta.fecha_fin || '';
+      var estado = d.estado;
+      if (estado === 'finalizada') estado = 'pasada';
+      // Auto-finalizar si fecha_fin pasó
+      if ((estado === 'activa' || estado === 'inactiva') && fechaFin) {
+        var finDate = new Date(fechaFin + 'T23:59:59');
+        if (!isNaN(finDate.getTime()) && finDate < hoy) {
+          console.log('[Admin] Dinámica "' + d.nombre + '" finalizada (fecha_fin=' + fechaFin + ')');
+          estado = 'pasada';
+          _sb.from('dinamicas').update({ estado: 'finalizada' }).eq('id', d.id);
+        }
+      }
       return {
         id: nextId++,
         sbId: d.id,
         typeKey: SB_TIPO_MAP[d.tipo] || d.tipo,
         type: SB_TYPE_LABEL[d.tipo] || d.tipo,
         title: d.nombre,
-        start: fmt(d.created_at),
-        end: fmt(d.created_at),
-        status: d.estado === 'activa' ? 'activa' : d.estado,
+        start: fechaInicio ? fmtDate(fechaInicio) : fmt(d.created_at),
+        end: fechaFin ? fmtDate(fechaFin) : fmt(d.created_at),
+        status: estado,
         part: 0,
-        sumaPuntos: false
+        sumaPuntos: meta.puntos_activos !== undefined ? meta.puntos_activos : false
       };
     });
     render();
@@ -1975,8 +1998,8 @@ async function activarReconocimiento(){
   }
   document.getElementById('reco-fecha-inicio').style.borderColor='';
   // Validar: solo 1 dinámica activa a la vez
-  var activa = await sbHayDinamicaActiva(null);
-  if (activa) { showToast('⚠️ Ya existe una dinámica activa: "' + activa.nombre + '". Pausala primero.'); return; }
+  var activa = await sbHayDinamicaActiva(null, 'reconocimiento');
+  if (activa) { showToast('⚠️ Ya existe un reconocimiento activo: "' + activa.nombre + '". Pausala primero.'); return; }
   const fmt = d => { const p=d.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; };
   const fin = document.getElementById('reco-fecha-fin')?.value;
   const finFmt = fin ? fmt(fin) : fmt(inicio.replace(/(\d{4})-(\d{2})-(\d{2})/,(_,y,m,d)=>`${y}-${m}-${String(parseInt(d)+30).padStart(2,'0')}`));
@@ -2092,7 +2115,9 @@ async function toggleDin(id){
   var nuevoEstado = d.status==='activa' ? 'inactiva' : 'activa';
   // Si va a activar, validar que no haya otra activa
   if (nuevoEstado === 'activa') {
-    var activa = await sbHayDinamicaActiva(d.sbId);
+    var tipoMap = { daily:'daily_play', pulse:'pulso', reco:'reconocimiento', mision:'mision' };
+    var sbTipo = tipoMap[d.typeKey] || d.typeKey;
+    var activa = await sbHayDinamicaActiva(d.sbId, sbTipo);
     if (activa) {
       showToast('⚠️ Ya existe una dinámica activa: "' + activa.nombre + '". Pausala primero.');
       return;
@@ -2373,8 +2398,8 @@ async function saveDailyPlay(){
   var isEditing = !!window._editingSbId;
   // Validar: solo 1 dinámica activa a la vez (no aplica si está editando la misma)
   if (!isEditing) {
-    var activa = await sbHayDinamicaActiva(null);
-    if (activa) { showToast('⚠️ Ya existe una dinámica activa: "' + activa.nombre + '". Pausala primero.'); return; }
+    var activa = await sbHayDinamicaActiva(null, 'daily_play');
+    if (activa) { showToast('⚠️ Ya existe una trivia diaria activa: "' + activa.nombre + '". Pausala primero.'); return; }
   }
   // ── Supabase: guardar ANTES de cerrar el form ──────────────
   (function(){
@@ -2881,8 +2906,8 @@ async function savePulse(){
   var isEditing = !!window._editingSbId;
   // Validar: solo 1 dinámica activa a la vez
   if (!isEditing) {
-    var activa = await sbHayDinamicaActiva(null);
-    if (activa) { showToast('⚠️ Ya existe una dinámica activa: "' + activa.nombre + '". Pausala primero.'); return; }
+    var activa = await sbHayDinamicaActiva(null, 'pulso');
+    if (activa) { showToast('⚠️ Ya existe un pulso activo: "' + activa.nombre + '". Pausala primero.'); return; }
   }
   // ── Supabase: guardar con metadata ──────────────────────────
   var pulseMeta = {
@@ -2960,10 +2985,11 @@ document.getElementById('ranking-banner-on').style.display = 'none';
 // ══════════════════════════════════════════════════════════════
 
 // ── Validar: solo 1 dinámica activa a la vez ─────────────────
-async function sbHayDinamicaActiva(excluirSbId) {
+async function sbHayDinamicaActiva(excluirSbId, tipo) {
   try {
     var q = _sb.from('dinamicas').select('id, nombre, tipo')
       .eq('estado', 'activa').is('deleted_at', null);
+    if (tipo) q = q.eq('tipo', tipo);
     if (excluirSbId) q = q.neq('id', excluirSbId);
     var res = await q;
     if (res.data && res.data.length > 0) return res.data[0];
