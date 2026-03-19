@@ -642,16 +642,15 @@ body {
   background: white; padding: 8px 16px 0;
   border-bottom: 1px solid var(--neu-100); flex-shrink: 0;
 }
-.cl-back-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.cl-back-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
 .cl-back-btn {
-  background: var(--neu-50); border: 1px solid var(--neu-200);
-  border-radius: 8px; width: 32px; height: 32px;
+  background: none; border: none; width: 32px; height: 32px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 16px; color: var(--neu-950); cursor: pointer; line-height: 1;
+  color: var(--ink-950); cursor: pointer;
 }
 .cl-inner-title {
   font-size: 16px; font-weight: 600; letter-spacing: 0.2px;
-  color: var(--ink-950);
+  color: var(--ink-950); text-align: center;
 }
 
 /* Tabs */
@@ -2185,8 +2184,9 @@ body {
     <div id="cl-inner" class="cl-inner">
       <div class="cl-inner-header">
         <div class="cl-back-row">
-          <button class="cl-back-btn" onclick="clBack()">←</button>
+          <button class="cl-back-btn" onclick="clBack()"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l14 0"/><path d="M5 12l6 6"/><path d="M5 12l6 -6"/></svg></button>
           <span class="cl-inner-title">Culture Lab</span>
+          <div style="width:32px"></div>
         </div>
         <div class="cl-tabs">
           <div class="cl-tab on" onclick="clTab(this,'cl-tab-inicio')">Inicio</div>
@@ -2196,28 +2196,26 @@ body {
 
       <!-- Tab: Inicio -->
       <div id="cl-tab-inicio" class="cl-scroll">
-        <!-- Hero user card -->
+        <!-- Hero user card (Figma reference) -->
         <div class="cl-hero">
-          <div class="cl-hero-top">
-            <div class="cl-av">BA</div>
-            <div style="flex:1">
-              <div class="cl-hero-name">Barbara Aliprandi</div>
-              <div class="cl-hero-badge">Nivel 4 · Culture Champion</div>
+          <div style="text-align:center;padding:16px 16px 32px">
+            <div style="font-size:12px;color:rgba(255,255,255,.65);margin-bottom:4px">Día <span id="cl-hero-day">17</span></div>
+            <div class="cl-hero-name" style="font-size:18px;text-align:center">Barbara Aliprandi</div>
+          </div>
+          <div style="display:flex;gap:8px;margin:-16px 12px 12px;position:relative;z-index:1">
+            <div style="flex:1;background:white;border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,.08)">
+              <div style="width:32px;height:32px;border-radius:8px;background:var(--hu-50);display:flex;align-items:center;justify-content:center">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--hu-600)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--neu-600)">Ranking</div>
+                <div style="font-size:14px;font-weight:600;color:var(--ink-950)" id="cl-hero-rank">Posición: #5</div>
+              </div>
             </div>
-            <div class="cl-streak">
-              <div class="cl-streak-em">🔥</div>
-              <div class="cl-streak-lbl">7 días</div>
+            <div style="background:var(--hu-50);border:1px solid var(--hu-200);border-radius:12px;padding:10px 14px;display:flex;align-items:center" id="cl-hero-pts-badge">
+              <span style="font-size:13px;font-weight:600;color:var(--hu-700)">Puntos: <span id="cl-hero-pts">32</span></span>
             </div>
           </div>
-          <div class="cl-xp-lbl"><span>1.340 pts</span><span>1.600 pts</span></div>
-          <div class="cl-xp-track"><div class="cl-xp-fill"></div></div>
-          <div class="cl-xp-note">260 pts para Nivel 5</div>
-        </div>
-
-        <!-- Stats -->
-        <div class="cl-stats">
-          <div class="cl-stat"><div class="cl-stat-em">⚡</div><div class="cl-stat-val">1.340</div><div class="cl-stat-lbl">Puntos</div></div>
-          <div class="cl-stat"><div class="cl-stat-em">🏆</div><div class="cl-stat-val">#3</div><div class="cl-stat-lbl">Ranking</div></div>
         </div>
 
         <!-- Dynamic entries -->
@@ -2241,42 +2239,18 @@ body {
           </div>
         </div>
 
-        <!-- Leaderboard -->
-        <div class="cl-lb-title">Ranking del mes</div>
-        <div class="cl-lb-row">
-          <div class="cl-lb-medal" style="background:#FEF9C3;color:#F59E0B;">🥇</div>
-          <div class="cl-lb-av">LF</div>
-          <div class="cl-lb-info"><div class="cl-lb-name">Lucía Fernández</div><div class="cl-lb-sub">⚡ 2.100 pts · 🎯 6 · 🔥 9d</div></div>
-          <div class="cl-lb-pts">2.100</div>
-          <div class="cl-lb-delta delta-up">+2</div>
-        </div>
-        <div class="cl-lb-row">
-          <div class="cl-lb-medal" style="background:#F3F4F6;color:#9CA3AF;">🥈</div>
-          <div class="cl-lb-av">MG</div>
-          <div class="cl-lb-info"><div class="cl-lb-name">Mateo García</div><div class="cl-lb-sub">⚡ 1.890 pts · 🎯 5 · 🔥 8d</div></div>
-          <div class="cl-lb-pts">1.890</div>
-          <div class="cl-lb-delta delta-up">+1</div>
-        </div>
-        <div class="cl-lb-row me">
-          <div class="cl-lb-medal" style="background:#FEE2E2;color:#CD7F32;">🥉</div>
-          <div class="cl-lb-av">BA</div>
-          <div class="cl-lb-info"><div class="cl-lb-name">Barbara Aliprandi <span style="font-weight:400">(vos)</span></div><div class="cl-lb-sub">⚡ 1.340 pts · 🎯 3 · 🔥 7d</div></div>
-          <div class="cl-lb-pts">1.340</div>
-          <div class="cl-lb-delta delta-eq">—</div>
-        </div>
-        <div class="cl-lb-row">
-          <div class="cl-lb-medal">4</div>
-          <div class="cl-lb-av" style="background:linear-gradient(135deg,#10B981,#059669)">SR</div>
-          <div class="cl-lb-info"><div class="cl-lb-name">Sofía Ramos</div><div class="cl-lb-sub">⚡ 1.210 pts · 🎯 3 · 🔥 6d</div></div>
-          <div class="cl-lb-pts">1.210</div>
-          <div class="cl-lb-delta delta-dn">-1</div>
-        </div>
-        <div class="cl-lb-row">
-          <div class="cl-lb-medal">5</div>
-          <div class="cl-lb-av" style="background:linear-gradient(135deg,#F59E0B,#D97706)">TH</div>
-          <div class="cl-lb-info"><div class="cl-lb-name">Tomás Herrera</div><div class="cl-lb-sub">⚡ 980 pts · 🎯 2 · 🔥 5d</div></div>
-          <div class="cl-lb-pts">980</div>
-          <div class="cl-lb-delta delta-dn">-2</div>
+        <!-- Ranking table (Figma reference) -->
+        <div style="margin-top:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;margin-bottom:4px">
+            <div style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--hu-600)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              Jugador
+            </div>
+            <div style="font-size:13px;font-weight:600;color:var(--hu-600)">Puntos</div>
+          </div>
+          <div id="cl-ranking-table" style="display:flex;flex-direction:column;gap:2px">
+            <!-- Rows populated by JS sbRenderRanking -->
+          </div>
         </div>
       </div>
 
@@ -3298,25 +3272,58 @@ async function sbRenderRanking() {
       .order('puntos_total',{ascending:false}).limit(10);
     var data = res.data || [];
     if (!data.length) return;
-    var medals = ['🥇','🥈','🥉'];
-    // Culture Lab ranking
-    var clRows = document.querySelectorAll('#cl-tab-inicio .cl-lb-row');
-    data.forEach(function(row, i) {
-      if (!clRows[i]) return;
-      var medal = clRows[i].querySelector('.cl-lb-medal');
-      if (medal) medal.textContent = medals[i] || String(i+1);
-      var av = clRows[i].querySelector('.cl-lb-av');
+
+    // Find current user position and points
+    var userPos = data.findIndex(function(row) { return row.empleado_nombre === _empleadoNombre; });
+    var userPts = userPos >= 0 ? data[userPos].puntos_total : 0;
+
+    // Update hero card
+    var heroDay = document.getElementById('cl-hero-day');
+    if (heroDay) {
+      var today = new Date();
+      heroDay.textContent = String(today.getDate());
+    }
+    var heroName = document.querySelector('.cl-hero-name');
+    if (heroName) heroName.textContent = _empleadoNombre;
+    var heroRank = document.getElementById('cl-hero-rank');
+    if (heroRank) heroRank.textContent = 'Posición: #' + String(userPos + 1);
+    var heroPts = document.getElementById('cl-hero-pts');
+    if (heroPts) heroPts.textContent = String(userPts);
+
+    // Render new Culture Lab ranking table
+    var clTable = document.getElementById('cl-ranking-table');
+    if (clTable) {
+      clTable.innerHTML = '';
       var colors = ['#4361EE','#10B981','#F59E0B','#8B5CF6','#EC4899'];
-      if (av) { av.textContent = row.empleado_nombre.split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase(); av.style.background = colors[i%colors.length]; }
-      var name = clRows[i].querySelector('.cl-lb-name');
-      if (name) name.textContent = row.empleado_nombre === _empleadoNombre ? row.empleado_nombre+' (vos)' : row.empleado_nombre;
-      var pts = clRows[i].querySelector('.cl-lb-pts');
-      if (pts) pts.textContent = row.puntos_total.toLocaleString();
-      var sub = clRows[i].querySelector('.cl-lb-sub');
-      if (sub) sub.textContent = '⚡ '+row.puntos_total+' pts';
-      clRows[i].classList.toggle('me', row.empleado_nombre === _empleadoNombre);
-    });
-    // Mini ranking post-trivia
+      data.forEach(function(row, i) {
+        var isMe = row.empleado_nombre === _empleadoNombre;
+        var initials = row.empleado_nombre.split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase();
+        var rowEl = document.createElement('div');
+        rowEl.style.display = 'flex';
+        rowEl.style.alignItems = 'center';
+        rowEl.style.gap = '10px';
+        rowEl.style.padding = '10px 12px';
+        rowEl.style.borderRadius = '10px';
+        rowEl.style.borderBottom = '1px solid var(--neu-100)';
+        if (isMe) rowEl.style.background = 'var(--hu-50)';
+
+        // Arrow indicator (up/down/same)
+        var arrow = '—';
+        var arrowColor = 'var(--neu-600)';
+        // TODO: Track position changes if available
+
+        var html = '<span style="font-size:14px;color:'+arrowColor+'">'+arrow+'</span>';
+        html += '<span style="font-size:13px;font-weight:600;color:var(--neu-600);width:16px">'+(i+1)+'</span>';
+        html += '<div style="width:32px;height:32px;border-radius:50%;background:'+colors[i%colors.length]+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:white">'+initials+'</div>';
+        html += '<div style="flex:1;font-size:13px;font-weight:500;color:var(--ink-950)">'+row.empleado_nombre+(isMe?' (vos)':'')+'</div>';
+        html += '<span style="font-size:14px;font-weight:600;color:var(--hu-600)">'+row.puntos_total.toLocaleString()+'</span>';
+
+        rowEl.innerHTML = html;
+        clTable.appendChild(rowEl);
+      });
+    }
+
+    // Mini ranking post-trivia (unchanged logic)
     var lbRows = document.querySelectorAll('.lb-row');
     data.slice(0,5).forEach(function(row, i) {
       if (!lbRows[i]) return;
