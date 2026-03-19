@@ -1914,16 +1914,25 @@ async function sbCargarDinamicasAdmin() {
       try { if (d.descripcion) meta = JSON.parse(d.descripcion); } catch(e) {}
       var fechaInicio = meta.fecha_inicio || '';
       var fechaFin = meta.fecha_fin || '';
-      // Determinar estado: si tiene fecha_fin y ya pasó → finalizada
       var estado = d.estado;
-      if (fechaFin && estado === 'activa') {
-        var finDate = new Date(fechaFin + 'T23:59:59');
-        if (finDate < hoy) {
-          estado = 'pasada';
-          // Actualizar en Supabase si cambió
-          _sb.from('dinamicas').update({ estado: 'inactiva' }).eq('id', d.id);
+
+      // Mapear 'finalizada' de Supabase a 'pasada' (label interno del UI)
+      if (estado === 'finalizada') estado = 'pasada';
+
+      // Auto-finalizar: si tiene fecha_fin y ya pasó, o si no tiene fecha_fin
+      // pero created_at es de hace más de 1 día y sigue activa
+      if (estado === 'activa' || estado === 'inactiva') {
+        var fechaLimite = fechaFin || '';
+        if (fechaLimite) {
+          var finDate = new Date(fechaLimite + 'T23:59:59');
+          if (!isNaN(finDate.getTime()) && finDate < hoy) {
+            console.log('[Admin] Dinámica "' + d.nombre + '" finalizada automáticamente (fecha_fin=' + fechaLimite + ')');
+            estado = 'pasada';
+            _sb.from('dinamicas').update({ estado: 'finalizada' }).eq('id', d.id);
+          }
         }
       }
+
       return {
         id: nextId++,
         sbId: d.id,
@@ -2176,16 +2185,30 @@ async function editDin(id){
     if (endInput && meta.fecha_fin) endInput.value = meta.fecha_fin;
     // Puntos — bloquear si ya tiene respuestas
     var ptsCheck = document.getElementById('dp-pts-active');
+    var ptsSection = document.getElementById('dp-pts-section');
+    console.log('[Admin] editDin daily: tieneRespuestas='+tieneRespuestas+' puntos_activos='+meta.puntos_activos);
     if (ptsCheck) {
       if (meta.puntos_activos !== undefined) ptsCheck.checked = meta.puntos_activos;
       if (tieneRespuestas) {
         ptsCheck.disabled = true;
         ptsCheck.parentElement.style.opacity = '0.5';
-        ptsCheck.parentElement.title = 'No se puede modificar — esta dinámica ya tiene respuestas';
+        ptsCheck.parentElement.style.pointerEvents = 'none';
+        if (ptsSection) {
+          var aviso = document.getElementById('dp-pts-locked-msg');
+          if (!aviso) {
+            aviso = document.createElement('div');
+            aviso.id = 'dp-pts-locked-msg';
+            aviso.style.cssText = 'font-size:12px;color:var(--red);margin-top:8px;font-weight:500';
+            aviso.textContent = '🔒 No se puede modificar — esta dinámica ya tiene respuestas asociadas.';
+            ptsSection.appendChild(aviso);
+          }
+        }
       } else {
         ptsCheck.disabled = false;
         ptsCheck.parentElement.style.opacity = '';
-        ptsCheck.parentElement.title = '';
+        ptsCheck.parentElement.style.pointerEvents = '';
+        var aviso = document.getElementById('dp-pts-locked-msg');
+        if (aviso) aviso.remove();
       }
     }
     // Audiencia
@@ -2248,16 +2271,30 @@ async function editDin(id){
     if (openLabel && meta.respuesta_abierta_label) openLabel.value = meta.respuesta_abierta_label;
     // Puntos — bloquear si ya tiene respuestas
     var pPts = document.getElementById('pulse-pts-active');
+    var pPtsSection = document.getElementById('pulse-pts-section');
+    console.log('[Admin] editDin pulse: tieneRespuestas='+tieneRespuestas);
     if (pPts) {
       if (meta.puntos_activos !== undefined) pPts.checked = meta.puntos_activos;
       if (tieneRespuestas) {
         pPts.disabled = true;
         pPts.parentElement.style.opacity = '0.5';
-        pPts.parentElement.title = 'No se puede modificar — esta dinámica ya tiene respuestas';
+        pPts.parentElement.style.pointerEvents = 'none';
+        if (pPtsSection) {
+          var aviso = document.getElementById('pulse-pts-locked-msg');
+          if (!aviso) {
+            aviso = document.createElement('div');
+            aviso.id = 'pulse-pts-locked-msg';
+            aviso.style.cssText = 'font-size:12px;color:var(--red);margin-top:8px;font-weight:500';
+            aviso.textContent = '🔒 No se puede modificar — esta dinámica ya tiene respuestas asociadas.';
+            pPtsSection.appendChild(aviso);
+          }
+        }
       } else {
         pPts.disabled = false;
         pPts.parentElement.style.opacity = '';
-        pPts.parentElement.title = '';
+        pPts.parentElement.style.pointerEvents = '';
+        var aviso = document.getElementById('pulse-pts-locked-msg');
+        if (aviso) aviso.remove();
       }
     }
     // Audiencia
@@ -2768,9 +2805,14 @@ function openDailyPlay(){
   document.getElementById('questions-list').innerHTML='';
   addQuestion();
   goStep(0);
-  // Show pts section based on ranking state (lives in step 1)
+  // Show pts section based on ranking state
   const ptsSection = document.getElementById('dp-pts-section');
   if(ptsSection) ptsSection.classList.toggle('hidden', !rankingActive);
+  // Reset locked state del toggle de puntos (para nuevas dinámicas)
+  var dpPtsChk = document.getElementById('dp-pts-active');
+  if (dpPtsChk) { dpPtsChk.disabled = false; dpPtsChk.checked = true; dpPtsChk.parentElement.style.opacity = ''; dpPtsChk.parentElement.style.pointerEvents = ''; }
+  var lockedMsg = document.getElementById('dp-pts-locked-msg');
+  if (lockedMsg) lockedMsg.remove();
   // Show date hint if ranking active
   const hint = document.getElementById('dp-date-hint');
   const hintTxt = document.getElementById('dp-date-hint-text');
@@ -2823,6 +2865,11 @@ function openPulse(){
   var ca = document.getElementById('pulse-comunidad-activa'); if(ca) ca.classList.add('hidden');
   var pts = document.getElementById('pulse-pts-section');
   if(pts) pts.classList.toggle('hidden', !rankingActive);
+  // Reset locked state del toggle de puntos
+  var pPtsChk = document.getElementById('pulse-pts-active');
+  if (pPtsChk) { pPtsChk.disabled = false; pPtsChk.checked = true; pPtsChk.parentElement.style.opacity = ''; pPtsChk.parentElement.style.pointerEvents = ''; }
+  var pLockedMsg = document.getElementById('pulse-pts-locked-msg');
+  if (pLockedMsg) pLockedMsg.remove();
   pulseGoStep(0);
   document.getElementById('page-pulse').classList.remove('hidden');
   document.body.style.overflow = 'hidden';
