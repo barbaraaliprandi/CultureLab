@@ -612,34 +612,23 @@
             </select>
           </div>
 
-          <!-- Card Resumen con 4 KPIs -->
+          <!-- Card Resumen con 3 KPIs -->
           <div class="card" style="margin-bottom:20px">
             <div class="ctit" style="margin-bottom:16px">Resumen</div>
-            <div class="g4">
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
               <div><div class="clbl">Preguntas respondidas</div><div class="cval" id="db-dp-total">0</div><div class="cch nu">Respuestas totales</div></div>
-              <div><div class="clbl">Preguntas ignoradas</div><div class="cval" id="db-dp-ignored">0</div><div class="cch nu">Sin respuesta</div></div>
-              <div><div class="clbl">Respuestas correctas</div><div class="cval" id="db-dp-correct">0%</div><div class="cch nu">de todas las preguntas respondidas</div></div>
-              <div><div class="clbl">Tasa de respuesta</div><div class="cval" id="db-dp-rate">0%</div><div class="cch" id="db-dp-rate-cmp"></div></div>
+              <div><div class="clbl">Respuestas correctas</div><div class="cval" id="db-dp-correct">0%</div><div class="cch nu" id="db-dp-correct-sub">de las respondidas</div></div>
+              <div><div class="clbl">Tasa de respuesta</div><div class="cval" id="db-dp-rate">0%</div><div class="cch nu" id="db-dp-rate-cmp">de los usuarios del batch</div></div>
             </div>
           </div>
 
-          <!-- 2 gráficos lado a lado -->
-          <div class="g21" style="margin-bottom:20px">
-            <!-- Tendencia de participación -->
-            <div class="card">
-              <div class="ctit">Tendencia de participación - Últimos 14 días</div>
-              <div id="db-dp-trend" style="display:flex;align-items:flex-end;gap:4px;height:120px;margin-top:12px;padding:0 4px">
-                <!-- Populado por JS -->
-              </div>
-              <div id="db-dp-trend-labels" style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:6px;padding:0 4px">
-              </div>
+          <!-- Tendencia de participación (ancho completo) -->
+          <div class="card" style="margin-bottom:20px">
+            <div class="ctit">Tendencia de participación - Últimos 14 días</div>
+            <div id="db-dp-trend" style="display:flex;align-items:flex-end;gap:4px;height:140px;margin-top:12px;padding:0 4px">
+              <!-- Populado por JS -->
             </div>
-            <!-- Preguntas respondidas vs ignoradas -->
-            <div class="card">
-              <div class="ctit">Preguntas respondidas versus ignoradas</div>
-              <div id="db-dp-questions" style="display:flex;flex-direction:column;gap:14px;margin-top:12px">
-                <!-- Populado por JS -->
-              </div>
+            <div id="db-dp-trend-labels" style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:6px;padding:0 4px">
             </div>
           </div>
         </div>
@@ -3163,37 +3152,28 @@ async function sbCargarMetricasAdmin() {
     var pulsos = selectedPulseId ? allPulsos.filter(function(x){ return x.dinamica_id === selectedPulseId; }) : allPulsos;
 
     // ── Daily Play KPIs ──────────────────────────────────────
-    var answered = resp.filter(function(x){ return x.respuesta_elegida !== null && x.respuesta_elegida !== undefined; });
-    var ignored  = resp.filter(function(x){ return x.respuesta_elegida === null || x.respuesta_elegida === undefined; });
-    var correct  = resp.filter(function(x){ return x.es_correcta === true; });
-    _setEl('db-dp-total',   resp.length);
-    _setEl('db-dp-ignored', ignored.length);
-    _setEl('db-dp-rate',    resp.length > 0 ? Math.round((answered.length/resp.length)*100)+'%' : '—');
-    _setEl('db-dp-correct', answered.length > 0 ? Math.round((correct.length/answered.length)*100)+'%' : '—');
+    var correct = resp.filter(function(x){ return x.es_correcta === true; });
+    var totalResp = resp.length;
+    _setEl('db-dp-total', totalResp);
 
-    // Questions breakdown (filtrado por dinámica)
-    var qEl = document.getElementById('db-dp-questions');
-    if (qEl) {
-      if (pregs.length > 0) {
-        qEl.innerHTML = '';
-        pregs.forEach(function(p) {
-          var pResp = resp.filter(function(x){ return x.pregunta_id === p.id; });
-          var pAns  = pResp.filter(function(x){ return x.respuesta_elegida !== null; });
-          var pTot  = pResp.length || 1;
-          var pct   = Math.round((pAns.length / pTot) * 100);
-          qEl.innerHTML +=
-            '<div><div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(p.texto||'Pregunta')+'</div>'+
-            '<div style="display:flex;gap:6px;align-items:center"><div style="flex:1;height:8px;border-radius:4px;background:var(--bg2);overflow:hidden;display:flex">'+
-            '<div style="width:'+pct+'%;background:var(--hugo);border-radius:4px 0 0 4px"></div>'+
-            '<div style="flex:1;background:#E5E7EB"></div></div></div>'+
-            '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-top:4px">'+
-            '<span>Respondidas: <strong style="color:var(--text)">'+pct+'%</strong></span>'+
-            '<span>Ignoradas: <strong style="color:var(--text)">'+(100-pct)+'%</strong></span></div></div>';
-        });
-      } else {
-        qEl.innerHTML = '<div style="font-size:13px;color:var(--text2);text-align:center;padding:12px">Sin preguntas para esta dinámica</div>';
+    // Respuestas correctas: % de correctas sobre total respondidas
+    var correctPct = totalResp > 0 ? Math.round((correct.length / totalResp) * 100) : 0;
+    _setEl('db-dp-correct', correctPct + '%');
+    var correctSub = document.getElementById('db-dp-correct-sub');
+    if (correctSub) correctSub.textContent = correct.length + ' de ' + totalResp + ' respondidas';
+
+    // Tasa de respuesta: usuarios que respondieron / total usuarios del batch
+    var SB_TOTAL_USERS = 7; // cantidad de usuarios en el batch
+    var uniqueRespondents = [];
+    resp.forEach(function(r) {
+      if (r.empleado_nombre && uniqueRespondents.indexOf(r.empleado_nombre) === -1) {
+        uniqueRespondents.push(r.empleado_nombre);
       }
-    }
+    });
+    var tasaPct = Math.round((uniqueRespondents.length / SB_TOTAL_USERS) * 100);
+    _setEl('db-dp-rate', tasaPct + '%');
+    var rateCmp = document.getElementById('db-dp-rate-cmp');
+    if (rateCmp) rateCmp.textContent = uniqueRespondents.length + ' de ' + SB_TOTAL_USERS + ' usuarios';
 
     // Trend chart — últimos 14 días de respuestas
     var trendEl = document.getElementById('db-dp-trend');
