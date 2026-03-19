@@ -845,7 +845,7 @@ body {
 /* ── 1. HEADER ── */
 #s-pulse .app-header { background: #ffffff; border-bottom: 1px solid #eeeef1; padding: 0; }
 #s-pulse .app-header-top { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; }
-#s-pulse .app-logo { font-size: 0; color: transparent; display: block; width: 120px; height: 36px; background-image: url('/assets/images/logo-humand.svg'); background-repeat: no-repeat; background-position: left center; background-size: contain; }
+#s-pulse .app-logo { font-size: 0; color: transparent; display: block; width: 200px; height: 36px; background-image: url('/assets/images/logo-humand.svg'); background-repeat: no-repeat; background-position: left center; background-size: contain; }
 #s-pulse .header-icons { display: flex; align-items: center; gap: 4px; }
 #s-pulse .header-icon { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; cursor: pointer; }
 #s-pulse .header-icon svg { display: none; }
@@ -858,15 +858,14 @@ body {
 /* ── 2. NAV TABS ── */
 #s-pulse .nav-tabs { display: flex; align-items: center; gap: 8px; padding: 12px 16px; background: #ffffff; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
 #s-pulse .nav-tabs::-webkit-scrollbar { display: none; }
-#s-pulse .nav-tab { display: inline-flex; align-items: center; gap: 4px; padding: 6px 16px; border-radius: 999px; border: 1px solid #eeeef1; background: #ffffff; color: #303036; font-family: 'Roboto', sans-serif; font-size: 14px; font-weight: 400; line-height: 1.4; letter-spacing: 0.2px; white-space: nowrap; cursor: pointer; }
-#s-pulse .nav-tab.active { border: 1.5px solid #496be3; color: #496be3; font-weight: 600; background: #ffffff; }
-#s-pulse .nav-tab.active::before { content: ''; display: inline-block; width: 14px; height: 14px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23496be3' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5l10 -10'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-size: contain; flex-shrink: 0; }
+#s-pulse .nav-tab { display: inline-flex; align-items: center; gap: 4px; padding: 6px 16px; border-radius: 8px; border: none; background: #f2f2f7; color: #636271; font-family: 'Roboto', sans-serif; font-size: 14px; font-weight: 400; line-height: 1.4; letter-spacing: 0.2px; white-space: nowrap; cursor: pointer; }
+#s-pulse .nav-tab.active { border: 1.5px solid #496be3; background: #ffffff; color: #29317f; font-weight: 600; }
+#s-pulse .nav-tab.active::before { content: ''; display: inline-block; width: 14px; height: 14px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2329317f' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5l10 -10'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-size: contain; flex-shrink: 0; }
 
 /* ── 3. CREATE BAR ── */
 #s-pulse .create-bar { background: #ffffff; display: flex; align-items: center; gap: 12px; padding: 16px; margin-bottom: 4px; }
 #s-pulse .create-btn { flex: 1; background: #f5f6f8; border: none; border-radius: 8px; padding: 10px 16px; display: flex; align-items: center; gap: 8px; color: #636271; font-family: 'Roboto', sans-serif; font-size: 16px; font-weight: 400; line-height: 1.4; letter-spacing: 0.2px; cursor: pointer; text-align: left; }
 #s-pulse .create-btn svg { display: none; }
-#s-pulse .create-btn::before { content: ''; display: block; width: 20px; height: 20px; flex-shrink: 0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23636271' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4'/%3E%3Cpath d='M13.5 6.5l4 4'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-size: contain; }
 
 /* ── 4. FEED POSTS ── */
 #s-pulse .fp { background: #ffffff; padding: 16px 16px 8px; margin-bottom: 0; border-radius: 0; }
@@ -879,10 +878,14 @@ body {
 #s-pulse .fp-img { border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
 
 /* ── 5. ACCIONES DEL POST ── */
-#s-pulse .fp-actions { padding-top: 8px; border-top: 1px solid #eeeef1; display: flex; align-items: center; justify-content: space-between; }
-#s-pulse .fp-act { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; color: #29317f; font-family: 'Roboto', sans-serif; font-size: 14px; font-weight: 600; line-height: 1.4; letter-spacing: 0.2px; cursor: pointer; }
+#s-pulse .fp-actions { padding: 8px 0; border-top: 1px solid #eeeef1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 #s-pulse .fp-act svg { display: none; }
-#s-pulse .fp-act::before { content: ''; display: block; width: 20px; height: 20px; flex-shrink: 0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2329317f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 20l1.3 -3.9c-2.324 -3.437 -1.426 -7.872 2.1 -10.374c3.526 -2.501 8.59 -2.296 11.845 .48c3.255 2.777 3.695 7.266 1.029 10.501c-2.666 3.235 -7.615 4.215 -11.574 2.293z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-size: contain; }
+/* Reaction pills (first 2) */
+#s-pulse .fp-act:nth-child(1), #s-pulse .fp-act:nth-child(2) { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; height: 32px; border-radius: 8px; background: #f2f2f7; border: none; font-size: 16px; line-height: 1; cursor: pointer; }
+#s-pulse .fp-act:nth-child(1).on, #s-pulse .fp-act:nth-child(2).on { background: #f1f4fd; border: 1.5px solid #6f93eb; }
+/* Comment button (last) */
+#s-pulse .fp-act:last-child { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; background: transparent; border: none; color: #29317f; font-family: 'Roboto', sans-serif; font-size: 14px; font-weight: 600; line-height: 1.4; letter-spacing: 0.2px; cursor: pointer; margin-left: auto; }
+#s-pulse .fp-act:last-child::before { content: ''; display: block; width: 20px; height: 20px; flex-shrink: 0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2329317f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 20l1.3 -3.9c-2.324 -3.437 -1.426 -7.872 2.1 -10.374c3.526 -2.501 8.59 -2.296 11.845 .48c3.255 2.777 3.695 7.266 1.029 10.501c-2.666 3.235 -7.615 4.215 -11.574 2.293z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-size: contain; }
 
 /* ── 7. BOTTOM NAV ── */
 #s-pulse .bnav { background: #ffffff; box-shadow: 0px -2px 24px 0px rgba(223,224,230,0.8); display: flex; align-items: flex-start; justify-content: space-between; padding: 4px 24px 20px; }
