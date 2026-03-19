@@ -725,34 +725,33 @@ body {
 
 /* ── Dynamic entry cards ── */
 .cl-dyn-card {
-  border-radius: 16px; padding: 16px;
+  background: #ffffff; border-radius: 16px; padding: 16px;
   margin-bottom: 8px; cursor: pointer;
-  box-shadow: var(--shadow-4dp); font-family: var(--font);
+  box-shadow: -1px 4px 8px 0px rgba(223,224,230,0.6); font-family: var(--font);
   letter-spacing: 0.2px; line-height: 1.4;
   display: flex; align-items: center; gap: 12px;
-  border: 1.5px solid transparent;
+  border: 1px solid #eeeef1;
   transition: transform .15s, box-shadow .15s;
 }
-.cl-dyn-card:hover { transform: scale(1.02); box-shadow: var(--shadow-8dp); }
-/* DS Purple 100/200 para Pulse, DS Yellow 100/200 para Daily */
-.cl-dyn-card.pulse  { background: #e9e8ff; border-color: #d6d4ff; }
-.cl-dyn-card.daily  { background: #fcf7ce; border-color: #fbeb9d; }
+.cl-dyn-card:hover { transform: scale(1.02); box-shadow: 0 8px 16px rgba(223,224,230,0.8); }
+/* Todas las cards blancas — sin color tipológico de fondo */
+.cl-dyn-card.pulse, .cl-dyn-card.daily, .cl-dyn-card.rec { background: #ffffff; border-color: #eeeef1; }
 .cl-dyn-icon {
-  width: 42px; height: 42px; border-radius: 8px; flex-shrink: 0;
+  width: 40px; height: 40px; border-radius: 8px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center; font-size: 20px;
+  background: #f8fdfe;
 }
-/* DS Purple 600→400, DS Yellow 600→400 */
-.cl-dyn-card.pulse .cl-dyn-icon { background: linear-gradient(135deg,#6330f7,#9785ff); }
-.cl-dyn-card.daily  .cl-dyn-icon { background: linear-gradient(135deg,#de920c,#f4c83f); }
+/* Íconos: colores claros por tipo */
+.cl-dyn-card.pulse .cl-dyn-icon { background: #f1f0ff; }
+.cl-dyn-card.daily .cl-dyn-icon { background: #fef9e7; }
 .cl-dyn-body { flex: 1; }
-/* font-weight 600 (DS no tiene 700) */
-.cl-dyn-title { font-size: 13px; font-weight: 600; color: var(--ink-950); letter-spacing: 0.2px; line-height: 1.4; }
-.cl-dyn-sub   { font-size: 11px; margin-top: 2px; letter-spacing: 0.2px; line-height: 1.4; }
-.cl-dyn-card.pulse .cl-dyn-sub { color: #551ee3; }  /* DS Purple 700 */
-.cl-dyn-card.daily  .cl-dyn-sub { color: #b1690e; }  /* DS Yellow 700 */
-.cl-dyn-chev  { font-size: 18px; flex-shrink: 0; }
-.cl-dyn-card.pulse .cl-dyn-chev { color: #9785ff; }  /* DS Purple 400 */
-.cl-dyn-card.daily  .cl-dyn-chev { color: #f4c83f; }  /* DS Yellow 400 */
+.cl-dyn-title { font-size: 14px; font-weight: 600; color: #303036; letter-spacing: 0.2px; line-height: 1.4; }
+.cl-dyn-sub   { font-size: 12px; font-weight: 400; margin-top: 2px; letter-spacing: 0.2px; line-height: 1.4; color: #636271; }
+.cl-dyn-card.pulse .cl-dyn-sub { color: #636271; }
+.cl-dyn-card.daily .cl-dyn-sub { color: #636271; }
+.cl-dyn-chev  { font-size: 18px; flex-shrink: 0; color: #636271; }
+.cl-dyn-card.pulse .cl-dyn-chev { color: #636271; }
+.cl-dyn-card.daily  .cl-dyn-chev { color: #636271; }
 .cl-dyn-section-lbl {
   font-size: 14px; font-weight: 600; color: #303036;
   margin-bottom: 8px; font-family: var(--font); letter-spacing: 0.2px; line-height: 1.4;
