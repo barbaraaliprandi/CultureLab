@@ -3339,13 +3339,20 @@ async function sbEnviarRespuesta(dinId, pregId, esCorrecta, puntos) {
 // ── Guardar respuesta de Pulso ───────────────────────────────
 async function sbEnviarPulso(emoji, sentimiento, motivos) {
   try {
-    // Guardar empleado_nombre internamente (anónimo en dashboard, pero trackeable para evitar doble voto)
-    await _sb.from('pulso_respuestas').insert({
+    // Guardar con empleado_nombre para tracking de doble voto
+    var insertData = {
       dinamica_id: window._sbPulsoId || null,
       emoji: emoji, sentimiento: sentimiento,
       motivos: motivos || [], anonimo: true,
       empleado_nombre: _empleadoNombre || 'Anónimo'
-    });
+    };
+    var insertRes = await _sb.from('pulso_respuestas').insert(insertData).select();
+    console.log('[Supabase] pulso insert:', JSON.stringify({ error: insertRes.error, rows: insertRes.data ? insertRes.data.length : 0 }));
+    if (insertRes.error) {
+      console.error('[Supabase] pulso insert error, retry sin empleado_nombre:', insertRes.error.message);
+      delete insertData.empleado_nombre;
+      await _sb.from('pulso_respuestas').insert(insertData);
+    }
     // Leer puntos de config
     var ptsPulso = 5;
     try {
