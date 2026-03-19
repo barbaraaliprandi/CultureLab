@@ -602,78 +602,43 @@
           </div>
         </div>
 
-        <!-- ═══ DAILY PLAY ═══ -->
+        <!-- ═══ TRIVIA DIARIA ═══ -->
         <div id="dbv-daily" class="hidden">
-          <!-- Filtro de trivia -->
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;flex-wrap:wrap">
-            <span style="font-size:12px;font-weight:600;color:var(--text2)">Trivia:</span>
-            <select class="fsel" id="db-daily-select" style="width:auto;min-width:260px" onchange="updateDailyStatus(this);sbCargarMetricasAdmin()">
+          <!-- Filtro alineado a la derecha -->
+          <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:20px">
+            <span style="font-size:14px;font-weight:600;color:var(--text)">Trivia diaria</span>
+            <select class="fsel" id="db-daily-select" style="width:auto;min-width:300px" onchange="updateDailyStatus(this);sbCargarMetricasAdmin()">
               <option value="">Cargando...</option>
             </select>
-            <span id="db-daily-status" class="sp activa"><span class="sp-dot"></span>Activa</span>
           </div>
 
-          <!-- KPIs — números en negro -->
-          <div class="g4" style="margin-bottom:20px">
-            <div class="card"><div class="clbl">Respuestas totales</div><div class="cval" id="db-dp-total">912</div><div class="cch nu">preguntas respondidas</div></div>
-            <div class="card"><div class="clbl">Preguntas ignoradas</div><div class="cval" id="db-dp-ignored">188</div><div class="cch nu">sin respuesta</div></div>
-            <div class="card"><div class="clbl">Tasa de respuesta</div><div class="cval" id="db-dp-rate">83%</div><div class="cch" id="db-dp-rate-cmp"></div></div>
-            <div class="card"><div class="clbl">Respuestas correctas</div><div class="cval" id="db-dp-correct">73%</div><div class="cch nu">de las respondidas</div></div>
-          </div>
-
-          <div class="g21" style="margin-bottom:20px">
-            <div class="card">
-              <div class="ctit">Participación diaria — últimos 14 días</div>
-              <div class="sparkline" style="height:80px">
-                <div class="sb" style="height:72%"></div><div class="sb" style="height:80%"></div><div class="sb" style="height:68%"></div><div class="sb" style="height:75%"></div><div class="sb" style="height:82%"></div><div class="sb" style="height:78%"></div><div class="sb" style="height:85%"></div><div class="sb" style="height:79%"></div><div class="sb" style="height:83%"></div><div class="sb" style="height:87%"></div><div class="sb" style="height:84%"></div><div class="sb" style="height:88%"></div><div class="sb" style="height:86%"></div><div class="sb cur" style="height:89%"></div>
-              </div>
-              <div class="slbls"><div class="slbl">L</div><div class="slbl">M</div><div class="slbl">X</div><div class="slbl">J</div><div class="slbl">V</div><div class="slbl">S</div><div class="slbl">D</div><div class="slbl">L</div><div class="slbl">M</div><div class="slbl">X</div><div class="slbl">J</div><div class="slbl">V</div><div class="slbl">S</div><div class="slbl cur">Hoy</div></div>
+          <!-- Card Resumen con 4 KPIs -->
+          <div class="card" style="margin-bottom:20px">
+            <div class="ctit" style="margin-bottom:16px">Resumen</div>
+            <div class="g4">
+              <div><div class="clbl">Preguntas respondidas</div><div class="cval" id="db-dp-total">0</div><div class="cch nu">Respuestas totales</div></div>
+              <div><div class="clbl">Preguntas ignoradas</div><div class="cval" id="db-dp-ignored">0</div><div class="cch nu">Sin respuesta</div></div>
+              <div><div class="clbl">Respuestas correctas</div><div class="cval" id="db-dp-correct">0%</div><div class="cch nu">de todas las preguntas respondidas</div></div>
+              <div><div class="clbl">Tasa de respuesta</div><div class="cval" id="db-dp-rate">0%</div><div class="cch" id="db-dp-rate-cmp"></div></div>
             </div>
+          </div>
+
+          <!-- 2 gráficos lado a lado -->
+          <div class="g21" style="margin-bottom:20px">
+            <!-- Tendencia de participación -->
             <div class="card">
-              <div class="ctit">Respondidas vs. ignoradas por pregunta</div>
-              <div id="db-dp-questions" style="display:flex;flex-direction:column;gap:14px;margin-top:4px">
-                <!-- Pregunta 1 -->
-                <div>
-                  <div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">¿Qué valor representa al equipo?</div>
-                  <div style="display:flex;gap:6px;align-items:center">
-                    <div style="flex:1;height:8px;border-radius:4px;background:var(--bg2);overflow:hidden;display:flex">
-                      <div style="width:78%;background:var(--hugo);border-radius:4px 0 0 4px"></div>
-                      <div style="flex:1;background:#E5E7EB"></div>
-                    </div>
-                  </div>
-                  <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-top:4px">
-                    <span>Respondidas: <strong style="color:var(--text)">78%</strong></span>
-                    <span>Ignoradas: <strong style="color:var(--text)">22%</strong></span>
-                  </div>
-                </div>
-                <!-- Pregunta 2 -->
-                <div>
-                  <div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">¿Cuál es el pilar estratégico?</div>
-                  <div style="display:flex;gap:6px;align-items:center">
-                    <div style="flex:1;height:8px;border-radius:4px;background:var(--bg2);overflow:hidden;display:flex">
-                      <div style="width:54%;background:var(--hugo);border-radius:4px 0 0 4px"></div>
-                      <div style="flex:1;background:#E5E7EB"></div>
-                    </div>
-                  </div>
-                  <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-top:4px">
-                    <span>Respondidas: <strong style="color:var(--text)">54%</strong></span>
-                    <span>Ignoradas: <strong style="color:var(--text)">46%</strong></span>
-                  </div>
-                </div>
-                <!-- Pregunta 3 -->
-                <div>
-                  <div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">¿Cuándo fundamos la empresa?</div>
-                  <div style="display:flex;gap:6px;align-items:center">
-                    <div style="flex:1;height:8px;border-radius:4px;background:var(--bg2);overflow:hidden;display:flex">
-                      <div style="width:91%;background:var(--hugo);border-radius:4px 0 0 4px"></div>
-                      <div style="flex:1;background:#E5E7EB"></div>
-                    </div>
-                  </div>
-                  <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-top:4px">
-                    <span>Respondidas: <strong style="color:var(--text)">91%</strong></span>
-                    <span>Ignoradas: <strong style="color:var(--text)">9%</strong></span>
-                  </div>
-                </div>
+              <div class="ctit">Tendencia de participación - Últimos 14 días</div>
+              <div id="db-dp-trend" style="display:flex;align-items:flex-end;gap:4px;height:120px;margin-top:12px;padding:0 4px">
+                <!-- Populado por JS -->
+              </div>
+              <div id="db-dp-trend-labels" style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:6px;padding:0 4px">
+              </div>
+            </div>
+            <!-- Preguntas respondidas vs ignoradas -->
+            <div class="card">
+              <div class="ctit">Preguntas respondidas versus ignoradas</div>
+              <div id="db-dp-questions" style="display:flex;flex-direction:column;gap:14px;margin-top:12px">
+                <!-- Populado por JS -->
               </div>
             </div>
           </div>
@@ -3227,6 +3192,34 @@ async function sbCargarMetricasAdmin() {
         });
       } else {
         qEl.innerHTML = '<div style="font-size:13px;color:var(--text2);text-align:center;padding:12px">Sin preguntas para esta dinámica</div>';
+      }
+    }
+
+    // Trend chart — últimos 14 días de respuestas
+    var trendEl = document.getElementById('db-dp-trend');
+    var trendLabels = document.getElementById('db-dp-trend-labels');
+    if (trendEl) {
+      trendEl.innerHTML = '';
+      if (trendLabels) trendLabels.innerHTML = '';
+      var dayNames = ['D','L','M','X','J','V','S'];
+      var today = new Date();
+      var dailyCounts = [];
+      for (var d = 13; d >= 0; d--) {
+        var date = new Date(today); date.setDate(today.getDate() - d);
+        var dateStr = date.toISOString().split('T')[0];
+        var count = resp.filter(function(r) {
+          return r.created_at && r.created_at.substring(0,10) === dateStr;
+        }).length;
+        dailyCounts.push(count);
+      }
+      var maxCount = Math.max.apply(null, dailyCounts) || 1;
+      for (var d = 13; d >= 0; d--) {
+        var idx = 13 - d;
+        var date = new Date(today); date.setDate(today.getDate() - d);
+        var pct = Math.round((dailyCounts[idx] / maxCount) * 100);
+        var isToday = d === 0;
+        trendEl.innerHTML += '<div style="flex:1;background:'+(isToday?'var(--hugo)':'#c5d4f8')+';border-radius:4px 4px 0 0;min-height:4px;height:'+Math.max(4,pct)+'%"></div>';
+        if (trendLabels) trendLabels.innerHTML += '<div style="flex:1;text-align:center'+(isToday?';color:var(--hugo);font-weight:600':'')+'">'+(isToday?'Hoy':dayNames[date.getDay()])+'</div>';
       }
     }
 
