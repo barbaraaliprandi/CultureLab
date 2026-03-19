@@ -682,40 +682,46 @@
         <!-- ═══ PULSE ═══ -->
         <div id="dbv-pulse" class="hidden">
           <!-- Filtro de pulso -->
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px">
-            <span style="font-size:12px;font-weight:600;color:var(--text2)">Pulso:</span>
-            <select class="fsel" id="db-pulse-select" style="width:auto;min-width:260px" onchange="sbCargarMetricasAdmin()">
+          <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:20px">
+            <span style="font-size:14px;font-weight:600;color:var(--text)">Pulso</span>
+            <select class="fsel" id="db-pulse-select" style="width:auto;min-width:300px" onchange="sbCargarMetricasAdmin()">
               <option value="">Cargando...</option>
             </select>
           </div>
 
-          <!-- KPIs — sin "Pulsos activos", números en negro -->
-          <div class="g4" style="margin-bottom:20px">
-            <div class="card"><div class="clbl">Respuestas totales</div><div class="cval" id="db-pulse-total">124</div><div class="cch nu">para este pulso</div></div>
-            <div class="card">
-              <div class="clbl">Sentimiento positivo</div>
-              <div class="cval" id="db-pulse-pos">70%</div>
-              <div class="cch" id="db-pulse-pos-cmp"></div>
-              <div style="font-size:10px;color:var(--text3);margin-top:4px;display:flex;align-items:center;gap:4px">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                Respondió entre bien y muy bien
-              </div>
+          <!-- Card Resumen con 4 KPIs -->
+          <div class="card" style="margin-bottom:20px">
+            <div class="ctit" style="margin-bottom:16px">Resumen</div>
+            <div class="g4">
+              <div><div class="clbl">Preguntas respondidas</div><div class="cval" id="db-pulse-total">0</div><div class="cch nu">Respuestas totales</div></div>
+              <div><div class="clbl">Preguntas ignoradas</div><div class="cval" id="db-pulse-sin">0</div><div class="cch nu">Sin respuesta</div></div>
+              <div><div class="clbl">Sentimiento</div><div class="cval" id="db-pulse-sentiment" style="display:flex;align-items:center;gap:6px">😊 0</div><div class="cch nu" id="db-pulse-sentiment-sub">Valor 0 = Neutro</div></div>
+              <div><div class="clbl">Porcentaje de colaboradores</div><div class="cval" id="db-pulse-pos">0%</div><div class="cch nu" id="db-pulse-pos-cmp">Respondió entre Bien (4) y Muy bien (5)</div></div>
             </div>
-            <div class="card">
-              <div class="clbl">Sentimiento negativo</div>
-              <div class="cval" id="db-pulse-neg">12%</div>
-              <div class="cch nu">atención recomendada</div>
-              <div style="font-size:10px;color:var(--text3);margin-top:4px;display:flex;align-items:center;gap:4px">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                Respondió entre mal y muy mal
-              </div>
-            </div>
-            <div class="card"><div class="clbl">Sin respuesta</div><div class="cval" id="db-pulse-sin">18%</div><div class="cch nu">no respondieron</div></div>
           </div>
 
-          <!-- Solo distribución, sin tendencia -->
-          <div class="card" style="max-width:560px">
-            <div class="ctit">Distribución de respuestas</div>
+          <!-- Comentarios + Distribución lado a lado -->
+          <div class="g21" style="margin-bottom:20px">
+
+          <!-- Comentarios abiertos (izquierda) -->
+          <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+              <div class="ctit" style="margin-bottom:0">Comentarios (<span id="db-pulse-comment-count">0</span>)</div>
+            </div>
+            <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden">
+              <div style="display:grid;grid-template-columns:80px 1fr;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text2);background:var(--bg3);padding:10px 14px;border-bottom:1px solid var(--border)">
+                <span>Valoración</span><span>Comentario</span>
+              </div>
+              <div id="db-pulse-comments" style="display:flex;flex-direction:column">
+                <!-- Populado por JS -->
+              </div>
+            </div>
+            <button style="width:100%;margin-top:12px;padding:10px;background:none;border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;font-family:'Roboto',sans-serif;transition:background .15s" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='none'" id="db-pulse-btn-all">Ver todos los comentarios →</button>
+          </div>
+
+          <!-- Distribución (derecha) -->
+          <div class="card">
+            <div class="ctit">Porcentaje de respuestas según valor</div>
             <div id="db-pulse-dist" style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
               <div class="srow">
                 <div class="sem">😄</div>
@@ -750,49 +756,7 @@
             </div>
           </div>
 
-          <!-- Comentarios abiertos -->
-          <div class="card" style="margin-top:20px">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-              <div class="ctit" style="margin-bottom:0">Respuestas abiertas</div>
-              <span id="db-pulse-comment-count" style="font-size:12px;color:var(--text2);font-weight:500">32 comentarios</span>
-            </div>
-            <div id="db-pulse-comments" style="display:flex;flex-direction:column;gap:8px">
-
-              <div style="padding:12px 14px;background:var(--bg);border-radius:10px;border-left:3px solid #1A9370">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-                  <span style="font-size:11px;color:var(--text3)">12 mar 2026 · 09:14</span>
-                  <span style="font-size:11px;font-weight:600;color:var(--text2)">😄 Muy bien</span>
-                </div>
-                <p style="font-size:13px;color:var(--text);line-height:1.5;margin:0">"El equipo estuvo muy bien coordinado esta semana, se nota el trabajo en conjunto."</p>
-              </div>
-
-              <div style="padding:12px 14px;background:var(--bg);border-radius:10px;border-left:3px solid #86EFAC">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-                  <span style="font-size:11px;color:var(--text3)">12 mar 2026 · 10:02</span>
-                  <span style="font-size:11px;font-weight:600;color:var(--text2)">🙂 Bien</span>
-                </div>
-                <p style="font-size:13px;color:var(--text);line-height:1.5;margin:0">"Buena semana en general. Podríamos mejorar la comunicación entre áreas."</p>
-              </div>
-
-              <div style="padding:12px 14px;background:var(--bg);border-radius:10px;border-left:3px solid #FCA5A5">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-                  <span style="font-size:11px;color:var(--text3)">12 mar 2026 · 11:38</span>
-                  <span style="font-size:11px;font-weight:600;color:var(--text2)">😕 Mal</span>
-                </div>
-                <p style="font-size:13px;color:var(--text);line-height:1.5;margin:0">"Semana muy cargada, siento que hay muchas reuniones que podrían ser mails."</p>
-              </div>
-
-              <div style="padding:12px 14px;background:var(--bg);border-radius:10px;border-left:3px solid #D1D5DB">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-                  <span style="font-size:11px;color:var(--text3)">12 mar 2026 · 14:55</span>
-                  <span style="font-size:11px;font-weight:600;color:var(--text2)">😐 Neutro</span>
-                </div>
-                <p style="font-size:13px;color:var(--text);line-height:1.5;margin:0">"Sin novedades particulares. La semana fue normal, nada que destacar."</p>
-              </div>
-
-            </div>
-            <button style="width:100%;margin-top:12px;padding:10px;background:none;border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;font-family:'Roboto',sans-serif;transition:background .15s" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='none'" id="db-pulse-btn-all">Ver todos los comentarios (32)</button>
-          </div>
+          </div><!-- /g21 -->
         </div>
 
         <!-- ═══ RECONOCIMIENTOS — grisado ═══ -->
@@ -3266,56 +3230,78 @@ async function sbCargarMetricasAdmin() {
       }
     }
 
-    // ── Pulso KPIs (filtrado por dinámica) ────────────────────
+    // ── Pulso KPIs (Figma: respondidas, ignoradas, sentimiento, % colaboradores) ──
     var pTotal = pulsos.length;
     _setEl('db-pulse-total', pTotal);
-    var posEmojis = ['😄','🎉','😊','🤩'];
-    var negEmojis = ['😡','😤','😢','😭','😕','😔'];
-    var pPos = pulsos.filter(function(p){ return posEmojis.includes(p.emoji) || p.sentimiento === 'positivo' || p.sentimiento === 'muy_positivo'; }).length;
-    var pNeg = pulsos.filter(function(p){ return negEmojis.includes(p.emoji) || p.sentimiento === 'negativo' || p.sentimiento === 'muy_negativo'; }).length;
-    var pNeu = pTotal - pPos - pNeg;
-    var pB   = pTotal || 1;
-    _setEl('db-pulse-pos', Math.round((pPos/pB)*100)+'%');
-    _setEl('db-pulse-neg', Math.round((pNeg/pB)*100)+'%');
-    _setEl('db-pulse-sin', Math.round((pNeu/pB)*100)+'%');
 
-    // Emoji distribution bars
+    // Sentimiento numérico: Muy bien=5, Bien=4, Regular=3, Mal=2, Muy mal=1
+    var emojiScore = { '😄':5, '🤩':5, '😊':4, '🙂':4, '😐':3, '😞':2, '😕':2, '😤':1, '😡':1, '😢':1 };
+    var sentLabels = { 5:'Muy bien', 4:'Bien', 3:'Neutro', 2:'Mal', 1:'Muy mal' };
+    var sentEmojis = { 5:'😄', 4:'😊', 3:'😐', 2:'😞', 1:'😤' };
+    var totalScore = 0;
+    pulsos.forEach(function(p) { totalScore += emojiScore[p.emoji] || 3; });
+    var avgSent = pTotal > 0 ? (totalScore / pTotal) : 0;
+    var avgRounded = Math.round(avgSent * 10) / 10;
+    var avgEmoji = sentEmojis[Math.round(avgSent)] || '😐';
+
+    // Sentimiento KPI
+    var sentEl = document.getElementById('db-pulse-sentiment');
+    if (sentEl) sentEl.innerHTML = avgEmoji + ' ' + avgRounded.toFixed(1);
+    var sentSub = document.getElementById('db-pulse-sentiment-sub');
+    if (sentSub) sentSub.textContent = 'Valor ' + avgRounded.toFixed(1) + ' = ' + (sentLabels[Math.round(avgSent)] || 'Neutro');
+
+    // Ignoradas: mostramos 0 ya que pulso no tiene "ignoradas" como trivia
+    _setEl('db-pulse-sin', 0);
+
+    // % colaboradores positivos (Bien + Muy bien)
+    var posEmojis = ['😄','🎉','😊','🤩','🙂'];
+    var pPos = pulsos.filter(function(p) { return posEmojis.includes(p.emoji); }).length;
+    var pB = pTotal || 1;
+    _setEl('db-pulse-pos', Math.round((pPos/pB)*100)+'%');
+    var posCmp = document.getElementById('db-pulse-pos-cmp');
+    if (posCmp) posCmp.textContent = 'Respondió entre Bien (4) y Muy bien (5)';
+
+    // Distribución por emoji (barras horizontales con colores)
     var emojiCnt = {};
     pulsos.forEach(function(p){ emojiCnt[p.emoji] = (emojiCnt[p.emoji]||0)+1; });
     var distEl = document.getElementById('db-pulse-dist');
-    if (distEl && pTotal > 0) {
+    if (distEl) {
       distEl.innerHTML = '';
-      Object.entries(emojiCnt).sort(function(a,b){ return b[1]-a[1]; }).forEach(function(kv){
-        var em = kv[0]; var cnt = kv[1];
-        var pct = Math.round((cnt/pTotal)*100);
+      var emojiColors = { '😄':'#1A9370', '😊':'#4ADE80', '😐':'#D1D5DB', '😞':'#FCA5A5', '😤':'#F87171' };
+      var orderedEmojis = ['😄','😊','😐','😞','😤'];
+      orderedEmojis.forEach(function(em) {
+        var cnt = emojiCnt[em] || 0;
+        var pct = pTotal > 0 ? Math.round((cnt/pTotal)*100) : 0;
+        var label = _emojiLabel[em] || em;
         distEl.innerHTML +=
-          '<div class="mbar"><div class="mbar-h"><span class="mbar-n">'+em+' '+(_emojiLabel[em]||em)+'</span><span class="mbar-p">'+pct+'% ('+cnt+')</span></div>'+
-          '<div class="mbar-t"><div class="mbar-f" style="width:'+pct+'%;background:var(--hugo)"></div></div></div>';
+          '<div style="display:flex;align-items:center;gap:8px;font-size:13px">'+
+          '<span style="width:20px;text-align:center">'+em+'</span>'+
+          '<span style="min-width:60px;color:var(--text2)">'+label+'</span>'+
+          '<span style="min-width:35px;font-weight:600;color:var(--text)">'+pct+'%</span>'+
+          '<div style="flex:1;height:12px;background:var(--bg2);border-radius:4px;overflow:hidden">'+
+          '<div style="height:100%;width:'+pct+'%;background:'+(emojiColors[em]||'var(--hugo)')+';border-radius:4px"></div></div></div>';
       });
     }
 
-    // Comments
+    // Comentarios (tabla Figma: Valoración + Comentario)
     var coms = pulsos.filter(function(p){ return p.comentario && p.comentario.trim().length > 0; });
     var ccEl = document.getElementById('db-pulse-comment-count');
-    if (ccEl) ccEl.textContent = coms.length + ' comentarios';
+    if (ccEl) ccEl.textContent = coms.length;
     var btnAll = document.getElementById('db-pulse-btn-all');
-    if (btnAll) btnAll.textContent = 'Ver todos los comentarios ('+coms.length+')';
+    if (btnAll) btnAll.textContent = 'Ver todos los comentarios →';
     var comEl = document.getElementById('db-pulse-comments');
     if (comEl) {
       comEl.innerHTML = '';
-      var cmap = { positivo:'#1A9370', muy_positivo:'#059669', bien:'#86EFAC', neutro:'#D1D5DB', negativo:'#FCA5A5', muy_negativo:'#EF4444' };
       if (coms.length === 0) {
-        comEl.innerHTML = '<div style="font-size:13px;color:var(--text2);padding:12px;text-align:center">Sin comentarios aún</div>';
+        comEl.innerHTML = '<div style="font-size:13px;color:var(--text2);padding:16px;text-align:center">Sin comentarios aún</div>';
       } else {
-        coms.slice(0,5).forEach(function(p) {
-          var border = cmap[p.sentimiento] || '#D1D5DB';
-          var fecha  = new Date(p.created_at).toLocaleString('es-CL',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+        coms.slice(0,5).forEach(function(p, i) {
+          var score = emojiScore[p.emoji] || 3;
+          var borderB = i < coms.length - 1 ? 'border-bottom:1px solid var(--border);' : '';
           comEl.innerHTML +=
-            '<div style="padding:12px 14px;background:var(--bg);border-radius:10px;border-left:3px solid '+border+'">'+
-            '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'+
-            '<span style="font-size:11px;color:var(--text3)">'+fecha+'</span>'+
-            '<span style="font-size:11px;font-weight:600;color:var(--text2)">'+(p.emoji||'')+'</span></div>'+
-            '<p style="font-size:13px;color:var(--text);line-height:1.5;margin:0">"'+p.comentario+'"</p></div>';
+            '<div style="display:grid;grid-template-columns:80px 1fr;padding:12px 14px;'+borderB+'align-items:center">'+
+            '<span style="font-size:14px;display:flex;align-items:center;gap:4px">'+(p.emoji||'😐')+' '+score+'</span>'+
+            '<span style="font-size:13px;color:var(--text);line-height:1.5">'+p.comentario+'</span></div>';
         });
       }
     }
