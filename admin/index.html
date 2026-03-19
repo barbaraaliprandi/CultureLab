@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Humand Admin — CultureLab</title>
+<title>Humand Admin — Cultural Engagement</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap');
   *{box-sizing:border-box;margin:0;padding:0;}
@@ -176,7 +177,7 @@
   .hp-p{font-size:12px;font-weight:600;color:var(--text2);width:28px;text-align:right;}
   .tib{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;border:none;background:none;cursor:pointer;color:var(--text2);transition:all .15s;}
   .tib:hover{background:var(--bg2);}
-  .est{padding:40px;text-align:center;color:var(--text3);}
+  .est{padding:40px;text-align:center;color:var(--text3);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;}
 
   /* Premios */
   .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
@@ -244,7 +245,7 @@
   .tog input{opacity:0;width:0;height:0;position:absolute;}
   .tsl{position:absolute;top:0;left:0;right:0;bottom:0;background:var(--border);border-radius:12px;transition:.2s;cursor:pointer;}
   .tsl:before{content:'';position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.15);}
-  .tog input:checked + .tsl{background:var(--teal);}
+  .tog input:checked + .tsl{background:var(--hugo);}
   .tog input:checked + .tsl:before{transform:translateX(20px);}
   .premio-row{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--bg);border-radius:10px;border:1px solid var(--border);cursor:pointer;transition:all .15s;}
   .premio-row:hover{border-color:var(--border-brand);background:var(--white);box-shadow:0 2px 8px rgba(0,0,0,.06);}
@@ -291,7 +292,11 @@
   .cfg-pts-row.hdr .cfg-pts-col-mod{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text2);}
   .cfg-pts-row.hdr .cfg-pts-col-pts{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text2);}
   .cfg-pts-row.hdr .cfg-pts-col-tog{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text2);}
-  .cfg-pts-action{font-size:13px;color:var(--text2);}
+  .cfg-pts-action{font-size:12px;color:var(--text2);}
+  .cfg-mod-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .cfg-mod-text{display:flex;flex-direction:column;gap:1px;}
+  .cfg-mod-name{font-size:13px;font-weight:600;color:var(--text);line-height:1.3;}
+  .cfg-pts-col-mod{gap:12px;}
   .pts-input{width:70px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-weight:600;font-family:'Roboto',sans-serif;color:var(--text);text-align:center;outline:none;transition:border-color .15s;}
   .pts-input:focus{border-color:var(--hugo);}
   .cfg-pts-note{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--text3);line-height:1.4;}
@@ -326,11 +331,12 @@
 
   /* Body */
   .tf-body{flex:1;overflow-y:auto;padding:32px 235px;}
+  .stepper-bar{background:var(--white);border-bottom:1px solid var(--border);padding:16px 235px 0;flex-shrink:0;}
   .tf-body::-webkit-scrollbar{width:6px;}
   .tf-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
 
   /* Stepper */
-  .stepper{display:flex;align-items:flex-start;gap:0;margin-bottom:32px;width:100%;}
+  .stepper{display:flex;align-items:flex-start;gap:0;margin-bottom:0;width:100%;}
   .step{display:flex;flex-direction:column;align-items:center;flex:1;position:relative;}
   .step:not(:last-child)::after{content:'';position:absolute;top:20px;left:calc(50% + 20px);right:calc(-50% + 20px);height:1px;background:var(--border);}
   .step.done:not(:last-child)::after{background:var(--hugo);}
@@ -430,6 +436,14 @@
   }
 </script>
 
+<!-- ═══ SUPABASE ════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = 'https://dfxsuthywljxamhkvalp.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_ntiR_If1OhPm-AnheVsuZQ_b6MbwX0U';
+  const _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+</script>
+
 </head>
 <body>
 
@@ -456,27 +470,27 @@
   <div class="layout">
     <!-- Sidebar -->
     <aside class="sidebar">
-      <div class="si"><div class="ico">🏠</div><div class="lbl">Home</div></div>
+      <div class="si"><div class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l-2 0l9 -9l9 9l-2 0" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" /></svg></div><div class="lbl">Home</div></div>
       <div class="si"><div class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div class="lbl">Users</div></div>
       <div class="si"><div class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div><div class="lbl">OrgChart</div></div>
       <div class="si"><div class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="lbl">Roles & Permission</div></div>
-      <div class="si act"><div class="ico">🎯</div><div class="lbl">CultureLab</div><div class="chv open">▾</div></div>
+      <div class="si act"><div class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="1" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="9" /></svg></div><div class="lbl">Cultural Engagement</div><div class="chv open">▾</div></div>
       <div class="subs">
         <div class="sub on" id="sub-dashboard" onclick="setV('dashboard')">Dashboard</div>
         <div class="sub off" id="sub-dinamicas" onclick="setV('dinamicas')">Dinámicas</div>
         <div class="sub off" id="sub-config" onclick="setV('config')">Configuración</div>
       </div>
-      <div class="si"><div class="ico">💬</div><div class="lbl">Chats & Calls</div></div>
-      <div class="si"><div class="ico">📡</div><div class="lbl">Live streaming</div></div>
-      <div class="si"><div class="ico">📚</div><div class="lbl">Training</div><span class="sibadge">1</span></div>
-      <div class="si"><div class="ico">🔄</div><div class="lbl">Performance review</div></div>
-      <div class="si"><div class="ico">💙</div><div class="lbl">People experience</div><span class="sibadge">1</span><span class="sinew">Nuevo</span></div>
-      <div class="si"><div class="ico">📋</div><div class="lbl">Forms</div></div>
-      <div class="si"><div class="ico">⚡</div><div class="lbl">Workflows</div></div>
-      <div class="si"><div class="ico">🛎️</div><div class="lbl">Service management</div></div>
-      <div class="si"><div class="ico">🏖️</div><div class="lbl">Time off</div></div>
-      <div class="si"><div class="ico">⏱️</div><div class="lbl">Time tracking</div></div>
-      <div class="si"><div class="ico">✅</div><div class="lbl">Onboarding & Tasks</div></div>
+      <div class="si"><div class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 9h8" /><path d="M8 13h6" /><path d="M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-5l-5 3v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12z" /></svg></div><div class="lbl">Chats & Calls</div></div>
+      <div class="si"><div class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18.364 19.364a9 9 0 1 0 -12.728 0" /><path d="M15.536 16.536a5 5 0 1 0 -7.072 0" /><circle cx="12" cy="13" r="1" /></svg></div><div class="lbl">Live streaming</div></div>
+      <div class="si"><div class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0" /><path d="M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0" /><path d="M3 6l0 13" /><path d="M12 6l0 13" /><path d="M21 6l0 13" /></svg></div><div class="lbl">Training</div><span class="sibadge">1</span></div>
+      <div class="si"><div class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" /><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" /></svg></div><div class="lbl">Performance review</div></div>
+      <div class="si"><div class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" /></svg></div><div class="lbl">People experience</div><span class="sibadge">1</span><span class="sinew">Nuevo</span></div>
+      <div class="si"><div class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" /><path d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" /></svg></div><div class="lbl">Forms</div></div>
+      <div class="si"><div class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M13 3l0 7l6 0l-8 11l0 -7l-6 0l8 -11" /></svg></div><div class="lbl">Workflows</div></div>
+      <div class="si"><div class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6" /><path d="M9 17v1a3 3 0 0 0 6 0v-1" /></svg></div><div class="lbl">Service management</div></div>
+      <div class="si"><div class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9a4 4 0 1 1 0 -8a4 4 0 0 1 0 8" /><path d="M8 21l4 -4l4 4" /><path d="M12 17l-5 -9.5" /><path d="M12 17l5 -9.5" /></svg></div><div class="lbl">Time off</div></div>
+      <div class="si"><div class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><path d="M12 7l0 5l3 3" /></svg></div><div class="lbl">Time tracking</div></div>
+      <div class="si"><div class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><path d="M9 12l2 2l4 -4" /></svg></div><div class="lbl">Onboarding & Tasks</div></div>
       <hr class="sdiv">
       <div class="sfoot"><span style="font-size:12px">Built with love by</span><strong style="color:var(--hugo);font-size:13px">humand</strong></div>
     </aside>
@@ -491,10 +505,10 @@
         <!-- Tabs — sin filtros globales -->
         <div style="display:flex;gap:2px;border-bottom:2px solid var(--border);margin-bottom:24px">
           <button class="db-tab on" id="dbt-resumen"  onclick="setDbTab('resumen')">Resumen</button>
-          <button class="db-tab"   id="dbt-daily"     onclick="setDbTab('daily')">🎯 Trivia diaria</button>
-          <button class="db-tab"   id="dbt-pulse"     onclick="setDbTab('pulse')">💙 Pulso</button>
-          <button class="db-tab"   id="dbt-reco"      onclick="setDbTab('reco')" style="opacity:.45;pointer-events:none">⭐ Reconocimientos <span style="background:var(--amber-bg);color:var(--amber);font-size:9px;font-weight:700;padding:1px 6px;border-radius:8px">Próx.</span></button>
-          <button class="db-tab"   id="dbt-misiones"  onclick="setDbTab('misiones')" style="opacity:.45;pointer-events:none">🚀 Misiones <span style="background:var(--amber-bg);color:var(--amber);font-size:9px;font-weight:700;padding:1px 6px;border-radius:8px">Próx.</span></button>
+          <button class="db-tab"   id="dbt-daily"     onclick="setDbTab('daily')"><span style="display:inline-flex;align-items:center;gap:5px"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="1" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="9" /></svg> Daily Play</span></button>
+          <button class="db-tab"   id="dbt-pulse"     onclick="setDbTab('pulse')"><span style="display:inline-flex;align-items:center;gap:5px"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" /></svg> Pulso</span></button>
+          <button class="db-tab"   id="dbt-reco"      onclick="setDbTab('reco')" style="opacity:.45;pointer-events:none"><span style="display:inline-flex;align-items:center;gap:5px"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" /></svg> Reconocimientos</span> <span style="font-size:11px;background:var(--amber-bg);color:var(--amber);padding:2px 6px;border-radius:8px;margin-left:4px">Próx.</span></button>
+          <button class="db-tab"   id="dbt-misiones"  onclick="setDbTab('misiones')" style="opacity:.45;pointer-events:none"><span style="display:inline-flex;align-items:center;gap:5px"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 13a8 8 0 0 1 7 7a6 6 0 0 0 3 -5a9 9 0 0 0 6 -8a3 3 0 0 0 -3 -3a9 9 0 0 0 -8 6a6 6 0 0 0 -5 3" /><path d="M7 14a6 6 0 0 0 -3 6a6 6 0 0 0 6 -3" /><circle cx="15" cy="9" r="1" /></svg> Misiones</span></button>
         </div>
 
         <!-- ═══ RESUMEN ═══ -->
@@ -502,7 +516,7 @@
           <div class="g4" style="margin-bottom:20px">
             <div class="card"><div class="clbl">Colaboradores activos</div><div class="cval" id="db-res-activos">68%</div><div class="cch" id="db-res-activos-cmp"></div></div>
             <div class="card"><div class="clbl">Sentimiento positivo</div><div class="cval" id="db-res-sentimiento">70%</div><div class="cch" id="db-res-sentimiento-cmp"></div></div>
-            <div class="card"><div class="clbl">Módulo más activo</div><div class="cval" id="db-res-modulo" style="font-size:18px;line-height:2.2">Trivia diaria</div><div class="cch nu">89% participación</div></div>
+            <div class="card"><div class="clbl">Módulo más activo</div><div class="cval" id="db-res-modulo" style="font-size:18px;line-height:2.2">Daily Play</div><div class="cch nu">89% participación</div></div>
             <div class="card"><div class="clbl">Total participantes</div><div class="cval" id="db-res-participantes">1.024</div><div class="cch nu">de 1.500 colaboradores</div></div>
           </div>
           <div class="g21">
@@ -512,11 +526,11 @@
               <div class="slbls"><div class="slbl">S1</div><div class="slbl">S2</div><div class="slbl">S3</div><div class="slbl">S4</div><div class="slbl">S5</div><div class="slbl">S6</div><div class="slbl">S7</div><div class="slbl cur">Hoy</div></div>
             </div>
             <div class="card" id="db-res-engagement">
-              <div class="ctit">Participación por módulo</div>
-              <div class="mbar"><div class="mbar-h"><span class="mbar-n">🎯 Trivia diaria</span><span class="mbar-p">89%</span></div><div class="mbar-t"><div class="mbar-f" style="width:89%;background:var(--teal)"></div></div></div>
-              <div class="mbar"><div class="mbar-h"><span class="mbar-n">💙 Pulso</span><span class="mbar-p">61%</span></div><div class="mbar-t"><div class="mbar-f" style="width:61%;background:var(--blue)"></div></div></div>
-              <div class="mbar"><div class="mbar-h"><span class="mbar-n">🚀 Misiones</span><span class="mbar-p">38%</span></div><div class="mbar-t"><div class="mbar-f" style="width:38%;background:var(--amber)"></div></div></div>
-              <div class="mbar"><div class="mbar-h"><span class="mbar-n">⭐ Reconocimientos</span><span class="mbar-p">24%</span></div><div class="mbar-t"><div class="mbar-f" style="width:24%;background:var(--purple)"></div></div></div>
+              <div class="ctit">Engagement por módulo</div>
+              <div class="mbar"><div class="mbar-h"><span class="mbar-n" style="display:inline-flex;align-items:center;gap:5px"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="1" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="9" /></svg> Daily Play</span><span class="mbar-p">89%</span></div><div class="mbar-t"><div class="mbar-f" style="width:89%;background:var(--teal)"></div></div></div>
+              <div class="mbar"><div class="mbar-h"><span class="mbar-n" style="display:inline-flex;align-items:center;gap:5px"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" /></svg> Pulso</span><span class="mbar-p">61%</span></div><div class="mbar-t"><div class="mbar-f" style="width:61%;background:var(--blue)"></div></div></div>
+              <div class="mbar"><div class="mbar-h"><span class="mbar-n" style="display:inline-flex;align-items:center;gap:5px"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 13a8 8 0 0 1 7 7a6 6 0 0 0 3 -5a9 9 0 0 0 6 -8a3 3 0 0 0 -3 -3a9 9 0 0 0 -8 6a6 6 0 0 0 -5 3" /><path d="M7 14a6 6 0 0 0 -3 6a6 6 0 0 0 6 -3" /><circle cx="15" cy="9" r="1" /></svg> Misiones</span><span class="mbar-p">38%</span></div><div class="mbar-t"><div class="mbar-f" style="width:38%;background:var(--amber)"></div></div></div>
+              <div class="mbar"><div class="mbar-h"><span class="mbar-n" style="display:inline-flex;align-items:center;gap:5px"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" /></svg> Reconocimientos</span><span class="mbar-p">24%</span></div><div class="mbar-t"><div class="mbar-f" style="width:24%;background:var(--purple)"></div></div></div>
             </div>
           </div>
 
@@ -524,7 +538,7 @@
           <div id="db-ranking-block" class="hidden" style="margin-top:20px">
             <div class="card">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-                <div class="ctit" style="margin-bottom:0">🏆 Ranking del período</div>
+                <div class="ctit" style="margin-bottom:0"><span style="display:inline-flex;align-items:center;gap:6px"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 21l8 0" /><path d="M12 17l0 4" /><path d="M7 4l10 0" /><path d="M17 4v8a5 5 0 0 1 -10 0v-8" /><path d="M5 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M19 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /></svg> Ranking del período</span></div>
                 <span style="font-size:12px;color:var(--text2);font-weight:500">Top 10 · período actual</span>
               </div>
 
@@ -822,7 +836,7 @@
         <!-- ═══ MISIONES — grisado ═══ -->
         <div id="dbv-misiones" class="hidden">
           <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 32px;gap:12px;text-align:center">
-            <div style="font-size:40px">🚀</div>
+            <div style="color:var(--amber)"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 13a8 8 0 0 1 7 7a6 6 0 0 0 3 -5a9 9 0 0 0 6 -8a3 3 0 0 0 -3 -3a9 9 0 0 0 -8 6a6 6 0 0 0 -5 3" /><path d="M7 14a6 6 0 0 0 -3 6a6 6 0 0 0 6 -3" /><circle cx="15" cy="9" r="1" /></svg></div>
             <div style="font-size:16px;font-weight:700;color:var(--text)">Misiones</div>
             <div style="font-size:13px;color:var(--text2);max-width:340px">Este módulo estará disponible próximamente. Podrás ver acciones completadas, módulos más usados y progreso semanal.</div>
             <span style="background:var(--amber-bg);color:var(--amber);font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;margin-top:4px">Próximamente</span>
@@ -836,7 +850,7 @@
         <div class="din-topbar">
           <div>
             <h2>Dinámicas</h2>
-            <p>Creá y gestioná las dinámicas de participación de tu organización</p>
+            <p>Creá y gestioná las dinámicas de engagement de tu organización</p>
           </div>
           <!-- POPOVER WRAP -->
           <div class="popover-wrap" id="pw">
@@ -847,23 +861,23 @@
             <div class="popover" id="popover" role="menu">
               <div class="popover-hdr"><p>Elegí el tipo de dinámica</p></div>
               <div class="popover-item" role="menuitem" tabindex="0" onclick="openDailyPlay()">
-                <div class="pi-ico" style="background:var(--teal-bg)">🎯</div>
-                <div><div class="pi-name">Trivia diaria</div><div class="pi-sub">Pregunta del día</div></div>
+                <div class="pi-ico" style="background:var(--teal-bg);color:var(--teal)"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="1" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="9" /></svg></div>
+                <div><div class="pi-name">Daily Play</div><div class="pi-sub">Trivia diaria · +20 pts</div></div>
                 <span class="pi-arr">›</span>
               </div>
               <div class="popover-item" role="menuitem" tabindex="0" onclick="openPulse()">
-                <div class="pi-ico" style="background:var(--blue-bg)">💙</div>
-                <div><div class="pi-name">Pulso</div><div class="pi-sub">Pulso emocional</div></div>
+                <div class="pi-ico" style="background:var(--blue-bg);color:var(--blue)"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" /></svg></div>
+                <div><div class="pi-name">Pulso</div><div class="pi-sub">Pulso emocional · +5 pts</div></div>
                 <span class="pi-arr">›</span>
               </div>
               <div class="popover-item" role="menuitem" tabindex="0" style="opacity:.5;cursor:default;pointer-events:none">
-                <div class="pi-ico" style="background:var(--amber-bg)">🚀</div>
-                <div><div class="pi-name">Misión <span style="background:var(--amber-bg);color:var(--amber);font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:4px;vertical-align:middle">Próximamente</span></div><div class="pi-sub">Acciones guiadas</div></div>
+                <div class="pi-ico" style="background:var(--amber-bg);color:var(--amber)"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 13a8 8 0 0 1 7 7a6 6 0 0 0 3 -5a9 9 0 0 0 6 -8a3 3 0 0 0 -3 -3a9 9 0 0 0 -8 6a6 6 0 0 0 -5 3" /><path d="M7 14a6 6 0 0 0 -3 6a6 6 0 0 0 6 -3" /><circle cx="15" cy="9" r="1" /></svg></div>
+                <div><div class="pi-name">Misión <span style="background:var(--amber-bg);color:var(--amber);font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:4px;vertical-align:middle">Próximamente</span></div><div class="pi-sub">Acciones guiadas · +50 pts</div></div>
                 <span class="pi-arr">›</span>
               </div>
-              <div class="popover-item" role="menuitem" tabindex="0" style="opacity:.5;cursor:default;pointer-events:none;border-radius:0 0 12px 12px">
-                <div class="pi-ico" style="background:var(--purple-bg)">⭐</div>
-                <div><div class="pi-name">Reconocimiento <span style="background:var(--amber-bg);color:var(--amber);font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:4px;vertical-align:middle">Próximamente</span></div><div class="pi-sub">Nominación y voto</div></div>
+              <div class="popover-item" role="menuitem" tabindex="0" onclick="openRecoDrawer()" style="border-radius:0 0 12px 12px">
+                <div class="pi-ico" style="background:var(--purple-bg);color:var(--purple)"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" /></svg></div>
+                <div><div class="pi-name">Reconocimiento</div><div class="pi-sub">Nominación y voto · +30 pts</div></div>
                 <span class="pi-arr">›</span>
               </div>
             </div>
@@ -873,7 +887,7 @@
         <!-- Ranking status banner -->
         <div id="ranking-banner-off" style="display:flex;align-items:center;justify-content:space-between;background:var(--gray-bg);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:20px;gap:16px">
           <div style="display:flex;align-items:center;gap:12px">
-            <span style="font-size:20px">🏆</span>
+            <span style="display:inline-flex;color:var(--amber)"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 21l8 0" /><path d="M12 17l0 4" /><path d="M7 4l10 0" /><path d="M17 4v8a5 5 0 0 1 -10 0v-8" /><path d="M5 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M19 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /></svg></span>
             <div>
               <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px">Ranking y puntos están desactivados</div>
               <div style="font-size:12px;color:var(--text2)">Las dinámicas no acumularán puntos. Activá el sistema en Configuración para habilitar esta función.</div>
@@ -883,7 +897,7 @@
         </div>
         <div id="ranking-banner-on" class="hidden" style="display:flex;align-items:center;justify-content:space-between;background:var(--teal-bg);border:1px solid var(--teal-bd);border-radius:12px;padding:14px 18px;margin-bottom:20px;gap:16px">
           <div style="display:flex;align-items:center;gap:12px">
-            <span style="font-size:20px">🏆</span>
+            <span style="display:inline-flex;color:var(--amber)"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 21l8 0" /><path d="M12 17l0 4" /><path d="M7 4l10 0" /><path d="M17 4v8a5 5 0 0 1 -10 0v-8" /><path d="M5 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M19 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /></svg></span>
             <div>
               <div style="font-size:13px;font-weight:600;color:var(--teal);margin-bottom:2px">Ranking y puntos activos</div>
               <div style="font-size:12px;color:var(--text2)">Las dinámicas acumularán puntos según su configuración individual. Podés activar o desactivar puntos en cada dinámica.</div>
@@ -911,19 +925,19 @@
             </thead>
             <tbody id="din-tbody"></tbody>
           </table>
-          <div id="din-empty" class="est hidden"><p>🎯</p><p style="font-size:13px">No hay dinámicas aún — creá la primera</p></div>
+          <div id="din-empty" class="est hidden"><div style="width:48px;height:48px;border-radius:50%;background:#EEF2FE;display:flex;align-items:center;justify-content:center;margin-bottom:4px"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#496BE3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><path d="M12 8l.01 0" /><polyline points="11 12 12 12 12 16" /></svg></div><p style="font-size:13px">No hay dinámicas aún — creá la primera</p></div>
         </div>
       </div>
 
       <!-- CONFIGURACIÓN -->
       <div id="v-config" class="hidden">
         <div class="ptitle">Configuración</div>
-        <div class="pdesc">Definí cómo funciona el sistema de participación para tu organización. Estos ajustes afectan a todas las dinámicas.</div>
+        <div class="pdesc">Definí cómo funciona el sistema de engagement para tu organización. Estos ajustes afectan a todas las dinámicas.</div>
 
         <!-- Bloque: Ranking y puntos -->
         <div class="cfg-block">
           <div class="cfg-block-hdr">
-            <div class="cfg-block-ico">🏆</div>
+            <div class="cfg-block-ico" style="background:#EDE9FE;color:#6D28D9"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 21l8 0" /><path d="M12 17l0 4" /><path d="M7 4l10 0" /><path d="M17 4v8a5 5 0 0 1 -10 0v-8" /><path d="M5 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M19 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /></svg></div>
             <div class="cfg-block-body">
               <div class="cfg-block-title">Ranking y puntos</div>
               <div class="cfg-block-sub">Al activar, los colaboradores acumularán puntos por participar en las dinámicas y verán un ranking general en el hub.</div>
@@ -971,32 +985,44 @@
                 <div class="cfg-pts-col-mod">Tipo de dinámica · Acción</div>
                 <div class="cfg-pts-col-pts" style="text-align:right">Puntos default</div>
               </div>
+              <!-- Daily Play · Respuesta correcta -->
               <div class="cfg-pts-row">
-                <div class="cfg-pts-col-mod"><span class="tb daily">🎯 Trivia diaria</span><span class="cfg-pts-action">Respuesta correcta</span></div>
+                <div class="cfg-pts-col-mod">
+                  <span class="cfg-mod-ico" style="background:#FEF3C7"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3l0 7l6 0l-8 11l0 -7l-6 0l8 -11"/></svg></span>
+                  <div class="cfg-mod-text"><span class="cfg-mod-name">Daily Play</span><span class="cfg-pts-action">Respuesta correcta</span></div>
+                </div>
                 <div class="cfg-pts-col-pts"><input class="pts-input" type="number" value="20" min="0" max="999"></div>
               </div>
+              <!-- Daily Play · Respuesta incorrecta -->
               <div class="cfg-pts-row">
-                <div class="cfg-pts-col-mod"><span class="tb daily" style="opacity:0">🎯</span><span class="cfg-pts-action">Respuesta incorrecta</span></div>
+                <div class="cfg-pts-col-mod">
+                  <span class="cfg-mod-ico" style="background:#FEF3C7"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3l0 7l6 0l-8 11l0 -7l-6 0l8 -11"/></svg></span>
+                  <div class="cfg-mod-text"><span class="cfg-mod-name">Daily Play</span><span class="cfg-pts-action">Respuesta incorrecta</span></div>
+                </div>
                 <div class="cfg-pts-col-pts"><input class="pts-input" type="number" value="0" min="0" max="999"></div>
               </div>
+              <!-- Pulso -->
               <div class="cfg-pts-row">
-                <div class="cfg-pts-col-mod"><span class="tb pulse">💙 Pulso</span><span class="cfg-pts-action">Respondió el pulso</span></div>
+                <div class="cfg-pts-col-mod">
+                  <span class="cfg-mod-ico" style="background:#F8FDFE"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A9370" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"/></svg></span>
+                  <div class="cfg-mod-text"><span class="cfg-mod-name">Pulso</span><span class="cfg-pts-action">Respondió el pulso</span></div>
+                </div>
                 <div class="cfg-pts-col-pts"><input class="pts-input" type="number" value="5" min="0" max="999"></div>
               </div>
+              <!-- Reconocimiento · Nominó (próximamente) -->
               <div class="cfg-pts-row" style="opacity:.4;pointer-events:none">
-                <div class="cfg-pts-col-mod"><span class="tb mision">🚀 Misión</span><span class="cfg-pts-action">Acción dentro de la misión</span><span style="background:var(--amber-bg);color:var(--amber);font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;margin-left:6px">Próximamente</span></div>
-                <div class="cfg-pts-col-pts"><input class="pts-input" type="number" value="25" min="0" max="999" disabled></div>
-              </div>
-              <div class="cfg-pts-row" style="opacity:.4;pointer-events:none">
-                <div class="cfg-pts-col-mod"><span class="tb mision" style="opacity:0">🚀</span><span class="cfg-pts-action">Misión completa</span></div>
-                <div class="cfg-pts-col-pts"><input class="pts-input" type="number" value="50" min="0" max="999" disabled></div>
-              </div>
-              <div class="cfg-pts-row" style="opacity:.4;pointer-events:none">
-                <div class="cfg-pts-col-mod"><span class="tb reco">⭐ Reconocimiento</span><span class="cfg-pts-action">Nominó a un compañero</span><span style="background:var(--amber-bg);color:var(--amber);font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;margin-left:6px">Próximamente</span></div>
+                <div class="cfg-pts-col-mod">
+                  <span class="cfg-mod-ico" style="background:#F5F3FF"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6D28D9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"/></svg></span>
+                  <div class="cfg-mod-text"><span class="cfg-mod-name">Reconocimientos</span><span class="cfg-pts-action">Reconoció a un compañero <span style="background:var(--amber-bg);color:var(--amber);font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;margin-left:4px">Próximamente</span></span></div>
+                </div>
                 <div class="cfg-pts-col-pts"><input class="pts-input" type="number" value="15" min="0" max="999" disabled></div>
               </div>
+              <!-- Reconocimiento · Fue nominado (próximamente) -->
               <div class="cfg-pts-row" style="opacity:.4;pointer-events:none">
-                <div class="cfg-pts-col-mod"><span class="tb reco" style="opacity:0">⭐</span><span class="cfg-pts-action">Fue nominado</span></div>
+                <div class="cfg-pts-col-mod">
+                  <span class="cfg-mod-ico" style="background:#F5F3FF"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6D28D9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"/></svg></span>
+                  <div class="cfg-mod-text"><span class="cfg-mod-name">Reconocimientos</span><span class="cfg-pts-action">Fue reconocido por un compañero <span style="background:var(--amber-bg);color:var(--amber);font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;margin-left:4px">Próximamente</span></span></div>
+                </div>
                 <div class="cfg-pts-col-pts"><input class="pts-input" type="number" value="30" min="0" max="999" disabled></div>
               </div>
             </div>
@@ -1011,7 +1037,7 @@
         <!-- Bloque: Premios y canje -->
         <div class="cfg-block" id="cfg-premios-block" style="opacity:.5;pointer-events:none">
           <div class="cfg-block-hdr">
-            <div class="cfg-block-ico">🎁</div>
+            <div class="cfg-block-ico" style="background:#EFF6FF;color:#1D4ED8"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 8m0 1a1 1 0 0 1 1 -1h16a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1z" /><path d="M12 8l0 13" /><path d="M19 12v7a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-7" /><path d="M7.5 8a2.5 2.5 0 0 1 0 -5a4.8 8 0 0 1 4.5 5a4.8 8 0 0 1 4.5 -5a2.5 2.5 0 0 1 0 5" /></svg></div>
             <div class="cfg-block-body">
               <div class="cfg-block-title">Premios y canje</div>
               <div class="cfg-block-sub">Definí los premios para los primeros puestos del ranking. Requiere tener Ranking y puntos activo.</div>
@@ -1028,7 +1054,7 @@
             <!-- Podio — cada fila abre un drawer -->
             <div style="display:flex;flex-direction:column;gap:10px">
               <div class="premio-row" id="premio-row-1" onclick="openPremioDrawer(1)">
-                <div style="width:40px;height:40px;border-radius:50%;background:#FEF3C7;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🥇</div>
+                <div style="width:40px;height:40px;border-radius:50%;background:#FEF3C7;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#B45309"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="9" r="6" /><path d="M12 15l3.4 5.89l1.598 -3.233l3.598 .232l-3.4 -5.889" /><path d="M6.802 12l-3.4 5.89l3.598 -.233l1.598 3.234l3.4 -5.891" /></svg></div>
                 <div style="flex:1">
                   <div style="font-size:13px;font-weight:700;color:var(--amber)">Primer puesto</div>
                   <div class="premio-preview" id="preview-1" style="font-size:12px;color:var(--text3);margin-top:2px">Sin configurar — hacé clic para editar</div>
@@ -1036,7 +1062,7 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3);flex-shrink:0"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
               </div>
               <div class="premio-row" id="premio-row-2" onclick="openPremioDrawer(2)">
-                <div style="width:40px;height:40px;border-radius:50%;background:#F3F4F6;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🥈</div>
+                <div style="width:40px;height:40px;border-radius:50%;background:#F3F4F6;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#6B7280"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="9" r="6" /><path d="M12 15l3.4 5.89l1.598 -3.233l3.598 .232l-3.4 -5.889" /><path d="M6.802 12l-3.4 5.89l3.598 -.233l1.598 3.234l3.4 -5.891" /></svg></div>
                 <div style="flex:1">
                   <div style="font-size:13px;font-weight:700;color:var(--gray)">Segundo puesto</div>
                   <div class="premio-preview" id="preview-2" style="font-size:12px;color:var(--text3);margin-top:2px">Sin configurar — hacé clic para editar</div>
@@ -1044,7 +1070,7 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3);flex-shrink:0"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
               </div>
               <div class="premio-row" id="premio-row-3" onclick="openPremioDrawer(3)">
-                <div style="width:40px;height:40px;border-radius:50%;background:#FEF2F2;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🥉</div>
+                <div style="width:40px;height:40px;border-radius:50%;background:#FEF2F2;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#C2410C"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="9" r="6" /><path d="M12 15l3.4 5.89l1.598 -3.233l3.598 .232l-3.4 -5.889" /><path d="M6.802 12l-3.4 5.89l3.598 -.233l1.598 3.234l3.4 -5.891" /></svg></div>
                 <div style="flex:1">
                   <div style="font-size:13px;font-weight:700;color:#92400E">Tercer puesto</div>
                   <div class="premio-preview" id="preview-3" style="font-size:12px;color:var(--text3);margin-top:2px">Sin configurar — hacé clic para editar</div>
@@ -1055,7 +1081,7 @@
 
             <div class="cfg-pts-note" style="margin-top:14px">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              Los premios son visibles para los colaboradores en el hub de participación. La entrega es responsabilidad de la organización.
+              Los premios son visibles para los colaboradores en el hub de engagement. La entrega es responsabilidad de la organización.
             </div>
           </div>
         </div>
@@ -1089,7 +1115,7 @@
   <!-- TaskFocus header -->
   <header class="tf-hdr">
     <div class="tf-hdr-l">
-      <span class="tf-title">Trivia diaria</span>
+      <span class="tf-title">Daily Play</span>
       <span class="tf-pill" id="tf-pill">Paso 1 de 3</span>
     </div>
     <div class="tf-hdr-r">
@@ -1099,10 +1125,8 @@
     </div>
   </header>
 
-  <!-- Body -->
-  <div class="tf-body">
-
-    <!-- Stepper -->
+  <!-- Stepper bar — pegado al header -->
+  <div class="stepper-bar">
     <div class="stepper" id="stepper">
       <div class="step active" id="step-0">
         <div class="step-circle">1</div>
@@ -1133,6 +1157,10 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Body -->
+  <div class="tf-body">
 
     <!-- STEP 1: Información básica -->
     <div class="step-content active" id="sc-0">
@@ -1359,9 +1387,8 @@
     </div>
   </header>
 
-  <div class="tf-body">
-
-    <!-- Stepper -->
+  <!-- Stepper bar — pegado al header -->
+  <div class="stepper-bar">
     <div class="stepper">
       <div class="step active" id="pulse-step-0">
         <div class="step-circle">1</div>
@@ -1385,6 +1412,9 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <div class="tf-body">
 
     <!-- ── PASO 1: Información básica ── -->
     <div class="step-content active" id="pulse-sc-0">
@@ -1798,7 +1828,7 @@
 <div class="drawer" id="drawer-reco" style="z-index:501;width:480px">
   <div class="dr-hdr">
     <div class="dr-title-wrap">
-      <div class="dr-type-ico" style="background:var(--purple-bg);font-size:20px">⭐</div>
+      <div class="dr-type-ico" style="background:var(--purple-bg);color:var(--purple)"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" /></svg></div>
       <div class="dr-title">Reconocimiento</div>
     </div>
     <button class="dr-close" onclick="closeRecoDrawer()">
@@ -1882,64 +1912,32 @@ let nextId = 100;    // IDs locales empiezan en 100 para no colisionar con Supab
 
 // Mapeo tipo Supabase → typeKey local
 const SB_TIPO_MAP = { daily_play:'daily', pulso:'pulse', reconocimiento:'reco', mision:'mision' };
-const SB_TYPE_LABEL = { daily_play:'Trivia diaria', pulso:'Pulso', reconocimiento:'Reconocimiento', mision:'Misión' };
+const SB_TYPE_LABEL = { daily_play:'Daily Play', pulso:'Pulso', reconocimiento:'Reconocimiento', mision:'Misión' };
 
 async function sbCargarDinamicasAdmin() {
   try {
     const { data, error } = await _sb.from('dinamicas')
-      .select('id, tipo, nombre, estado, descripcion, created_at')
+      .select('id, tipo, nombre, estado, created_at')
       .is('deleted_at', null)
       .order('created_at', { ascending: false });
     if (error) throw error;
-    if (!data || !data.length) { dinamicas = []; render(); return; }
+    if (!data || !data.length) return;
     const fmt = function(iso) {
-      if (!iso) return '—';
       const d = new Date(iso);
       return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
     };
-    const fmtDate = function(dateStr) {
-      if (!dateStr) return '—';
-      // dateStr puede ser "2026-03-18" (input date) o ISO
-      var parts = dateStr.split('-');
-      if (parts.length === 3) return parts[2]+'/'+parts[1]+'/'+parts[0];
-      return fmt(dateStr);
-    };
-    var hoy = new Date(); hoy.setHours(0,0,0,0);
     dinamicas = data.map(function(d) {
-      var meta = {};
-      try { if (d.descripcion) meta = JSON.parse(d.descripcion); } catch(e) {}
-      var fechaInicio = meta.fecha_inicio || '';
-      var fechaFin = meta.fecha_fin || '';
-      var estado = d.estado;
-
-      // Mapear 'finalizada' de Supabase a 'pasada' (label interno del UI)
-      if (estado === 'finalizada') estado = 'pasada';
-
-      // Auto-finalizar: si tiene fecha_fin y ya pasó, o si no tiene fecha_fin
-      // pero created_at es de hace más de 1 día y sigue activa
-      if (estado === 'activa' || estado === 'inactiva') {
-        var fechaLimite = fechaFin || '';
-        if (fechaLimite) {
-          var finDate = new Date(fechaLimite + 'T23:59:59');
-          if (!isNaN(finDate.getTime()) && finDate < hoy) {
-            console.log('[Admin] Dinámica "' + d.nombre + '" finalizada automáticamente (fecha_fin=' + fechaLimite + ')');
-            estado = 'pasada';
-            _sb.from('dinamicas').update({ estado: 'finalizada' }).eq('id', d.id);
-          }
-        }
-      }
-
       return {
         id: nextId++,
         sbId: d.id,
         typeKey: SB_TIPO_MAP[d.tipo] || d.tipo,
         type: SB_TYPE_LABEL[d.tipo] || d.tipo,
         title: d.nombre,
-        start: fechaInicio ? fmtDate(fechaInicio) : fmt(d.created_at),
-        end: fechaFin ? fmtDate(fechaFin) : fmt(d.created_at),
-        status: estado,
+        start: fmt(d.created_at),
+        end: fmt(d.created_at),
+        status: d.estado === 'activa' ? 'activa' : d.estado,
         part: 0,
-        sumaPuntos: meta.puntos_activos !== undefined ? meta.puntos_activos : false
+        sumaPuntos: false
       };
     });
     render();
@@ -1976,9 +1974,9 @@ async function activarReconocimiento(){
     return;
   }
   document.getElementById('reco-fecha-inicio').style.borderColor='';
-  // Validar: solo 1 reconocimiento activo a la vez
-  var activa = await sbHayDinamicaActiva(null, 'reconocimiento');
-  if (activa) { showToast('⚠️ Ya existe un reconocimiento activo: "' + activa.nombre + '". Pausalo primero.'); return; }
+  // Validar: solo 1 dinámica activa a la vez
+  var activa = await sbHayDinamicaActiva(null);
+  if (activa) { showToast('⚠️ Ya existe una dinámica activa: "' + activa.nombre + '". Pausala primero.'); return; }
   const fmt = d => { const p=d.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; };
   const fin = document.getElementById('reco-fecha-fin')?.value;
   const finFmt = fin ? fmt(fin) : fmt(inicio.replace(/(\d{4})-(\d{2})-(\d{2})/,(_,y,m,d)=>`${y}-${m}-${String(parseInt(d)+30).padStart(2,'0')}`));
@@ -2039,7 +2037,7 @@ function render(){
 
   const stLabel = { activa:'Activa', inactiva:'Pausada', pasada:'Finalizada' };
   const stClass = { activa:'sp activa', inactiva:'sp inactiva', pasada:'sp pasada' };
-  const typeLabel = { daily:'Trivia diaria', pulse:'Pulso', mision:'Misión', reco:'Reconocimiento' };
+  const typeLabel = { daily:'Daily Play', pulse:'Pulso', mision:'Misión', reco:'Reconocimiento' };
 
   tbody.innerHTML = visible.map(d=>{
     const partHtml = d.part>0
@@ -2092,13 +2090,11 @@ async function toggleDin(id){
   var d=dinamicas.find(function(x){return x.id===id;});
   if(!d||d.status==='pasada') return;
   var nuevoEstado = d.status==='activa' ? 'inactiva' : 'activa';
-  // Si va a activar, validar que no haya otra del mismo tipo activa
+  // Si va a activar, validar que no haya otra activa
   if (nuevoEstado === 'activa') {
-    var tipoMap = { daily:'daily_play', pulse:'pulso', reco:'reconocimiento', mision:'mision' };
-    var sbTipo = tipoMap[d.typeKey] || d.typeKey;
-    var activa = await sbHayDinamicaActiva(d.sbId, sbTipo);
+    var activa = await sbHayDinamicaActiva(d.sbId);
     if (activa) {
-      showToast('⚠️ Ya existe una ' + d.type + ' activa: "' + activa.nombre + '". Pausala primero.');
+      showToast('⚠️ Ya existe una dinámica activa: "' + activa.nombre + '". Pausala primero.');
       return;
     }
   }
@@ -2157,16 +2153,6 @@ async function editDin(id){
     } catch(e) { console.warn('[Supabase] editDin meta:', e); }
   }
 
-  // Verificar si la dinámica tiene respuestas (para bloquear toggle de puntos)
-  var tieneRespuestas = false;
-  if (d.sbId) {
-    try {
-      var tabla = d.typeKey === 'daily' ? 'respuestas' : d.typeKey === 'pulse' ? 'pulso_respuestas' : 'reconocimientos';
-      var cntRes = await _sb.from(tabla).select('id', { count: 'exact', head: true }).eq('dinamica_id', d.sbId);
-      tieneRespuestas = (cntRes.count || 0) > 0;
-    } catch(e) { console.warn('[Supabase] check respuestas:', e); }
-  }
-
   if (d.typeKey === 'daily') {
     openDailyPlay();
     window._editingSbId = d.sbId || null;
@@ -2181,34 +2167,9 @@ async function editDin(id){
     var endInput = document.getElementById('dp-end');
     if (startInput && meta.fecha_inicio) startInput.value = meta.fecha_inicio;
     if (endInput && meta.fecha_fin) endInput.value = meta.fecha_fin;
-    // Puntos — bloquear si ya tiene respuestas
+    // Puntos
     var ptsCheck = document.getElementById('dp-pts-active');
-    var ptsSection = document.getElementById('dp-pts-section');
-    console.log('[Admin] editDin daily: tieneRespuestas='+tieneRespuestas+' puntos_activos='+meta.puntos_activos);
-    if (ptsCheck) {
-      if (meta.puntos_activos !== undefined) ptsCheck.checked = meta.puntos_activos;
-      if (tieneRespuestas) {
-        ptsCheck.disabled = true;
-        ptsCheck.parentElement.style.opacity = '0.5';
-        ptsCheck.parentElement.style.pointerEvents = 'none';
-        if (ptsSection) {
-          var aviso = document.getElementById('dp-pts-locked-msg');
-          if (!aviso) {
-            aviso = document.createElement('div');
-            aviso.id = 'dp-pts-locked-msg';
-            aviso.style.cssText = 'font-size:12px;color:var(--red);margin-top:8px;font-weight:500';
-            aviso.textContent = '🔒 No se puede modificar — esta dinámica ya tiene respuestas asociadas.';
-            ptsSection.appendChild(aviso);
-          }
-        }
-      } else {
-        ptsCheck.disabled = false;
-        ptsCheck.parentElement.style.opacity = '';
-        ptsCheck.parentElement.style.pointerEvents = '';
-        var aviso = document.getElementById('dp-pts-locked-msg');
-        if (aviso) aviso.remove();
-      }
-    }
+    if (ptsCheck && meta.puntos_activos !== undefined) ptsCheck.checked = meta.puntos_activos;
     // Audiencia
     var resSeg = document.getElementById('res-seg');
     if (resSeg && meta.audiencia && meta.audiencia !== 'Sin asignar') {
@@ -2267,34 +2228,9 @@ async function editDin(id){
     if (openCheck && meta.respuesta_abierta) openCheck.checked = true;
     var openLabel = document.getElementById('pulse-open-label');
     if (openLabel && meta.respuesta_abierta_label) openLabel.value = meta.respuesta_abierta_label;
-    // Puntos — bloquear si ya tiene respuestas
+    // Puntos
     var pPts = document.getElementById('pulse-pts-active');
-    var pPtsSection = document.getElementById('pulse-pts-section');
-    console.log('[Admin] editDin pulse: tieneRespuestas='+tieneRespuestas);
-    if (pPts) {
-      if (meta.puntos_activos !== undefined) pPts.checked = meta.puntos_activos;
-      if (tieneRespuestas) {
-        pPts.disabled = true;
-        pPts.parentElement.style.opacity = '0.5';
-        pPts.parentElement.style.pointerEvents = 'none';
-        if (pPtsSection) {
-          var aviso = document.getElementById('pulse-pts-locked-msg');
-          if (!aviso) {
-            aviso = document.createElement('div');
-            aviso.id = 'pulse-pts-locked-msg';
-            aviso.style.cssText = 'font-size:12px;color:var(--red);margin-top:8px;font-weight:500';
-            aviso.textContent = '🔒 No se puede modificar — esta dinámica ya tiene respuestas asociadas.';
-            pPtsSection.appendChild(aviso);
-          }
-        }
-      } else {
-        pPts.disabled = false;
-        pPts.parentElement.style.opacity = '';
-        pPts.parentElement.style.pointerEvents = '';
-        var aviso = document.getElementById('pulse-pts-locked-msg');
-        if (aviso) aviso.remove();
-      }
-    }
+    if (pPts && meta.puntos_activos !== undefined) pPts.checked = meta.puntos_activos;
     // Audiencia
     var pSeg = document.getElementById('pres-seg');
     if (pSeg && meta.audiencia) pSeg.textContent = meta.audiencia;
@@ -2418,31 +2354,27 @@ function updateResumen(){
   const rs = document.getElementById('res-seg');        // populated by colab functions
   const rst = document.getElementById('res-status');    if(rst) rst.textContent = statusTxt;
 
-  // Points row — mostrar valores configurados
+  // Points row
   const ptsRow = document.getElementById('res-pts-row');
   const ptsVal = document.getElementById('res-pts');
   if(ptsRow){ ptsRow.style.display = rankingActive ? '' : 'none'; }
   if(ptsVal && rankingActive){
     const ptsOn = document.getElementById('dp-pts-active')?.checked !== false;
-    if (ptsOn) {
-      ptsVal.textContent = '✅ Activo · 10 pts respuesta correcta + bonus velocidad';
-    } else {
-      ptsVal.textContent = '❌ No suma puntos al ranking';
-    }
+    ptsVal.textContent = ptsOn ? 'Suma puntos al ranking' : 'No suma puntos';
   }
 }
 
 async function saveDailyPlay(){
-  const name=document.getElementById('dp-name')?.value.trim()||'Trivia diaria — nueva';
+  const name=document.getElementById('dp-name')?.value.trim()||'Daily Play — nueva';
   const status=document.getElementById('dp-status')?.value||'activa';
   const ptsActive = document.getElementById('dp-pts-active')?.checked !== false;
   const fmt=d=>`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
   const t=new Date(); const e=new Date(t); e.setDate(e.getDate()+30);
   var isEditing = !!window._editingSbId;
-  // Validar: solo 1 dinámica activa por tipo
+  // Validar: solo 1 dinámica activa a la vez (no aplica si está editando la misma)
   if (!isEditing) {
-    var activa = await sbHayDinamicaActiva(null, 'daily_play');
-    if (activa) { showToast('⚠️ Ya existe una trivia diaria activa: "' + activa.nombre + '". Pausala primero.'); return; }
+    var activa = await sbHayDinamicaActiva(null);
+    if (activa) { showToast('⚠️ Ya existe una dinámica activa: "' + activa.nombre + '". Pausala primero.'); return; }
   }
   // ── Supabase: guardar ANTES de cerrar el form ──────────────
   (function(){
@@ -2472,12 +2404,12 @@ async function saveDailyPlay(){
   })();
   // ──────────────────────────────────────────────────────────
   if (!isEditing) {
-    dinamicas.unshift({id:nextId++,typeKey:'daily',type:'Trivia diaria',title:name,start:fmt(t),end:fmt(e),status,part:0,sumaPuntos:rankingActive?ptsActive:false});
+    dinamicas.unshift({id:nextId++,typeKey:'daily',type:'Daily Play',title:name,start:fmt(t),end:fmt(e),status,part:0,sumaPuntos:rankingActive?ptsActive:false});
   }
   closeDailyPlay();
   // Recargar desde Supabase para reflejar cambios reales
   setTimeout(function(){ sbCargarDinamicasAdmin(); }, 500);
-  showToast(isEditing ? 'Trivia diaria actualizada' : 'Trivia diaria guardada · '+(status==='activa'?'activa de inmediato':'guardada como borrador'));
+  showToast(isEditing ? 'Daily Play actualizada' : 'Daily Play guardada · '+(status==='activa'?'activa de inmediato':'guardada como borrador'));
 }
 
 /* ══ CONFIG ══ */
@@ -2552,15 +2484,6 @@ function saveConfig(){
       btn.textContent = orig;
       btn.style.background = '';
     }, 2000);
-  }
-
-  // Persistir en Supabase
-  if (typeof sbGuardarConfig === 'function') {
-    var premiosChk = document.getElementById('chk-premios');
-    var periodoBtn = document.querySelector('.ptab.on');
-    sbGuardarConfig('ranking_habilitado', rankingActive ? 'true' : 'false');
-    sbGuardarConfig('premios_habilitados', (premiosChk && premiosChk.checked) ? 'true' : 'false');
-    sbGuardarConfig('ranking_periodo', periodoBtn ? periodoBtn.textContent.trim().toLowerCase() : 'mensual');
   }
 
   showToast('Configuración guardada · Ranking ' + (rankingActive ? 'activado' : 'desactivado'));
@@ -2803,14 +2726,9 @@ function openDailyPlay(){
   document.getElementById('questions-list').innerHTML='';
   addQuestion();
   goStep(0);
-  // Show pts section based on ranking state
+  // Show pts section based on ranking state (lives in step 1)
   const ptsSection = document.getElementById('dp-pts-section');
   if(ptsSection) ptsSection.classList.toggle('hidden', !rankingActive);
-  // Reset locked state del toggle de puntos (para nuevas dinámicas)
-  var dpPtsChk = document.getElementById('dp-pts-active');
-  if (dpPtsChk) { dpPtsChk.disabled = false; dpPtsChk.checked = true; dpPtsChk.parentElement.style.opacity = ''; dpPtsChk.parentElement.style.pointerEvents = ''; }
-  var lockedMsg = document.getElementById('dp-pts-locked-msg');
-  if (lockedMsg) lockedMsg.remove();
   // Show date hint if ranking active
   const hint = document.getElementById('dp-date-hint');
   const hintTxt = document.getElementById('dp-date-hint-text');
@@ -2863,11 +2781,6 @@ function openPulse(){
   var ca = document.getElementById('pulse-comunidad-activa'); if(ca) ca.classList.add('hidden');
   var pts = document.getElementById('pulse-pts-section');
   if(pts) pts.classList.toggle('hidden', !rankingActive);
-  // Reset locked state del toggle de puntos
-  var pPtsChk = document.getElementById('pulse-pts-active');
-  if (pPtsChk) { pPtsChk.disabled = false; pPtsChk.checked = true; pPtsChk.parentElement.style.opacity = ''; pPtsChk.parentElement.style.pointerEvents = ''; }
-  var pLockedMsg = document.getElementById('pulse-pts-locked-msg');
-  if (pLockedMsg) pLockedMsg.remove();
   pulseGoStep(0);
   document.getElementById('page-pulse').classList.remove('hidden');
   document.body.style.overflow = 'hidden';
@@ -2951,11 +2864,7 @@ function pulseUpdateResumen(){
   if(ptsRow){ ptsRow.style.display = rankingActive ? '' : 'none'; }
   if(ptsVal && rankingActive){
     var active = document.getElementById('pulse-pts-active')?.checked;
-    if (active) {
-      ptsVal.textContent = '✅ Activo · 5 pts por respuesta';
-    } else {
-      ptsVal.textContent = '❌ No suma puntos al ranking';
-    }
+    ptsVal.textContent = active ? 'Suma puntos al ranking' : 'No suma puntos';
   }
   // Disponibilidad — solo fechas
   var ps = document.getElementById('pres-start'); if(ps) ps.textContent = start;
@@ -2970,10 +2879,10 @@ async function savePulse(){
   var fmt = function(d){ return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear(); };
   var t = new Date(); var e = new Date(t); e.setDate(e.getDate()+7);
   var isEditing = !!window._editingSbId;
-  // Validar: solo 1 dinámica activa por tipo
+  // Validar: solo 1 dinámica activa a la vez
   if (!isEditing) {
-    var activa = await sbHayDinamicaActiva(null, 'pulso');
-    if (activa) { showToast('⚠️ Ya existe un pulso activo: "' + activa.nombre + '". Pausalo primero.'); return; }
+    var activa = await sbHayDinamicaActiva(null);
+    if (activa) { showToast('⚠️ Ya existe una dinámica activa: "' + activa.nombre + '". Pausala primero.'); return; }
   }
   // ── Supabase: guardar con metadata ──────────────────────────
   var pulseMeta = {
@@ -3050,12 +2959,11 @@ document.getElementById('ranking-banner-on').style.display = 'none';
 //  del admin para persistir los datos en la base de datos.
 // ══════════════════════════════════════════════════════════════
 
-// ── Validar: solo 1 dinámica activa por tipo ─────────────────
-async function sbHayDinamicaActiva(excluirSbId, tipo) {
+// ── Validar: solo 1 dinámica activa a la vez ─────────────────
+async function sbHayDinamicaActiva(excluirSbId) {
   try {
     var q = _sb.from('dinamicas').select('id, nombre, tipo')
       .eq('estado', 'activa').is('deleted_at', null);
-    if (tipo) q = q.eq('tipo', tipo);
     if (excluirSbId) q = q.neq('id', excluirSbId);
     var res = await q;
     if (res.data && res.data.length > 0) return res.data[0];
@@ -3091,9 +2999,9 @@ async function sbCrearDailyPlay(nombre, estado, preguntas, meta) {
       const { error: e2 } = await _sb.from('preguntas').insert(rows);
       if (e2) throw e2;
     }
-    sbToast('✅ Trivia diaria guardada en Supabase');
+    sbToast('✅ Daily Play guardado en Supabase');
     return din;
-  } catch(e) { sbToast('❌ Error guardando Trivia diaria', false); console.error(e); return null; }
+  } catch(e) { sbToast('❌ Error guardando Daily Play', false); console.error(e); return null; }
 }
 
 // ── Actualizar Daily Play existente ──────────────────────────
@@ -3111,8 +3019,8 @@ async function sbActualizarDailyPlay(sbId, nombre, preguntas, meta) {
       var { error: e2 } = await _sb.from('preguntas').insert(rows);
       if (e2) throw e2;
     }
-    sbToast('✅ Trivia diaria actualizada');
-  } catch(e) { sbToast('❌ Error actualizando Trivia diaria', false); console.error(e); }
+    sbToast('✅ Daily Play actualizada');
+  } catch(e) { sbToast('❌ Error actualizando Daily Play', false); console.error(e); }
 }
 
 // ── Crear Pulso ──────────────────────────────────────────────
@@ -3307,6 +3215,123 @@ async function sbCargarMetricasAdmin() {
   } catch(e) { console.error('[Supabase] cargarMetricasAdmin:', e); }
 }
 
+// ── Guardar configuración ────────────────────────────────────
+async function sbGuardarConfig(clave, valor) {
+  try {
+    await _sb.from('configuracion')
+      .upsert({ clave, valor, updated_at: new Date().toISOString() }, { onConflict: 'clave' });
+  } catch(e) { console.error('[Supabase] guardarConfig:', e); }
+}
+
+// ── Cargar y renderizar resumen del dashboard ────────────────
+async function sbCargarResumenAdmin() {
+  try {
+    var r = await Promise.all([
+      _sb.from('respuestas').select('employee_nombre, id'),
+      _sb.from('pulso_respuestas').select('employee_nombre, sentimiento, emoji'),
+      _sb.from('reconocimientos').select('nominado_nombre, nominador_nombre'),
+      _sb.from('rankings').select('*').order('posicion').limit(7)
+    ]);
+    var resp = r[0].data || [];
+    var pulsos = r[1].data || [];
+    var recos = r[2].data || [];
+    var rankings = r[3].data || [];
+
+    // ── Colaboradores activos (participaron en cualquier actividad / 1500 * 100) ──
+    var activosSet = new Set();
+    resp.forEach(function(x) { if(x.employee_nombre) activosSet.add(x.employee_nombre); });
+    pulsos.forEach(function(x) { if(x.employee_nombre) activosSet.add(x.employee_nombre); });
+    recos.forEach(function(x) { if(x.nominador_nombre) activosSet.add(x.nominador_nombre); });
+    var colabActivos = Math.round((activosSet.size / 1500) * 100);
+    _setEl('db-res-activos', colabActivos + '%');
+
+    // ── Sentimiento positivo (desde pulso) ──
+    var posEmojis = ['😄','🎉','😊','🤩'];
+    var pPos = pulsos.filter(function(p){ return posEmojis.includes(p.emoji) || p.sentimiento === 'positivo' || p.sentimiento === 'muy_positivo'; }).length;
+    var pTotal = pulsos.length || 1;
+    var sentimientoPos = Math.round((pPos / pTotal) * 100);
+    _setEl('db-res-sentimiento', sentimientoPos + '%');
+
+    // ── Módulo más activo ──
+    var counts = {
+      'Daily Play': resp.length,
+      'Pulso': pulsos.length,
+      'Reconocimiento': recos.length
+    };
+    var moduloMasActivo = Object.entries(counts).sort(function(a,b){ return b[1]-a[1]; })[0][0];
+    _setEl('db-res-modulo', moduloMasActivo);
+
+    // ── Total participantes (distinct) ──
+    var participantesSet = new Set();
+    resp.forEach(function(x) { if(x.employee_nombre) participantesSet.add(x.employee_nombre); });
+    pulsos.forEach(function(x) { if(x.employee_nombre) participantesSet.add(x.employee_nombre); });
+    var nomUniq = Array.from(new Set(recos.map(function(r){ return r.nominado_nombre; })));
+    var nomrUniq = Array.from(new Set(recos.map(function(r){ return r.nominador_nombre; })));
+    nomUniq.forEach(function(n) { participantesSet.add(n); });
+    nomrUniq.forEach(function(n) { participantesSet.add(n); });
+    var totalParticipantes = participantesSet.size;
+    _setEl('db-res-participantes', totalParticipantes.toLocaleString('es-CL'));
+
+    // ── Engagement bars (Daily Play %, Pulso %, Reconocimientos %) ──
+    var total = resp.length + pulsos.length + recos.length || 1;
+    var dpPct = total > 0 ? Math.round((resp.length / total) * 100) : 0;
+    var pPct = total > 0 ? Math.round((pulsos.length / total) * 100) : 0;
+    var recoPct = total > 0 ? Math.round((recos.length / total) * 100) : 0;
+
+    var engageEl = document.getElementById('db-res-engagement');
+    if (engageEl) {
+      engageEl.innerHTML = '<div class="ctit">Engagement por módulo</div>' +
+        '<div class="mbar"><div class="mbar-h"><span class="mbar-n" style="display:inline-flex;align-items:center;gap:5px"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="1" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="9" /></svg> Daily Play</span><span class="mbar-p">'+dpPct+'%</span></div><div class="mbar-t"><div class="mbar-f" style="width:'+dpPct+'%;background:var(--teal)"></div></div></div>' +
+        '<div class="mbar"><div class="mbar-h"><span class="mbar-n" style="display:inline-flex;align-items:center;gap:5px"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" /></svg> Pulso</span><span class="mbar-p">'+pPct+'%</span></div><div class="mbar-t"><div class="mbar-f" style="width:'+pPct+'%;background:var(--blue)"></div></div></div>' +
+        '<div class="mbar"><div class="mbar-h"><span class="mbar-n" style="display:inline-flex;align-items:center;gap:5px"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" /></svg> Reconocimientos</span><span class="mbar-p">'+recoPct+'%</span></div><div class="mbar-t"><div class="mbar-f" style="width:'+recoPct+'%;background:var(--purple)"></div></div></div>';
+    }
+
+    // ── Ranking rows (top 7 desde tabla rankings) ──
+    var rankEl = document.getElementById('db-res-ranking-rows');
+    if (rankEl) {
+      rankEl.innerHTML = '';
+      if (rankings.length === 0) {
+        rankEl.innerHTML = '<div style="font-size:13px;color:var(--text2);text-align:center;padding:12px">Sin ranking aún</div>';
+      } else {
+        var medals = ['🥇','🥈','🥉'];
+        var gradients = [
+          'linear-gradient(135deg,#FCD34D,#F59E0B)',
+          'linear-gradient(135deg,var(--hugo),var(--purple))',
+          'linear-gradient(135deg,var(--teal),#059669)',
+          'linear-gradient(135deg,#EC4899,#DB2777)',
+          'linear-gradient(135deg,#6366F1,#4F46E5)',
+          'linear-gradient(135deg,#F59E0B,#D97706)',
+          'linear-gradient(135deg,#8B5CF6,#7C3AED)'
+        ];
+        rankings.forEach(function(rank, idx) {
+          var medal = medals[idx] || (idx+1);
+          var nombre = rank.nombre || 'Desconocido';
+          var puntos = rank.puntos || 0;
+          var diferencia = rank.diferencia || 0;
+          var ini = nombre.split(' ').map(function(w){ return w[0]||''; }).slice(0,2).join('').toUpperCase();
+          var bgColor = gradients[idx % gradients.length];
+          var bgStyle = idx === 0 ? 'background:var(--amber-bg)' : '';
+          var diffColor = diferencia > 0 ? 'var(--teal)' : (diferencia < 0 ? '#DC2626' : 'var(--text3)');
+          var diffText = diferencia > 0 ? '+'+diferencia : (diferencia < 0 ? ''+diferencia : '—');
+
+          rankEl.innerHTML +=
+            '<div style="display:grid;grid-template-columns:32px 1fr 80px 80px;align-items:center;padding:10px 12px;border-radius:8px;'+bgStyle+'">' +
+            '<span style="font-size:14px">'+medal+'</span>' +
+            '<div style="display:flex;align-items:center;gap:8px">' +
+            '<div style="width:28px;height:28px;border-radius:50%;background:'+bgColor+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white">'+ini+'</div>' +
+            '<span style="font-size:13px;font-weight:'+(idx === 0 ? '600' : '500')+'">'+nombre+'</span>' +
+            '</div>' +
+            '<span style="font-size:13px;font-weight:700;text-align:right;color:var(--text)">'+puntos+'</span>' +
+            '<span style="font-size:12px;text-align:right;color:'+diffColor+'">'+diffText+'</span>' +
+            '</div>';
+        });
+      }
+    }
+  } catch(e) {
+    console.error('[Supabase] sbCargarResumenAdmin:', e);
+  }
+}
+
 // ── Cargar filtros de dinámicas en dashboard ─────────────────
 async function sbCargarFiltrosDashboard() {
   try {
@@ -3358,130 +3383,11 @@ async function sbCargarFiltrosDashboard() {
 
 // ── Limpiar descripciones hardcodeadas de métricas ───────────
 function sbLimpiarDescripcionesMetricas() {
-  // Las descripciones comparativas se dejan vacías ya que no tenemos
-  // datos históricos para calcular "vs. período anterior"
   var ids = ['db-res-activos-cmp', 'db-res-sentimiento-cmp', 'db-dp-rate-cmp', 'db-pulse-pos-cmp'];
   ids.forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.textContent = '';
   });
-}
-
-// ── Guardar configuración ────────────────────────────────────
-async function sbGuardarConfig(clave, valor) {
-  try {
-    await _sb.from('configuracion')
-      .upsert({ clave, valor, updated_at: new Date().toISOString() }, { onConflict: 'clave' });
-  } catch(e) { console.error('[Supabase] guardarConfig:', e); }
-}
-
-// ── Cargar y renderizar resumen del dashboard ────────────────
-async function sbCargarResumenAdmin() {
-  try {
-    var r = await Promise.all([
-      _sb.from('respuestas').select('employee_nombre, id'),
-      _sb.from('pulso_respuestas').select('employee_nombre, sentimiento, emoji'),
-      _sb.from('reconocimientos').select('nominado_nombre, nominador_nombre'),
-      _sb.from('rankings').select('*').order('posicion').limit(7)
-    ]);
-    var resp = r[0].data || [];
-    var pulsos = r[1].data || [];
-    var recos = r[2].data || [];
-    var rankings = r[3].data || [];
-
-    // ── Colaboradores activos (participaron en cualquier actividad / 1500 * 100) ──
-    var activosSet = new Set();
-    resp.forEach(function(x) { if(x.employee_nombre) activosSet.add(x.employee_nombre); });
-    pulsos.forEach(function(x) { if(x.employee_nombre) activosSet.add(x.employee_nombre); });
-    recos.forEach(function(x) { if(x.nominador_nombre) activosSet.add(x.nominador_nombre); });
-    var colabActivos = Math.round((activosSet.size / 1500) * 100);
-    _setEl('db-res-activos', colabActivos + '%');
-
-    // ── Sentimiento positivo (desde pulso) ──
-    var posEmojis = ['😄','🎉','😊','🤩'];
-    var pPos = pulsos.filter(function(p){ return posEmojis.includes(p.emoji) || p.sentimiento === 'positivo' || p.sentimiento === 'muy_positivo'; }).length;
-    var pTotal = pulsos.length || 1;
-    var sentimientoPos = Math.round((pPos / pTotal) * 100);
-    _setEl('db-res-sentimiento', sentimientoPos + '%');
-
-    // ── Módulo más activo ──
-    var counts = {
-      'Trivia diaria': resp.length,
-      'Pulso': pulsos.length,
-      'Reconocimiento': recos.length
-    };
-    var moduloMasActivo = Object.entries(counts).sort(function(a,b){ return b[1]-a[1]; })[0][0];
-    _setEl('db-res-modulo', moduloMasActivo);
-
-    // ── Total participantes (distinct) ──
-    var participantesSet = new Set();
-    resp.forEach(function(x) { if(x.employee_nombre) participantesSet.add(x.employee_nombre); });
-    pulsos.forEach(function(x) { if(x.employee_nombre) participantesSet.add(x.employee_nombre); });
-    var nomUniq = Array.from(new Set(recos.map(function(r){ return r.nominado_nombre; })));
-    var nomrUniq = Array.from(new Set(recos.map(function(r){ return r.nominador_nombre; })));
-    nomUniq.forEach(function(n) { participantesSet.add(n); });
-    nomrUniq.forEach(function(n) { participantesSet.add(n); });
-    var totalParticipantes = participantesSet.size;
-    _setEl('db-res-participantes', totalParticipantes.toLocaleString('es-CL'));
-
-    // ── Engagement bars (Daily Play %, Pulso %, Reconocimientos %) ──
-    var total = resp.length + pulsos.length + recos.length || 1;
-    var dpPct = total > 0 ? Math.round((resp.length / total) * 100) : 0;
-    var pPct = total > 0 ? Math.round((pulsos.length / total) * 100) : 0;
-    var recoPct = total > 0 ? Math.round((recos.length / total) * 100) : 0;
-
-    var engageEl = document.getElementById('db-res-engagement');
-    if (engageEl) {
-      engageEl.innerHTML = '<div class="ctit">Participación por módulo</div>' +
-        '<div class="mbar"><div class="mbar-h"><span class="mbar-n">🎯 Trivia diaria</span><span class="mbar-p">'+dpPct+'%</span></div><div class="mbar-t"><div class="mbar-f" style="width:'+dpPct+'%;background:var(--teal)"></div></div></div>' +
-        '<div class="mbar"><div class="mbar-h"><span class="mbar-n">💙 Pulso</span><span class="mbar-p">'+pPct+'%</span></div><div class="mbar-t"><div class="mbar-f" style="width:'+pPct+'%;background:var(--blue)"></div></div></div>' +
-        '<div class="mbar"><div class="mbar-h"><span class="mbar-n">⭐ Reconocimientos</span><span class="mbar-p">'+recoPct+'%</span></div><div class="mbar-t"><div class="mbar-f" style="width:'+recoPct+'%;background:var(--purple)"></div></div></div>';
-    }
-
-    // ── Ranking rows (top 7 desde tabla rankings) ──
-    var rankEl = document.getElementById('db-res-ranking-rows');
-    if (rankEl) {
-      rankEl.innerHTML = '';
-      if (rankings.length === 0) {
-        rankEl.innerHTML = '<div style="font-size:13px;color:var(--text2);text-align:center;padding:12px">Sin ranking aún</div>';
-      } else {
-        var medals = ['🥇','🥈','🥉'];
-        var gradients = [
-          'linear-gradient(135deg,#FCD34D,#F59E0B)',
-          'linear-gradient(135deg,var(--hugo),var(--purple))',
-          'linear-gradient(135deg,var(--teal),#059669)',
-          'linear-gradient(135deg,#EC4899,#DB2777)',
-          'linear-gradient(135deg,#6366F1,#4F46E5)',
-          'linear-gradient(135deg,#F59E0B,#D97706)',
-          'linear-gradient(135deg,#8B5CF6,#7C3AED)'
-        ];
-        rankings.forEach(function(rank, idx) {
-          var medal = medals[idx] || (idx+1);
-          var nombre = rank.nombre || 'Desconocido';
-          var puntos = rank.puntos || 0;
-          var diferencia = rank.diferencia || 0;
-          var ini = nombre.split(' ').map(function(w){ return w[0]||''; }).slice(0,2).join('').toUpperCase();
-          var bgColor = gradients[idx % gradients.length];
-          var bgStyle = idx === 0 ? 'background:var(--amber-bg)' : '';
-          var diffColor = diferencia > 0 ? 'var(--teal)' : (diferencia < 0 ? '#DC2626' : 'var(--text3)');
-          var diffText = diferencia > 0 ? '+'+diferencia : (diferencia < 0 ? ''+diferencia : '—');
-
-          rankEl.innerHTML +=
-            '<div style="display:grid;grid-template-columns:32px 1fr 80px 80px;align-items:center;padding:10px 12px;border-radius:8px;'+bgStyle+'">' +
-            '<span style="font-size:14px">'+medal+'</span>' +
-            '<div style="display:flex;align-items:center;gap:8px">' +
-            '<div style="width:28px;height:28px;border-radius:50%;background:'+bgColor+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white">'+ini+'</div>' +
-            '<span style="font-size:13px;font-weight:'+(idx === 0 ? '600' : '500')+'">'+nombre+'</span>' +
-            '</div>' +
-            '<span style="font-size:13px;font-weight:700;text-align:right;color:var(--text)">'+puntos+'</span>' +
-            '<span style="font-size:12px;text-align:right;color:'+diffColor+'">'+diffText+'</span>' +
-            '</div>';
-        });
-      }
-    }
-  } catch(e) {
-    console.error('[Supabase] sbCargarResumenAdmin:', e);
-  }
 }
 
 // ── Cargar configuración desde Supabase ───────────────────────
