@@ -56,15 +56,15 @@
   .sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
   .si{display:flex;align-items:center;gap:8px;padding:12px 8px;border-radius:16px;cursor:pointer;color:var(--text2);font-size:16px;font-weight:600;transition:background .15s;letter-spacing:.032px;white-space:nowrap;height:49px;}
   .si:hover{background:var(--bg);}
-  .si.act{background:var(--bg2);color:var(--text);}
+  .si.act{background:var(--bg2);color:var(--text);border-radius:16px 16px 0 0;}
   .si .ico{width:24px;height:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px;}
   .si .lbl{flex:1;overflow:hidden;text-overflow:ellipsis;}
   .si .chv{font-size:11px;color:var(--text2);transition:transform .2s;}
   .si .chv.open{transform:rotate(180deg);}
   .sibadge{background:var(--hugo);color:white;font-size:11px;font-weight:700;padding:1px 6px;border-radius:10px;}
   .sinew{background:var(--green-bg);color:var(--green);font-size:11px;font-weight:600;padding:2px 8px;border-radius:16px;}
-  .subs{display:flex;flex-direction:column;}
-  .sub{display:flex;align-items:center;height:48px;padding:12px 16px 12px 40px;border-radius:16px;cursor:pointer;font-size:16px;font-weight:600;transition:background .15s;letter-spacing:.032px;background:var(--bg2);}
+  .subs{display:flex;flex-direction:column;background:var(--bg2);border-radius:0 0 16px 16px;padding-bottom:4px;}
+  .sub{display:flex;align-items:center;height:44px;padding:8px 16px 8px 40px;border-radius:12px;cursor:pointer;font-size:16px;font-weight:600;transition:background .15s;letter-spacing:.032px;margin:0 4px;}
   .sub:hover{background:#e2e2e8;}
   .sub.on{color:var(--text);} .sub.off{color:var(--text2);}
   .sdiv{border:none;border-top:1px solid var(--border);margin:8px 0;}
@@ -454,7 +454,7 @@
   <header class="hdr">
     <div class="hdr-l">
       <button class="ibtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="7" x2="21" y2="7"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="17" x2="21" y2="17"/></svg></button>
-      <img src="humand-logo.svg" alt="humand" style="height:24px">
+      <img src="humand-logo.svg" alt="humand" style="height:32px">
       <div class="pill-admin">Admin</div>
     </div>
     <div class="hdr-r">
@@ -505,9 +505,9 @@
         <!-- Tabs — sin filtros globales -->
         <div style="display:flex;gap:2px;border-bottom:2px solid var(--border);margin-bottom:24px">
           <button class="db-tab on" id="dbt-resumen"  onclick="setDbTab('resumen')">Resumen</button>
-          <button class="db-tab"   id="dbt-daily"     onclick="setDbTab('daily')"><span style="display:inline-flex;align-items:center;gap:5px"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="1" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="9" /></svg> Daily Play</span></button>
+          <button class="db-tab"   id="dbt-daily"     onclick="setDbTab('daily')"><span style="display:inline-flex;align-items:center;gap:5px"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="1" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="9" /></svg> Trivia diaria</span></button>
           <button class="db-tab"   id="dbt-pulse"     onclick="setDbTab('pulse')"><span style="display:inline-flex;align-items:center;gap:5px"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" /></svg> Pulso</span></button>
-          <button class="db-tab"   id="dbt-reco"      onclick="setDbTab('reco')" style="opacity:.45;pointer-events:none">⭐ Reconocimientos</button>
+          <button class="db-tab"   id="dbt-reco"      onclick="setDbTab('reco')" style="opacity:.45;pointer-events:none"><span style="display:inline-flex;align-items:center;gap:5px"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" /></svg> Reconocimientos</span></button>
           <button class="db-tab"   id="dbt-misiones"  onclick="setDbTab('misiones')" style="opacity:.45;pointer-events:none"><span style="display:inline-flex;align-items:center;gap:5px"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 13a8 8 0 0 1 7 7a6 6 0 0 0 3 -5a9 9 0 0 0 6 -8a3 3 0 0 0 -3 -3a9 9 0 0 0 -8 6a6 6 0 0 0 -5 3" /><path d="M7 14a6 6 0 0 0 -3 6a6 6 0 0 0 6 -3" /><circle cx="15" cy="9" r="1" /></svg> Misiones</span></button>
         </div>
 
