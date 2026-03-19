@@ -607,7 +607,7 @@
           <!-- Filtro de trivia -->
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;flex-wrap:wrap">
             <span style="font-size:12px;font-weight:600;color:var(--text2)">Trivia:</span>
-            <select class="fsel" id="db-daily-select" style="width:auto;min-width:260px" onchange="updateDailyStatus(this)">
+            <select class="fsel" id="db-daily-select" style="width:auto;min-width:260px" onchange="updateDailyStatus(this);sbCargarMetricasAdmin()">
               <option value="">Cargando...</option>
             </select>
             <span id="db-daily-status" class="sp activa"><span class="sp-dot"></span>Activa</span>
@@ -684,7 +684,7 @@
           <!-- Filtro de pulso -->
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px">
             <span style="font-size:12px;font-weight:600;color:var(--text2)">Pulso:</span>
-            <select class="fsel" id="db-pulse-select" style="width:auto;min-width:260px">
+            <select class="fsel" id="db-pulse-select" style="width:auto;min-width:260px" onchange="sbCargarMetricasAdmin()">
               <option value="">Cargando...</option>
             </select>
           </div>
@@ -3180,16 +3180,27 @@ var _emojiLabel = { '😄':'Muy bien','🙂':'Bien','😐':'Neutro','😕':'Mal'
 // ── Cargar y renderizar métricas del dashboard ────────────────
 async function sbCargarMetricasAdmin() {
   try {
+    // Leer filtros seleccionados
+    var dpSelect = document.getElementById('db-daily-select');
+    var pSelect  = document.getElementById('db-pulse-select');
+    var selectedDailyId = dpSelect ? dpSelect.value : '';
+    var selectedPulseId = pSelect ? pSelect.value : '';
+
     var r = await Promise.all([
       _sb.from('respuestas').select('*'),
       _sb.from('pulso_respuestas').select('*'),
       _sb.from('reconocimientos').select('*'),
       _sb.from('preguntas').select('id, texto, dinamica_id').order('orden')
     ]);
-    var resp  = r[0].data || [];
-    var pulsos = r[1].data || [];
+    var allResp  = r[0].data || [];
+    var allPulsos = r[1].data || [];
     var recos  = r[2].data || [];
-    var pregs  = r[3].data || [];
+    var allPregs  = r[3].data || [];
+
+    // Filtrar por dinámica seleccionada
+    var resp = selectedDailyId ? allResp.filter(function(x){ return x.dinamica_id === selectedDailyId; }) : allResp;
+    var pregs = selectedDailyId ? allPregs.filter(function(x){ return x.dinamica_id === selectedDailyId; }) : allPregs;
+    var pulsos = selectedPulseId ? allPulsos.filter(function(x){ return x.dinamica_id === selectedPulseId; }) : allPulsos;
 
     // ── Daily Play KPIs ──────────────────────────────────────
     var answered = resp.filter(function(x){ return x.respuesta_elegida !== null && x.respuesta_elegida !== undefined; });
@@ -3200,27 +3211,31 @@ async function sbCargarMetricasAdmin() {
     _setEl('db-dp-rate',    resp.length > 0 ? Math.round((answered.length/resp.length)*100)+'%' : '—');
     _setEl('db-dp-correct', answered.length > 0 ? Math.round((correct.length/answered.length)*100)+'%' : '—');
 
-    // Questions breakdown
+    // Questions breakdown (filtrado por dinámica)
     var qEl = document.getElementById('db-dp-questions');
-    if (qEl && pregs.length > 0) {
-      qEl.innerHTML = '';
-      pregs.forEach(function(p) {
-        var pResp = resp.filter(function(x){ return x.pregunta_id === p.id; });
-        var pAns  = pResp.filter(function(x){ return x.respuesta_elegida !== null; });
-        var pTot  = pResp.length || 1;
-        var pct   = Math.round((pAns.length / pTot) * 100);
-        qEl.innerHTML +=
-          '<div><div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(p.texto||'Pregunta')+'</div>'+
-          '<div style="display:flex;gap:6px;align-items:center"><div style="flex:1;height:8px;border-radius:4px;background:var(--bg2);overflow:hidden;display:flex">'+
-          '<div style="width:'+pct+'%;background:var(--hugo);border-radius:4px 0 0 4px"></div>'+
-          '<div style="flex:1;background:#E5E7EB"></div></div></div>'+
-          '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-top:4px">'+
-          '<span>Respondidas: <strong style="color:var(--text)">'+pct+'%</strong></span>'+
-          '<span>Ignoradas: <strong style="color:var(--text)">'+(100-pct)+'%</strong></span></div></div>';
-      });
+    if (qEl) {
+      if (pregs.length > 0) {
+        qEl.innerHTML = '';
+        pregs.forEach(function(p) {
+          var pResp = resp.filter(function(x){ return x.pregunta_id === p.id; });
+          var pAns  = pResp.filter(function(x){ return x.respuesta_elegida !== null; });
+          var pTot  = pResp.length || 1;
+          var pct   = Math.round((pAns.length / pTot) * 100);
+          qEl.innerHTML +=
+            '<div><div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(p.texto||'Pregunta')+'</div>'+
+            '<div style="display:flex;gap:6px;align-items:center"><div style="flex:1;height:8px;border-radius:4px;background:var(--bg2);overflow:hidden;display:flex">'+
+            '<div style="width:'+pct+'%;background:var(--hugo);border-radius:4px 0 0 4px"></div>'+
+            '<div style="flex:1;background:#E5E7EB"></div></div></div>'+
+            '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-top:4px">'+
+            '<span>Respondidas: <strong style="color:var(--text)">'+pct+'%</strong></span>'+
+            '<span>Ignoradas: <strong style="color:var(--text)">'+(100-pct)+'%</strong></span></div></div>';
+        });
+      } else {
+        qEl.innerHTML = '<div style="font-size:13px;color:var(--text2);text-align:center;padding:12px">Sin preguntas para esta dinámica</div>';
+      }
     }
 
-    // ── Pulso KPIs ───────────────────────────────────────────
+    // ── Pulso KPIs (filtrado por dinámica) ────────────────────
     var pTotal = pulsos.length;
     _setEl('db-pulse-total', pTotal);
     var posEmojis = ['😄','🎉','😊','🤩'];
