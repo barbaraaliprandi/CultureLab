@@ -1940,7 +1940,7 @@ function closeRecoDrawer(){
   document.getElementById('overlay-reco').classList.remove('show');
   document.getElementById('drawer-reco').classList.remove('open');
 }
-function activarReconocimiento(){
+async function activarReconocimiento(){
   var inicio = document.getElementById('reco-fecha-inicio')?.value;
   if(!inicio){
     document.getElementById('reco-fecha-inicio').style.borderColor='var(--red)';
@@ -1948,6 +1948,9 @@ function activarReconocimiento(){
     return;
   }
   document.getElementById('reco-fecha-inicio').style.borderColor='';
+  // Validar: solo 1 dinámica activa a la vez
+  var activa = await sbHayDinamicaActiva(null);
+  if (activa) { showToast('⚠️ Ya existe una dinámica activa: "' + activa.nombre + '". Pausala primero.'); return; }
   const fmt = d => { const p=d.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; };
   const fin = document.getElementById('reco-fecha-fin')?.value;
   const finFmt = fin ? fmt(fin) : fmt(inicio.replace(/(\d{4})-(\d{2})-(\d{2})/,(_,y,m,d)=>`${y}-${m}-${String(parseInt(d)+30).padStart(2,'0')}`));
@@ -2057,25 +2060,27 @@ function render(){
   }).join('');
 }
 
-function toggleDin(id){
+async function toggleDin(id){
   var d=dinamicas.find(function(x){return x.id===id;});
   if(!d||d.status==='pasada') return;
   var nuevoEstado = d.status==='activa' ? 'inactiva' : 'activa';
+  // Si va a activar, validar que no haya otra activa
+  if (nuevoEstado === 'activa') {
+    var activa = await sbHayDinamicaActiva(d.sbId);
+    if (activa) {
+      showToast('⚠️ Ya existe una dinámica activa: "' + activa.nombre + '". Pausala primero.');
+      return;
+    }
+  }
   console.log('[Admin] toggleDin id='+id+' sbId='+d.sbId+' nuevoEstado='+nuevoEstado);
   d.status = nuevoEstado;
   render(); showToast(d.type+' '+(nuevoEstado==='activa'?'activada':'pausada'));
-  // Persistir en Supabase y recargar lista
   if (d.sbId) {
-    (async function(){
-      try {
-        var res = await _sb.from('dinamicas').update({ estado: nuevoEstado }).eq('id', d.sbId).select();
-        console.log('[Supabase] toggleDin result:', JSON.stringify(res));
-        if (res.error) { console.error('[Supabase] toggleDin error:', res.error); showToast('❌ Error al pausar en Supabase', false); }
-        else { console.log('[Supabase] toggleDin OK, rows:', res.data ? res.data.length : 0); sbCargarDinamicasAdmin(); }
-      } catch(e) { console.error('[Supabase] toggleDin exception:', e); }
-    })();
-  } else {
-    console.warn('[Admin] toggleDin: dinámica sin sbId, no se persiste');
+    try {
+      var res = await _sb.from('dinamicas').update({ estado: nuevoEstado }).eq('id', d.sbId).select();
+      if (res.error) { console.error('[Supabase] toggleDin error:', res.error); showToast('❌ Error en Supabase'); }
+      else sbCargarDinamicasAdmin();
+    } catch(e) { console.error('[Supabase] toggleDin exception:', e); }
   }
 }
 function eliminarDin(id){
@@ -2333,13 +2338,18 @@ function updateResumen(){
   }
 }
 
-function saveDailyPlay(){
+async function saveDailyPlay(){
   const name=document.getElementById('dp-name')?.value.trim()||'Daily Play — nueva';
   const status=document.getElementById('dp-status')?.value||'activa';
   const ptsActive = document.getElementById('dp-pts-active')?.checked !== false;
   const fmt=d=>`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
   const t=new Date(); const e=new Date(t); e.setDate(e.getDate()+30);
   var isEditing = !!window._editingSbId;
+  // Validar: solo 1 dinámica activa a la vez (no aplica si está editando la misma)
+  if (!isEditing) {
+    var activa = await sbHayDinamicaActiva(null);
+    if (activa) { showToast('⚠️ Ya existe una dinámica activa: "' + activa.nombre + '". Pausala primero.'); return; }
+  }
   // ── Supabase: guardar ANTES de cerrar el form ──────────────
   (function(){
     var preguntas = [];
@@ -2837,12 +2847,17 @@ function pulseUpdateResumen(){
   var pseg = document.getElementById('pres-seg'); if(pseg) pseg.textContent = pulseSegLabel;
 }
 
-function savePulse(){
+async function savePulse(){
   var name = document.getElementById('pulse-name')?.value.trim() || 'Pulse — nueva';
   var status = document.getElementById('pulse-status')?.value || 'activa';
   var fmt = function(d){ return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear(); };
   var t = new Date(); var e = new Date(t); e.setDate(e.getDate()+7);
   var isEditing = !!window._editingSbId;
+  // Validar: solo 1 dinámica activa a la vez
+  if (!isEditing) {
+    var activa = await sbHayDinamicaActiva(null);
+    if (activa) { showToast('⚠️ Ya existe una dinámica activa: "' + activa.nombre + '". Pausala primero.'); return; }
+  }
   // ── Supabase: guardar con metadata ──────────────────────────
   var pulseMeta = {
     fecha_inicio: document.getElementById('pulse-start') ? document.getElementById('pulse-start').value : '',
@@ -2917,6 +2932,18 @@ document.getElementById('ranking-banner-on').style.display = 'none';
 //  Estas funciones se llaman desde las funciones existentes
 //  del admin para persistir los datos en la base de datos.
 // ══════════════════════════════════════════════════════════════
+
+// ── Validar: solo 1 dinámica activa a la vez ─────────────────
+async function sbHayDinamicaActiva(excluirSbId) {
+  try {
+    var q = _sb.from('dinamicas').select('id, nombre, tipo')
+      .eq('estado', 'activa').is('deleted_at', null);
+    if (excluirSbId) q = q.neq('id', excluirSbId);
+    var res = await q;
+    if (res.data && res.data.length > 0) return res.data[0];
+    return null;
+  } catch(e) { console.error('[Supabase] sbHayDinamicaActiva:', e); return null; }
+}
 
 // ── Cargar dinámicas activas al iniciar ──────────────────────
 async function sbCargarDinamicas() {
