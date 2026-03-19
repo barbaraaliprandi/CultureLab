@@ -2387,13 +2387,23 @@ function updateResumen(){
   const rs = document.getElementById('res-seg');        // populated by colab functions
   const rst = document.getElementById('res-status');    if(rst) rst.textContent = statusTxt;
 
-  // Points row
+  // Points row — mostrar valores reales de config
   const ptsRow = document.getElementById('res-pts-row');
   const ptsVal = document.getElementById('res-pts');
   if(ptsRow){ ptsRow.style.display = rankingActive ? '' : 'none'; }
   if(ptsVal && rankingActive){
     const ptsOn = document.getElementById('dp-pts-active')?.checked !== false;
-    ptsVal.textContent = ptsOn ? 'Suma puntos al ranking' : 'No suma puntos';
+    if (ptsOn) {
+      var dcVal = document.getElementById('cfg-pts-daily-correct');
+      var diVal = document.getElementById('cfg-pts-daily-incorrect');
+      var correcta = dcVal ? dcVal.value : '10';
+      var incorrecta = diVal ? diVal.value : '0';
+      var detalle = '✅ Suma puntos · Correcta: +' + correcta + ' pts';
+      if (parseInt(incorrecta) > 0) detalle += ' · Incorrecta: +' + incorrecta + ' pts';
+      ptsVal.textContent = detalle;
+    } else {
+      ptsVal.textContent = '❌ No suma puntos al ranking';
+    }
   }
 }
 
@@ -2914,13 +2924,19 @@ function pulseUpdateResumen(){
     caRow.style.display = openChk.checked ? '' : 'none';
     if(caVal) caVal.textContent = openLabel;
   }
-  // Puntos
+  // Puntos — mostrar valores reales de config
   var ptsRow = document.getElementById('pres-pts-row');
   var ptsVal = document.getElementById('pres-pts');
   if(ptsRow){ ptsRow.style.display = rankingActive ? '' : 'none'; }
   if(ptsVal && rankingActive){
     var active = document.getElementById('pulse-pts-active')?.checked;
-    ptsVal.textContent = active ? 'Suma puntos al ranking' : 'No suma puntos';
+    if (active) {
+      var ppVal = document.getElementById('cfg-pts-pulso');
+      var basePts = ppVal ? ppVal.value : '5';
+      ptsVal.textContent = '✅ Suma puntos · Responder pulso: +' + basePts + ' pts';
+    } else {
+      ptsVal.textContent = '❌ No suma puntos al ranking';
+    }
   }
   // Disponibilidad — solo fechas
   var ps = document.getElementById('pres-start'); if(ps) ps.textContent = start;
