@@ -852,22 +852,22 @@
               <div class="popover-hdr"><p>Elegí el tipo de dinámica</p></div>
               <div class="popover-item" role="menuitem" tabindex="0" onclick="openDailyPlay()">
                 <div class="pi-ico" style="background:var(--teal-bg)">🎯</div>
-                <div><div class="pi-name">Trivia diaria</div><div class="pi-sub">Pregunta del día · +20 pts</div></div>
+                <div><div class="pi-name">Trivia diaria</div><div class="pi-sub">Pregunta del día</div></div>
                 <span class="pi-arr">›</span>
               </div>
               <div class="popover-item" role="menuitem" tabindex="0" onclick="openPulse()">
                 <div class="pi-ico" style="background:var(--blue-bg)">💙</div>
-                <div><div class="pi-name">Pulso</div><div class="pi-sub">Pulso emocional · +5 pts</div></div>
+                <div><div class="pi-name">Pulso</div><div class="pi-sub">Pulso emocional</div></div>
                 <span class="pi-arr">›</span>
               </div>
               <div class="popover-item" role="menuitem" tabindex="0" style="opacity:.5;cursor:default;pointer-events:none">
                 <div class="pi-ico" style="background:var(--amber-bg)">🚀</div>
-                <div><div class="pi-name">Misión <span style="background:var(--amber-bg);color:var(--amber);font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:4px;vertical-align:middle">Próximamente</span></div><div class="pi-sub">Acciones guiadas · +50 pts</div></div>
+                <div><div class="pi-name">Misión <span style="background:var(--amber-bg);color:var(--amber);font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:4px;vertical-align:middle">Próximamente</span></div><div class="pi-sub">Acciones guiadas</div></div>
                 <span class="pi-arr">›</span>
               </div>
-              <div class="popover-item" role="menuitem" tabindex="0" onclick="openRecoDrawer()" style="border-radius:0 0 12px 12px">
+              <div class="popover-item" role="menuitem" tabindex="0" style="opacity:.5;cursor:default;pointer-events:none;border-radius:0 0 12px 12px">
                 <div class="pi-ico" style="background:var(--purple-bg)">⭐</div>
-                <div><div class="pi-name">Reconocimiento</div><div class="pi-sub">Nominación y voto · +30 pts</div></div>
+                <div><div class="pi-name">Reconocimiento <span style="background:var(--amber-bg);color:var(--amber);font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:4px;vertical-align:middle">Próximamente</span></div><div class="pi-sub">Nominación y voto</div></div>
                 <span class="pi-arr">›</span>
               </div>
             </div>
@@ -1980,9 +1980,9 @@ async function activarReconocimiento(){
     return;
   }
   document.getElementById('reco-fecha-inicio').style.borderColor='';
-  // Validar: solo 1 dinámica activa a la vez
-  var activa = await sbHayDinamicaActiva(null);
-  if (activa) { showToast('⚠️ Ya existe una dinámica activa: "' + activa.nombre + '". Pausala primero.'); return; }
+  // Validar: solo 1 reconocimiento activo a la vez
+  var activa = await sbHayDinamicaActiva(null, 'reconocimiento');
+  if (activa) { showToast('⚠️ Ya existe un reconocimiento activo: "' + activa.nombre + '". Pausalo primero.'); return; }
   const fmt = d => { const p=d.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; };
   const fin = document.getElementById('reco-fecha-fin')?.value;
   const finFmt = fin ? fmt(fin) : fmt(inicio.replace(/(\d{4})-(\d{2})-(\d{2})/,(_,y,m,d)=>`${y}-${m}-${String(parseInt(d)+30).padStart(2,'0')}`));
@@ -2096,11 +2096,13 @@ async function toggleDin(id){
   var d=dinamicas.find(function(x){return x.id===id;});
   if(!d||d.status==='pasada') return;
   var nuevoEstado = d.status==='activa' ? 'inactiva' : 'activa';
-  // Si va a activar, validar que no haya otra activa
+  // Si va a activar, validar que no haya otra del mismo tipo activa
   if (nuevoEstado === 'activa') {
-    var activa = await sbHayDinamicaActiva(d.sbId);
+    var tipoMap = { daily:'daily_play', pulse:'pulso', reco:'reconocimiento', mision:'mision' };
+    var sbTipo = tipoMap[d.typeKey] || d.typeKey;
+    var activa = await sbHayDinamicaActiva(d.sbId, sbTipo);
     if (activa) {
-      showToast('⚠️ Ya existe una dinámica activa: "' + activa.nombre + '". Pausala primero.');
+      showToast('⚠️ Ya existe una ' + d.type + ' activa: "' + activa.nombre + '". Pausala primero.');
       return;
     }
   }
@@ -2441,10 +2443,10 @@ async function saveDailyPlay(){
   const fmt=d=>`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
   const t=new Date(); const e=new Date(t); e.setDate(e.getDate()+30);
   var isEditing = !!window._editingSbId;
-  // Validar: solo 1 dinámica activa a la vez (no aplica si está editando la misma)
+  // Validar: solo 1 dinámica activa por tipo
   if (!isEditing) {
-    var activa = await sbHayDinamicaActiva(null);
-    if (activa) { showToast('⚠️ Ya existe una dinámica activa: "' + activa.nombre + '". Pausala primero.'); return; }
+    var activa = await sbHayDinamicaActiva(null, 'daily_play');
+    if (activa) { showToast('⚠️ Ya existe una trivia diaria activa: "' + activa.nombre + '". Pausala primero.'); return; }
   }
   // ── Supabase: guardar ANTES de cerrar el form ──────────────
   (function(){
@@ -2972,10 +2974,10 @@ async function savePulse(){
   var fmt = function(d){ return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear(); };
   var t = new Date(); var e = new Date(t); e.setDate(e.getDate()+7);
   var isEditing = !!window._editingSbId;
-  // Validar: solo 1 dinámica activa a la vez
+  // Validar: solo 1 dinámica activa por tipo
   if (!isEditing) {
-    var activa = await sbHayDinamicaActiva(null);
-    if (activa) { showToast('⚠️ Ya existe una dinámica activa: "' + activa.nombre + '". Pausala primero.'); return; }
+    var activa = await sbHayDinamicaActiva(null, 'pulso');
+    if (activa) { showToast('⚠️ Ya existe un pulso activo: "' + activa.nombre + '". Pausalo primero.'); return; }
   }
   // ── Supabase: guardar con metadata ──────────────────────────
   var pulseMeta = {
@@ -3052,11 +3054,12 @@ document.getElementById('ranking-banner-on').style.display = 'none';
 //  del admin para persistir los datos en la base de datos.
 // ══════════════════════════════════════════════════════════════
 
-// ── Validar: solo 1 dinámica activa a la vez ─────────────────
-async function sbHayDinamicaActiva(excluirSbId) {
+// ── Validar: solo 1 dinámica activa por tipo ─────────────────
+async function sbHayDinamicaActiva(excluirSbId, tipo) {
   try {
     var q = _sb.from('dinamicas').select('id, nombre, tipo')
       .eq('estado', 'activa').is('deleted_at', null);
+    if (tipo) q = q.eq('tipo', tipo);
     if (excluirSbId) q = q.neq('id', excluirSbId);
     var res = await q;
     if (res.data && res.data.length > 0) return res.data[0];
