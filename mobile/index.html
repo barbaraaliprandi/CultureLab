@@ -3122,18 +3122,23 @@ function sbPopularTrivia(ovId, din) {
   var tq = ov.querySelector('.t-q');
   if (tq) tq.textContent = p.texto;
   var opts = ov.querySelectorAll('.opt');
-  if (p.opciones && p.opciones.length) {
-    p.opciones.forEach(function(op, i) {
-      if (opts[i]) {
-        opts[i].textContent = op;
-        var esCorrecta = (i === p.respuesta_correcta);
-        (function(btn, correcto, pregId, dinId) {
-          btn.onclick = function() {
-            sbDans(btn, correcto, dinId, pregId);
-          };
-        })(opts[i], esCorrecta, p.id, din.id);
-      }
-    });
+  var numOpciones = (p.opciones && p.opciones.length) ? p.opciones.length : 0;
+  // Actualizar las opciones que existen y ocultar las sobrantes
+  for (var i = 0; i < opts.length; i++) {
+    if (i < numOpciones) {
+      opts[i].textContent = p.opciones[i];
+      opts[i].style.display = '';
+      opts[i].disabled = false;
+      var esCorrecta = (i === p.respuesta_correcta);
+      (function(btn, correcto, pregId, dinId) {
+        btn.onclick = function() {
+          sbDans(btn, correcto, dinId, pregId);
+        };
+      })(opts[i], esCorrecta, p.id, din.id);
+    } else {
+      // Ocultar opciones sobrantes del HTML hardcodeado
+      opts[i].style.display = 'none';
+    }
   }
 }
 
