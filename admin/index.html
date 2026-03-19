@@ -3003,9 +3003,9 @@ async function sbCrearDailyPlay(nombre, estado, preguntas, meta) {
       const { error: e2 } = await _sb.from('preguntas').insert(rows);
       if (e2) throw e2;
     }
-    sbToast('✅ Trivia diaria guardada en Supabase');
+    
     return din;
-  } catch(e) { sbToast('❌ Error guardando Trivia diaria', false); console.error(e); return null; }
+  } catch(e) { console.warn('Error guardando trivia'); console.error(e); return null; }
 }
 
 // ── Actualizar Daily Play existente ──────────────────────────
@@ -3023,8 +3023,8 @@ async function sbActualizarDailyPlay(sbId, nombre, preguntas, meta) {
       var { error: e2 } = await _sb.from('preguntas').insert(rows);
       if (e2) throw e2;
     }
-    sbToast('✅ Trivia diaria actualizada');
-  } catch(e) { sbToast('❌ Error actualizando Trivia diaria', false); console.error(e); }
+    
+  } catch(e) { console.warn('Error actualizando trivia'); console.error(e); }
 }
 
 // ── Crear Pulso ──────────────────────────────────────────────
@@ -3034,8 +3034,8 @@ async function sbCrearPulso(nombre, estado, meta) {
     const { error } = await _sb.from('dinamicas')
       .insert({ tipo: 'pulso', nombre: nombre, estado: estado, descripcion: metaJson });
     if (error) throw error;
-    sbToast('✅ Pulso guardado en Supabase');
-  } catch(e) { sbToast('❌ Error guardando Pulso', false); console.error(e); }
+    
+  } catch(e) { console.warn('Error guardando pulso'); console.error(e); }
 }
 
 // ── Actualizar Pulso existente ───────────────────────────────
@@ -3044,8 +3044,8 @@ async function sbActualizarPulso(sbId, nombre, meta) {
     var metaJson = JSON.stringify(meta || {});
     var { error } = await _sb.from('dinamicas').update({ nombre: nombre, descripcion: metaJson }).eq('id', sbId);
     if (error) throw error;
-    sbToast('✅ Pulso actualizado');
-  } catch(e) { sbToast('❌ Error actualizando Pulso', false); console.error(e); }
+    
+  } catch(e) { console.warn('Error actualizando pulso'); console.error(e); }
 }
 
 // ── Crear Reconocimiento ─────────────────────────────────────
@@ -3054,8 +3054,8 @@ async function sbCrearReconocimiento(nombre, estado) {
     const { error } = await _sb.from('dinamicas')
       .insert({ tipo: 'reconocimiento', nombre, estado, descripcion: '' });
     if (error) throw error;
-    sbToast('✅ Reconocimiento guardado en Supabase');
-  } catch(e) { sbToast('❌ Error guardando Reconocimiento', false); console.error(e); }
+    
+  } catch(e) { console.warn('Error guardando reconocimiento'); console.error(e); }
 }
 
 // ── Helper: set text content ──────────────────────────────────
@@ -3541,13 +3541,13 @@ setInterval(sbCargarResumenAdmin, 15000);
 // Realtime: notificar al admin cuando llegan respuestas
 _sb.channel('admin-metrics')
   .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'respuestas' }, function() {
-    sbToast('📊 Nueva respuesta de trivia recibida');
+    
   })
   .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'pulso_respuestas' }, function() {
-    sbToast('💛 Nueva respuesta de pulso recibida');
+    
   })
   .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'reconocimientos' }, function() {
-    sbToast('⭐ Nuevo reconocimiento recibido');
+    
   })
   .subscribe();
 
