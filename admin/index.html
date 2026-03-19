@@ -2519,6 +2519,15 @@ function saveConfig(){
     }, 2000);
   }
 
+  // Persistir en Supabase
+  if (typeof sbGuardarConfig === 'function') {
+    var premiosChk = document.getElementById('chk-premios');
+    var periodoBtn = document.querySelector('.ptab.on');
+    sbGuardarConfig('ranking_habilitado', rankingActive ? 'true' : 'false');
+    sbGuardarConfig('premios_habilitados', (premiosChk && premiosChk.checked) ? 'true' : 'false');
+    sbGuardarConfig('ranking_periodo', periodoBtn ? periodoBtn.textContent.trim().toLowerCase() : 'mensual');
+  }
+
   showToast('Configuración guardada · Ranking ' + (rankingActive ? 'activado' : 'desactivado'));
 }
 
@@ -3369,10 +3378,50 @@ async function sbCargarResumenAdmin() {
   }
 }
 
+// ── Cargar configuración desde Supabase ───────────────────────
+async function sbCargarConfigAdmin() {
+  try {
+    var res = await _sb.from('configuracion').select('clave, valor');
+    if (res.error) throw res.error;
+    var config = {};
+    (res.data || []).forEach(function(r) { config[r.clave] = r.valor; });
+
+    // Ranking toggle
+    var rankOn = config.ranking_habilitado === 'true' || config.ranking_habilitado === true;
+    var chk = document.getElementById('chk-ranking');
+    if (chk) {
+      chk.checked = rankOn;
+      toggleRanking(chk);
+    }
+
+    // Premios toggle
+    var premOn = config.premios_habilitados === 'true' || config.premios_habilitados === true;
+    var premChk = document.getElementById('chk-premios');
+    if (premChk) {
+      premChk.checked = premOn;
+      var premCfg = document.getElementById('premios-config');
+      if (premCfg) premCfg.classList.toggle('hidden', !premOn);
+    }
+
+    // Período
+    var periodo = config.ranking_periodo || 'mensual';
+    document.querySelectorAll('.ptab').forEach(function(b) {
+      var txt = b.textContent.trim().toLowerCase();
+      b.classList.toggle('on', txt === periodo);
+    });
+    var customBlock = document.getElementById('periodo-custom');
+    if (customBlock) customBlock.classList.toggle('hidden', periodo !== 'custom');
+
+    console.log('[Supabase] Config cargada: ranking=' + rankOn + ' premios=' + premOn + ' periodo=' + periodo);
+  } catch(e) { console.error('[Supabase] sbCargarConfigAdmin:', e); }
+}
+
 // ══════════════════════════════════════════════════════════════
-//  INIT: cargar dinámicas y métricas desde Supabase al abrir
+//  INIT: cargar config, dinámicas y métricas desde Supabase
 // ══════════════════════════════════════════════════════════════
-sbCargarDinamicasAdmin();
+sbCargarConfigAdmin().then(function() {
+  sbCargarDinamicasAdmin();
+});
 sbCargarMetricasAdmin();
 sbCargarResumenAdmin();
 setInterval(sbCargarMetricasAdmin, 15000);  // refresca métricas cada 15s
