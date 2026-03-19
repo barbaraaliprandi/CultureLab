@@ -2965,12 +2965,13 @@ async function sbRenderCultureLab() {
     var dynContainer = document.querySelector('#cl-tab-inicio .cl-dyn-section-lbl');
     if (dynContainer) {
       var parent = dynContainer.parentElement;
-      // Borrar cards existentes
-      parent.querySelectorAll('.cl-dyn-card').forEach(function(c){ c.remove(); });
+      // Borrar cards y mensajes vacíos existentes
+      parent.querySelectorAll('.cl-dyn-card, .cl-dyn-empty').forEach(function(c){ c.remove(); });
       if (dyns.length === 0) {
         var empty = document.createElement('div');
+        empty.className = 'cl-dyn-empty';
         empty.style.cssText = 'font-size:13px;color:#9CA3AF;text-align:center;padding:16px';
-        empty.textContent = 'No hay dinámicas activas';
+        empty.textContent = 'No hay dinámicas pendientes';
         parent.appendChild(empty);
       } else {
         var dynStyles = {
@@ -3214,31 +3215,47 @@ function sbDans(btn, esCorrecta, dinId, pregId) {
   }
   btn.classList.add(esCorrecta ? 'correct' : 'wrong');
 
-  // Mostrar pantalla de resultado (ds2) después de una pausa
-  var delay = esCorrecta ? 700 : 900;
-  setTimeout(function() {
-    dStep('ds2');
-    if (esCorrecta) {
-      var bonus = dSecs * 5;
-      document.getElementById('d-em').textContent = '🎉';
-      document.getElementById('d-title').textContent = '¡Correcto!';
-      document.getElementById('d-pts').textContent = '+' + (100 + bonus) + ' pts';
-      document.getElementById('d-pts').style.cssText = '';
-      document.getElementById('d-sub').textContent = 'Bonus de velocidad: +' + bonus + ' pts.';
-      document.getElementById('d-streak').style.display = 'flex';
-    } else {
-      document.getElementById('d-em').textContent = '😅';
-      document.getElementById('d-title').textContent = 'Respuesta incorrecta';
-      document.getElementById('d-pts').textContent = '+0 pts';
-      document.getElementById('d-pts').style.cssText = 'background:#FEF2F2;color:#EF4444;';
-      document.getElementById('d-sub').textContent = '¡Seguí intentando!';
-      document.getElementById('d-streak').style.display = 'none';
-    }
-  }, delay);
+  // Leer puntos reales desde config de Supabase
+  var ptsCorrecta = 10;
+  var ptsIncorrecta = 0;
+  (async function() {
+    try {
+      var cfgRes = await _sb.from('configuracion').select('clave, valor').eq('clave', 'puntos_daily_play').single();
+      if (cfgRes.data && cfgRes.data.valor) {
+        var cfg = JSON.parse(cfgRes.data.valor);
+        ptsCorrecta = cfg.base || 10;
+        ptsIncorrecta = cfg.incorrecta || 0;
+      }
+    } catch(e) {}
 
-  // Guardar en Supabase
-  var puntos = esCorrecta ? 10 : 0;
-  sbEnviarRespuesta(dinId, pregId, esCorrecta, puntos);
+    var ptsGanados = esCorrecta ? ptsCorrecta : ptsIncorrecta;
+
+    // Mostrar pantalla de resultado (ds2)
+    setTimeout(function() {
+      dStep('ds2');
+      if (esCorrecta) {
+        document.getElementById('d-em').textContent = '🎉';
+        document.getElementById('d-title').textContent = '¡Correcto!';
+        document.getElementById('d-pts').textContent = '+' + ptsGanados + ' pts';
+        document.getElementById('d-pts').style.cssText = '';
+        document.getElementById('d-sub').textContent = '¡Excelente respuesta!';
+        document.getElementById('d-streak').style.display = 'none';
+      } else {
+        document.getElementById('d-em').textContent = '😅';
+        document.getElementById('d-title').textContent = 'Respuesta incorrecta';
+        document.getElementById('d-pts').textContent = '+' + ptsIncorrecta + ' pts';
+        document.getElementById('d-pts').style.cssText = 'background:#FEF2F2;color:#EF4444;';
+        document.getElementById('d-sub').textContent = '¡Seguí intentando!';
+        document.getElementById('d-streak').style.display = 'none';
+      }
+    }, esCorrecta ? 700 : 900);
+
+    // Guardar en Supabase con puntos reales
+    sbEnviarRespuesta(dinId, pregId, esCorrecta, ptsGanados);
+
+    // Refrescar Culture Lab cards después de votar
+    setTimeout(function() { if (typeof sbRenderCultureLab === 'function') sbRenderCultureLab(); }, 1500);
+  })();
   // Actualizar posición real en ranking después de guardar
   setTimeout(async function() {
     try {
@@ -3327,16 +3344,25 @@ async function sbEnviarPulso(emoji, sentimiento, motivos) {
       motivos: motivos || [], anonimo: true,
       empleado_nombre: _empleadoNombre || 'Anónimo'
     });
-    await sbActualizarRanking(5, 'pulso');
-    sbToast('💛 Pulso enviado — +5 puntos');
+    // Leer puntos de config
+    var ptsPulso = 5;
+    try {
+      var cfgP = await _sb.from('configuracion').select('clave, valor').eq('clave', 'puntos_pulso').single();
+      if (cfgP.data && cfgP.data.valor) { var pp = JSON.parse(cfgP.data.valor); ptsPulso = pp.base || 5; }
+    } catch(e) {}
+    await sbActualizarRanking(ptsPulso, 'pulso');
+    sbToast('💛 Pulso enviado — +' + ptsPulso + ' puntos');
     // Actualizar contador real de respuestas de este pulso
     if (window._sbPulsoId) {
       var cntRes = await _sb.from('pulso_respuestas').select('id', { count: 'exact', head: true })
         .eq('dinamica_id', window._sbPulsoId);
+      console.log('[Supabase] pulso count result:', JSON.stringify(cntRes));
       var countEl = document.getElementById('ps2-count');
-      if (countEl && cntRes.count !== null) countEl.textContent = cntRes.count;
+      if (countEl) countEl.textContent = (cntRes.count !== null && cntRes.count !== undefined) ? cntRes.count : '1';
     }
     setTimeout(sbRenderRanking, 800);
+    // Refrescar Culture Lab cards (quitar esta dinámica de las activas)
+    setTimeout(function() { if (typeof sbRenderCultureLab === 'function') sbRenderCultureLab(); }, 1500);
   } catch(e) { console.error('[Supabase] enviarPulso:', e); }
 }
 
