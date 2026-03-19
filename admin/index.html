@@ -3525,6 +3525,8 @@ async function sbCargarFiltrosDashboard() {
         });
       }
     }
+    // Re-cargar métricas ahora que los filtros tienen valores reales
+    sbCargarMetricasAdmin();
   } catch(e) { console.error('[Supabase] sbCargarFiltrosDashboard:', e); }
 }
 
