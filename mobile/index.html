@@ -2998,8 +2998,82 @@ function sbMostrarSelectorNombre() {
 }
 
 // ── Init: cargar dinámicas activas + arrancar polling ─────────
+// ── Renderizar Culture Lab: header, dinámicas activas, ranking ──
+async function sbRenderCultureLab() {
+  try {
+    // 1) Header: nombre, iniciales, puntos del usuario actual
+    var heroName = document.querySelector('.cl-hero-name');
+    var heroAv   = document.querySelector('.cl-hero .cl-av');
+    var heroPts  = document.querySelector('.cl-xp-lbl span');
+    var statPts  = document.querySelector('.cl-stat-val');
+    if (heroName) heroName.textContent = _empleadoNombre;
+    if (heroAv) heroAv.textContent = _empleadoNombre.split(' ').map(function(w){ return w[0]; }).slice(0,2).join('').toUpperCase();
+
+    // Buscar puntos reales del usuario
+    var userRes = await _sb.from('rankings').select('puntos_total, racha_dias')
+      .eq('empleado_nombre', _empleadoNombre).maybeSingle();
+    var pts = (userRes.data && userRes.data.puntos_total) ? userRes.data.puntos_total : 0;
+    var racha = (userRes.data && userRes.data.racha_dias) ? userRes.data.racha_dias : 0;
+    if (heroPts) heroPts.textContent = pts.toLocaleString('es-CL') + ' pts';
+    if (statPts) statPts.textContent = pts.toLocaleString('es-CL');
+    // Racha
+    var streakLbl = document.querySelector('.cl-streak-lbl');
+    if (streakLbl) streakLbl.textContent = racha + ' días';
+    // XP bar
+    var nextLevel = Math.ceil((pts + 1) / 500) * 500;
+    var xpFill = document.querySelector('.cl-xp-fill');
+    if (xpFill) xpFill.style.width = Math.min(100, Math.round((pts / nextLevel) * 100)) + '%';
+    var xpNote = document.querySelector('.cl-xp-note');
+    if (xpNote) xpNote.textContent = (nextLevel - pts) + ' pts para Nivel ' + Math.ceil(nextLevel / 500);
+    var xpRight = document.querySelectorAll('.cl-xp-lbl span');
+    if (xpRight && xpRight[1]) xpRight[1].textContent = nextLevel.toLocaleString('es-CL') + ' pts';
+    // Ranking position
+    var allRank = await _sb.from('rankings').select('empleado_nombre').order('puntos_total', { ascending: false });
+    var rankData = allRank.data || [];
+    var myPos = rankData.findIndex(function(r){ return r.empleado_nombre === _empleadoNombre; });
+    var statRank = document.querySelectorAll('.cl-stat-val');
+    if (statRank && statRank[1]) statRank[1].textContent = myPos >= 0 ? '#' + (myPos + 1) : '—';
+
+    // 2) Dinámicas activas: cargar desde Supabase
+    var dynRes = await _sb.from('dinamicas').select('id, tipo, nombre, estado')
+      .eq('estado', 'activa').is('deleted_at', null);
+    var dyns = dynRes.data || [];
+    var dynContainer = document.querySelector('#cl-tab-inicio .cl-dyn-section-lbl');
+    if (dynContainer) {
+      var parent = dynContainer.parentElement;
+      // Borrar cards existentes
+      parent.querySelectorAll('.cl-dyn-card').forEach(function(c){ c.remove(); });
+      if (dyns.length === 0) {
+        var empty = document.createElement('div');
+        empty.style.cssText = 'font-size:13px;color:#9CA3AF;text-align:center;padding:16px';
+        empty.textContent = 'No hay dinámicas activas';
+        parent.appendChild(empty);
+      } else {
+        var dynStyles = {
+          pulso:         { cls:'pulse', icon:'💜', sub:'Check-in diario · +5 pts', mod:'pulse' },
+          daily_play:    { cls:'daily', icon:'⚡', sub:'Trivia del día · hasta +30 pts', mod:'daily' },
+          reconocimiento:{ cls:'pulse', icon:'⭐', sub:'Reconocé a tu equipo · +3 pts', mod:'recognition' }
+        };
+        dyns.forEach(function(din) {
+          var s = dynStyles[din.tipo] || { cls:'daily', icon:'🎯', sub:'', mod:'pulse' };
+          var card = document.createElement('div');
+          card.className = 'cl-dyn-card ' + s.cls;
+          card.onclick = function(){ clLaunchDynamic(s.mod); };
+          card.innerHTML =
+            '<div class="cl-dyn-icon">' + s.icon + '</div>' +
+            '<div class="cl-dyn-body"><div class="cl-dyn-title">' + din.nombre + '</div>' +
+            '<div class="cl-dyn-sub">' + s.sub + '</div></div>' +
+            '<div class="cl-dyn-chev">›</div>';
+          parent.appendChild(card);
+        });
+      }
+    }
+  } catch(e) { console.error('[Supabase] sbRenderCultureLab:', e); }
+}
+
 async function sbInit() {
   console.log('[Supabase] sbInit arrancando...');
+  await sbRenderCultureLab();
   await sbRenderRanking();
   // Primera carga inmediata + polling cada 5s
   await sbPolling();
