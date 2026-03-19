@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Humand Admin — Cultural Engagement</title>
+<title>Humand Admin — CultureLab</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap');
   *{box-sizing:border-box;margin:0;padding:0;}
@@ -460,7 +460,7 @@
       <div class="si"><div class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div class="lbl">Users</div></div>
       <div class="si"><div class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div><div class="lbl">OrgChart</div></div>
       <div class="si"><div class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="lbl">Roles & Permission</div></div>
-      <div class="si act"><div class="ico">🎯</div><div class="lbl">Cultural Engagement</div><div class="chv open">▾</div></div>
+      <div class="si act"><div class="ico">🎯</div><div class="lbl">CultureLab</div><div class="chv open">▾</div></div>
       <div class="subs">
         <div class="sub on" id="sub-dashboard" onclick="setV('dashboard')">Dashboard</div>
         <div class="sub off" id="sub-dinamicas" onclick="setV('dinamicas')">Dinámicas</div>
@@ -491,7 +491,7 @@
         <!-- Tabs — sin filtros globales -->
         <div style="display:flex;gap:2px;border-bottom:2px solid var(--border);margin-bottom:24px">
           <button class="db-tab on" id="dbt-resumen"  onclick="setDbTab('resumen')">Resumen</button>
-          <button class="db-tab"   id="dbt-daily"     onclick="setDbTab('daily')">🎯 Daily Play</button>
+          <button class="db-tab"   id="dbt-daily"     onclick="setDbTab('daily')">🎯 Trivia diaria</button>
           <button class="db-tab"   id="dbt-pulse"     onclick="setDbTab('pulse')">💙 Pulso</button>
           <button class="db-tab"   id="dbt-reco"      onclick="setDbTab('reco')">⭐ Reconocimientos</button>
           <button class="db-tab"   id="dbt-misiones"  onclick="setDbTab('misiones')" style="opacity:.45;pointer-events:none">🚀 Misiones</button>
@@ -502,7 +502,7 @@
           <div class="g4" style="margin-bottom:20px">
             <div class="card"><div class="clbl">Colaboradores activos</div><div class="cval" id="db-res-activos">68%</div><div class="cch up">↑ 12% vs. semana anterior</div></div>
             <div class="card"><div class="clbl">Sentimiento positivo</div><div class="cval" id="db-res-sentimiento">70%</div><div class="cch up">↑ 5% vs. semana anterior</div></div>
-            <div class="card"><div class="clbl">Módulo más activo</div><div class="cval" id="db-res-modulo" style="font-size:18px;line-height:2.2">Daily Play</div><div class="cch nu">89% participación</div></div>
+            <div class="card"><div class="clbl">Módulo más activo</div><div class="cval" id="db-res-modulo" style="font-size:18px;line-height:2.2">Trivia diaria</div><div class="cch nu">89% participación</div></div>
             <div class="card"><div class="clbl">Total participantes</div><div class="cval" id="db-res-participantes">1.024</div><div class="cch nu">de 1.500 colaboradores</div></div>
           </div>
           <div class="g21">
@@ -512,8 +512,8 @@
               <div class="slbls"><div class="slbl">S1</div><div class="slbl">S2</div><div class="slbl">S3</div><div class="slbl">S4</div><div class="slbl">S5</div><div class="slbl">S6</div><div class="slbl">S7</div><div class="slbl cur">Hoy</div></div>
             </div>
             <div class="card" id="db-res-engagement">
-              <div class="ctit">Engagement por módulo</div>
-              <div class="mbar"><div class="mbar-h"><span class="mbar-n">🎯 Daily Play</span><span class="mbar-p">89%</span></div><div class="mbar-t"><div class="mbar-f" style="width:89%;background:var(--teal)"></div></div></div>
+              <div class="ctit">Participación por módulo</div>
+              <div class="mbar"><div class="mbar-h"><span class="mbar-n">🎯 Trivia diaria</span><span class="mbar-p">89%</span></div><div class="mbar-t"><div class="mbar-f" style="width:89%;background:var(--teal)"></div></div></div>
               <div class="mbar"><div class="mbar-h"><span class="mbar-n">💙 Pulso</span><span class="mbar-p">61%</span></div><div class="mbar-t"><div class="mbar-f" style="width:61%;background:var(--blue)"></div></div></div>
               <div class="mbar"><div class="mbar-h"><span class="mbar-n">🚀 Misiones</span><span class="mbar-p">38%</span></div><div class="mbar-t"><div class="mbar-f" style="width:38%;background:var(--amber)"></div></div></div>
               <div class="mbar"><div class="mbar-h"><span class="mbar-n">⭐ Reconocimientos</span><span class="mbar-p">24%</span></div><div class="mbar-t"><div class="mbar-f" style="width:24%;background:var(--purple)"></div></div></div>
@@ -840,7 +840,7 @@
         <div class="din-topbar">
           <div>
             <h2>Dinámicas</h2>
-            <p>Creá y gestioná las dinámicas de engagement de tu organización</p>
+            <p>Creá y gestioná las dinámicas de participación de tu organización</p>
           </div>
           <!-- POPOVER WRAP -->
           <div class="popover-wrap" id="pw">
@@ -852,7 +852,7 @@
               <div class="popover-hdr"><p>Elegí el tipo de dinámica</p></div>
               <div class="popover-item" role="menuitem" tabindex="0" onclick="openDailyPlay()">
                 <div class="pi-ico" style="background:var(--teal-bg)">🎯</div>
-                <div><div class="pi-name">Daily Play</div><div class="pi-sub">Trivia diaria · +20 pts</div></div>
+                <div><div class="pi-name">Trivia diaria</div><div class="pi-sub">Pregunta del día · +20 pts</div></div>
                 <span class="pi-arr">›</span>
               </div>
               <div class="popover-item" role="menuitem" tabindex="0" onclick="openPulse()">
@@ -922,7 +922,7 @@
       <!-- CONFIGURACIÓN -->
       <div id="v-config" class="hidden">
         <div class="ptitle">Configuración</div>
-        <div class="pdesc">Definí cómo funciona el sistema de engagement para tu organización. Estos ajustes afectan a todas las dinámicas.</div>
+        <div class="pdesc">Definí cómo funciona el sistema de participación para tu organización. Estos ajustes afectan a todas las dinámicas.</div>
 
         <!-- Bloque: Ranking y puntos -->
         <div class="cfg-block">
@@ -976,7 +976,7 @@
                 <div class="cfg-pts-col-pts" style="text-align:right">Puntos default</div>
               </div>
               <div class="cfg-pts-row">
-                <div class="cfg-pts-col-mod"><span class="tb daily">🎯 Daily Play</span><span class="cfg-pts-action">Respuesta correcta</span></div>
+                <div class="cfg-pts-col-mod"><span class="tb daily">🎯 Trivia diaria</span><span class="cfg-pts-action">Respuesta correcta</span></div>
                 <div class="cfg-pts-col-pts"><input class="pts-input" type="number" value="20" min="0" max="999"></div>
               </div>
               <div class="cfg-pts-row">
@@ -1059,7 +1059,7 @@
 
             <div class="cfg-pts-note" style="margin-top:14px">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              Los premios son visibles para los colaboradores en el hub de engagement. La entrega es responsabilidad de la organización.
+              Los premios son visibles para los colaboradores en el hub de participación. La entrega es responsabilidad de la organización.
             </div>
           </div>
         </div>
@@ -1093,7 +1093,7 @@
   <!-- TaskFocus header -->
   <header class="tf-hdr">
     <div class="tf-hdr-l">
-      <span class="tf-title">Daily Play</span>
+      <span class="tf-title">Trivia diaria</span>
       <span class="tf-pill" id="tf-pill">Paso 1 de 3</span>
     </div>
     <div class="tf-hdr-r">
@@ -1886,7 +1886,7 @@ let nextId = 100;    // IDs locales empiezan en 100 para no colisionar con Supab
 
 // Mapeo tipo Supabase → typeKey local
 const SB_TIPO_MAP = { daily_play:'daily', pulso:'pulse', reconocimiento:'reco', mision:'mision' };
-const SB_TYPE_LABEL = { daily_play:'Daily Play', pulso:'Pulso', reconocimiento:'Reconocimiento', mision:'Misión' };
+const SB_TYPE_LABEL = { daily_play:'Trivia diaria', pulso:'Pulso', reconocimiento:'Reconocimiento', mision:'Misión' };
 
 async function sbCargarDinamicasAdmin() {
   try {
@@ -2011,7 +2011,7 @@ function render(){
 
   const stLabel = { activa:'Activa', inactiva:'Pausada', pasada:'Finalizada' };
   const stClass = { activa:'sp activa', inactiva:'sp inactiva', pasada:'sp pasada' };
-  const typeLabel = { daily:'Daily Play', pulse:'Pulso', mision:'Misión', reco:'Reconocimiento' };
+  const typeLabel = { daily:'Trivia diaria', pulse:'Pulso', mision:'Misión', reco:'Reconocimiento' };
 
   tbody.innerHTML = visible.map(d=>{
     const partHtml = d.part>0
@@ -2339,7 +2339,7 @@ function updateResumen(){
 }
 
 async function saveDailyPlay(){
-  const name=document.getElementById('dp-name')?.value.trim()||'Daily Play — nueva';
+  const name=document.getElementById('dp-name')?.value.trim()||'Trivia diaria — nueva';
   const status=document.getElementById('dp-status')?.value||'activa';
   const ptsActive = document.getElementById('dp-pts-active')?.checked !== false;
   const fmt=d=>`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
@@ -2378,12 +2378,12 @@ async function saveDailyPlay(){
   })();
   // ──────────────────────────────────────────────────────────
   if (!isEditing) {
-    dinamicas.unshift({id:nextId++,typeKey:'daily',type:'Daily Play',title:name,start:fmt(t),end:fmt(e),status,part:0,sumaPuntos:rankingActive?ptsActive:false});
+    dinamicas.unshift({id:nextId++,typeKey:'daily',type:'Trivia diaria',title:name,start:fmt(t),end:fmt(e),status,part:0,sumaPuntos:rankingActive?ptsActive:false});
   }
   closeDailyPlay();
   // Recargar desde Supabase para reflejar cambios reales
   setTimeout(function(){ sbCargarDinamicasAdmin(); }, 500);
-  showToast(isEditing ? 'Daily Play actualizada' : 'Daily Play guardada · '+(status==='activa'?'activa de inmediato':'guardada como borrador'));
+  showToast(isEditing ? 'Trivia diaria actualizada' : 'Trivia diaria guardada · '+(status==='activa'?'activa de inmediato':'guardada como borrador'));
 }
 
 /* ══ CONFIG ══ */
@@ -2973,9 +2973,9 @@ async function sbCrearDailyPlay(nombre, estado, preguntas, meta) {
       const { error: e2 } = await _sb.from('preguntas').insert(rows);
       if (e2) throw e2;
     }
-    sbToast('✅ Daily Play guardado en Supabase');
+    sbToast('✅ Trivia diaria guardada en Supabase');
     return din;
-  } catch(e) { sbToast('❌ Error guardando Daily Play', false); console.error(e); return null; }
+  } catch(e) { sbToast('❌ Error guardando Trivia diaria', false); console.error(e); return null; }
 }
 
 // ── Actualizar Daily Play existente ──────────────────────────
@@ -2993,8 +2993,8 @@ async function sbActualizarDailyPlay(sbId, nombre, preguntas, meta) {
       var { error: e2 } = await _sb.from('preguntas').insert(rows);
       if (e2) throw e2;
     }
-    sbToast('✅ Daily Play actualizada');
-  } catch(e) { sbToast('❌ Error actualizando Daily Play', false); console.error(e); }
+    sbToast('✅ Trivia diaria actualizada');
+  } catch(e) { sbToast('❌ Error actualizando Trivia diaria', false); console.error(e); }
 }
 
 // ── Crear Pulso ──────────────────────────────────────────────
@@ -3228,7 +3228,7 @@ async function sbCargarResumenAdmin() {
 
     // ── Módulo más activo ──
     var counts = {
-      'Daily Play': resp.length,
+      'Trivia diaria': resp.length,
       'Pulso': pulsos.length,
       'Reconocimiento': recos.length
     };
@@ -3254,8 +3254,8 @@ async function sbCargarResumenAdmin() {
 
     var engageEl = document.getElementById('db-res-engagement');
     if (engageEl) {
-      engageEl.innerHTML = '<div class="ctit">Engagement por módulo</div>' +
-        '<div class="mbar"><div class="mbar-h"><span class="mbar-n">🎯 Daily Play</span><span class="mbar-p">'+dpPct+'%</span></div><div class="mbar-t"><div class="mbar-f" style="width:'+dpPct+'%;background:var(--teal)"></div></div></div>' +
+      engageEl.innerHTML = '<div class="ctit">Participación por módulo</div>' +
+        '<div class="mbar"><div class="mbar-h"><span class="mbar-n">🎯 Trivia diaria</span><span class="mbar-p">'+dpPct+'%</span></div><div class="mbar-t"><div class="mbar-f" style="width:'+dpPct+'%;background:var(--teal)"></div></div></div>' +
         '<div class="mbar"><div class="mbar-h"><span class="mbar-n">💙 Pulso</span><span class="mbar-p">'+pPct+'%</span></div><div class="mbar-t"><div class="mbar-f" style="width:'+pPct+'%;background:var(--blue)"></div></div></div>' +
         '<div class="mbar"><div class="mbar-h"><span class="mbar-n">⭐ Reconocimientos</span><span class="mbar-p">'+recoPct+'%</span></div><div class="mbar-t"><div class="mbar-f" style="width:'+recoPct+'%;background:var(--purple)"></div></div></div>';
     }
