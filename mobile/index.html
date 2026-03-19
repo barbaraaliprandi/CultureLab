@@ -3337,21 +3337,34 @@ async function sbEnviarRespuesta(dinId, pregId, esCorrecta, puntos) {
 }
 
 // ── Guardar respuesta de Pulso ───────────────────────────────
-async function sbEnviarPulso(emoji, sentimiento, motivos) {
+async function sbEnviarPulso(emoji, sentimiento, motivos, comentario) {
   try {
-    // Guardar con empleado_nombre para tracking de doble voto
+    var dinId = window._sbPulsoId || null;
+    var nombre = _empleadoNombre || 'Anónimo';
+    console.log('[Supabase] sbEnviarPulso llamado: emoji="'+emoji+'" din='+dinId+' user='+nombre);
+
+    if (!emoji) { console.error('[Supabase] pulso: emoji vacío, abortando'); return; }
+    if (!dinId) { console.error('[Supabase] pulso: dinId vacío, abortando'); return; }
+
     var insertData = {
-      dinamica_id: window._sbPulsoId || null,
-      emoji: emoji, sentimiento: sentimiento,
-      motivos: motivos || [], anonimo: true,
-      empleado_nombre: _empleadoNombre || 'Anónimo'
+      dinamica_id: dinId,
+      emoji: emoji,
+      sentimiento: sentimiento || '',
+      motivos: motivos || [],
+      comentario: comentario || '',
+      anonimo: true,
+      empleado_nombre: nombre
     };
+    console.log('[Supabase] pulso insertData:', JSON.stringify(insertData));
     var insertRes = await _sb.from('pulso_respuestas').insert(insertData).select();
-    console.log('[Supabase] pulso insert:', JSON.stringify({ error: insertRes.error, rows: insertRes.data ? insertRes.data.length : 0 }));
     if (insertRes.error) {
-      console.error('[Supabase] pulso insert error, retry sin empleado_nombre:', insertRes.error.message);
+      console.error('[Supabase] pulso insert ERROR:', insertRes.error.message, insertRes.error.details);
+      // Fallback sin empleado_nombre
       delete insertData.empleado_nombre;
-      await _sb.from('pulso_respuestas').insert(insertData);
+      var fallbackRes = await _sb.from('pulso_respuestas').insert(insertData).select();
+      console.log('[Supabase] pulso fallback:', fallbackRes.error ? fallbackRes.error.message : 'OK rows='+((fallbackRes.data||[]).length));
+    } else {
+      console.log('[Supabase] pulso insert OK, rows:', (insertRes.data||[]).length);
     }
     // Leer puntos de config
     var ptsPulso = 5;
@@ -3491,10 +3504,21 @@ window.pStep = function(step) {
   _origPStep && _origPStep(step);
   if (step === 'ps2') {
     var emojiSel = document.querySelector('#ov-pulse .emoji-btn.sel');
-    var emoji    = emojiSel ? emojiSel.textContent.trim().charAt(0) : '';
-    var lbl      = emojiSel ? (emojiSel.querySelector('.emoji-lbl')||{}).textContent||'' : '';
-    var motivos  = Array.from(document.querySelectorAll('#ov-pulse .chip.on')).map(function(c){return c.textContent.trim();});
-    sbEnviarPulso(emoji, lbl, motivos);
+    // Extraer emoji: tomar el contenido del primer nodo texto (antes del span)
+    var emoji = '';
+    var lbl = '';
+    if (emojiSel) {
+      // El botón tiene: emoji_char + <span class="emoji-lbl">label</span>
+      // Obtener emoji del primer childNode (texto) y label del span
+      var firstText = emojiSel.childNodes[0];
+      emoji = firstText ? firstText.textContent.trim() : '';
+      var lblEl = emojiSel.querySelector('.emoji-lbl');
+      lbl = lblEl ? lblEl.textContent.trim() : '';
+    }
+    var motivos = Array.from(document.querySelectorAll('#ov-pulse .chip.on')).map(function(c){return c.textContent.trim();});
+    var comentario = document.getElementById('p-comment') ? document.getElementById('p-comment').value.trim() : '';
+    console.log('[Supabase] pulso hook: emoji="'+emoji+'" lbl="'+lbl+'" user="'+_empleadoNombre+'" dinId="'+window._sbPulsoId+'"');
+    sbEnviarPulso(emoji, lbl, motivos, comentario);
   }
 };
 
