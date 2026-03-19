@@ -1047,7 +1047,7 @@ body {
             <div class="c-sub" id="d-sub" style="margin-bottom:12px;">Bonus de velocidad sumado.</div>
           </div>
           <!-- Racha oculta (v2) --><div class="streak-card" id="d-streak" style="display:none">🔥 ¡Racha de 8 días! +50 pts extra</div>
-          <div class="rank-mini"><span class="rank-mini-t">Tu posición</span><span class="rank-mini-v">#4 de 24</span></div>
+          <div class="rank-mini"><span class="rank-mini-t">Tu posición</span><span class="rank-mini-v" id="trivia-rank-pos">#— de —</span></div>
           <button class="btn btn-yellow" onclick="goToCultureLabRanking()">Ver ranking completo →</button>
         </div>
         <!-- Leaderboard -->
@@ -2961,10 +2961,15 @@ async function sbRenderCultureLab() {
     var statRank = document.querySelectorAll('.cl-stat-val');
     if (statRank && statRank[1]) statRank[1].textContent = myPos >= 0 ? '#' + (myPos + 1) : '—';
 
-    // 2) Dinámicas activas: cargar desde Supabase
+    // 2) Dinámicas activas: cargar desde Supabase (filtrar respondidas)
     var dynRes = await _sb.from('dinamicas').select('id, tipo, nombre, estado')
       .eq('estado', 'activa').is('deleted_at', null);
-    var dyns = dynRes.data || [];
+    var allDyns = dynRes.data || [];
+    var dyns = [];
+    for (var di = 0; di < allDyns.length; di++) {
+      var yaResp = await sbUsuarioYaRespondio(allDyns[di].id, allDyns[di].tipo);
+      if (!yaResp) dyns.push(allDyns[di]);
+    }
     var dynContainer = document.querySelector('#cl-tab-inicio .cl-dyn-section-lbl');
     if (dynContainer) {
       var parent = dynContainer.parentElement;
@@ -3237,6 +3242,37 @@ function sbDans(btn, esCorrecta, dinId, pregId) {
   // Guardar en Supabase
   var puntos = esCorrecta ? 10 : 0;
   sbEnviarRespuesta(dinId, pregId, esCorrecta, puntos);
+  // Actualizar posición real en ranking después de guardar
+  setTimeout(async function() {
+    try {
+      var rankRes = await _sb.from('rankings').select('empleado_nombre')
+        .order('puntos_total', { ascending: false });
+      var rankData = rankRes.data || [];
+      var myPos = rankData.findIndex(function(r){ return r.empleado_nombre === _empleadoNombre; });
+      var posEl = document.getElementById('trivia-rank-pos');
+      if (posEl) posEl.textContent = '#' + (myPos >= 0 ? myPos + 1 : '—') + ' de ' + rankData.length;
+      sbRenderRanking();
+    } catch(e) {}
+  }, 1200);
+}
+
+// ── Verificar si usuario ya respondió una dinámica ───────────
+async function sbUsuarioYaRespondio(dinId, tipo) {
+  try {
+    var tabla = tipo === 'daily_play' ? 'respuestas' : tipo === 'pulso' ? 'pulso_respuestas' : 'reconocimientos';
+    var campo = tipo === 'reconocimiento' ? 'nominador_nombre' : 'empleado_nombre';
+    var q = _sb.from(tabla).select('id', { count: 'exact', head: true })
+      .eq('dinamica_id', dinId);
+    // pulso_respuestas no tiene empleado_nombre (es anónimo), usar otro approach
+    if (tipo === 'pulso') {
+      // Para pulso anónimo: contar si ya hay una respuesta desde este browser session
+      var sessionKey = 'humand_pulso_' + dinId;
+      return localStorage.getItem(sessionKey) === 'true';
+    }
+    q = q.eq(campo, _empleadoNombre);
+    var res = await q;
+    return (res.count || 0) > 0;
+  } catch(e) { console.warn('[Supabase] checkRespondio:', e); return false; }
 }
 
 // ── Polling: chequear dinámicas nuevas cada 5 segundos ───────
@@ -3256,6 +3292,12 @@ async function sbPolling() {
       var din = data[i];
       if (_sbKnownIds[din.id]) continue; // ya procesado
       _sbKnownIds[din.id] = true;
+      // Verificar si el usuario ya respondió esta dinámica
+      var yaRespondio = await sbUsuarioYaRespondio(din.id, din.tipo);
+      if (yaRespondio) {
+        console.log('[Supabase] usuario ya respondió dinámica ' + din.tipo + ' (id=' + din.id + '), no mostrar');
+        continue;
+      }
       console.log('[Supabase] nueva dinámica detectada: ' + din.tipo + ' (id=' + din.id + ')');
       // Cargar preguntas si es daily_play
       if (din.tipo === 'daily_play') {
@@ -3292,10 +3334,14 @@ async function sbEnviarPulso(emoji, sentimiento, motivos) {
       emoji: emoji, sentimiento: sentimiento,
       motivos: motivos || [], anonimo: true
     });
+    // Marcar como respondido para este usuario
+    if (window._sbPulsoId) localStorage.setItem('humand_pulso_' + window._sbPulsoId, 'true');
     await sbActualizarRanking(5, 'pulso');
     sbToast('💛 Pulso enviado — +5 puntos');
-    // Actualizar contador de respuestas hoy en ps2
-    var cntRes = await _sb.from('pulso_respuestas').select('id', { count: 'exact', head: true });
+    // Actualizar contador de respuestas de este pulso en ps2
+    var cntQ = _sb.from('pulso_respuestas').select('id', { count: 'exact', head: true });
+    if (window._sbPulsoId) cntQ = cntQ.eq('dinamica_id', window._sbPulsoId);
+    var cntRes = await cntQ;
     var countEl = document.getElementById('ps2-count');
     if (countEl && cntRes.count !== null) countEl.textContent = cntRes.count;
     setTimeout(sbRenderRanking, 800);
