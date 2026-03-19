@@ -1031,7 +1031,7 @@ body {
             <div class="pts-pill" id="d-pts">+175 pts</div>
             <div class="c-sub" id="d-sub" style="margin-bottom:12px;">Bonus de velocidad sumado.</div>
           </div>
-          <div class="streak-card" id="d-streak">🔥 ¡Racha de 8 días! +50 pts extra</div>
+          <!-- Racha oculta (v2) --><div class="streak-card" id="d-streak" style="display:none">🔥 ¡Racha de 8 días! +50 pts extra</div>
           <div class="rank-mini"><span class="rank-mini-t">Tu posición</span><span class="rank-mini-v">#4 de 24</span></div>
           <button class="btn btn-yellow" onclick="goToCultureLabRanking()">Ver ranking completo →</button>
         </div>
@@ -2255,78 +2255,15 @@ body {
         </div>
       </div>
 
-      <!-- Tab: Reglamento -->
+      <!-- Tab: Reglamento (dinámico desde config de admin) -->
       <div id="cl-tab-reglamento" class="cl-reg-scroll" style="display:none">
         <div class="cl-reg-hero">
           <div class="cl-reg-hero-title">📋 Culture Lab · Reglamento</div>
-          <div class="cl-reg-hero-sub">Sistema de puntaje basado en el modelo de comunidad de Humand.</div>
+          <div class="cl-reg-hero-sub" id="cl-reg-subtitle">Sistema de puntaje basado en el modelo de comunidad de Humand.</div>
         </div>
-
-        <!-- Pulse & Sentiment -->
-        <div class="cl-section">
-          <button class="cl-section-toggle open-sec" style="background:#e9e8ff;color:var(--ink-950);border-color:#b9b1ff;" onclick="clToggleSec(this,'cl-sec-pulse')">
-            <span>💜 Pulso &amp; Sentimiento</span><span id="cl-arr-pulse">▲</span>
-          </button>
-          <div id="cl-sec-pulse" class="cl-section-body">
-            <div class="cl-rule-row">
-              <span class="cl-rule-icon">💜</span>
-              <span class="cl-rule-label">Pulso diario completado</span>
-              <div class="cl-rule-badges"><span class="cl-tier cl-tier-a">Máximo</span><span class="cl-rule-pts">+10 pts</span></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Daily Play -->
-        <div class="cl-section">
-          <button class="cl-section-toggle open-sec" style="background:#fcf7ce;color:var(--ink-950);border-color:#f8da65;" onclick="clToggleSec(this,'cl-sec-daily')">
-            <span>⚡ Trivia diaria</span><span id="cl-arr-daily">▲</span>
-          </button>
-          <div id="cl-sec-daily" class="cl-section-body">
-            <div class="cl-rule-row">
-              <span class="cl-rule-icon">✅</span>
-              <span class="cl-rule-label">Respuesta correcta</span>
-              <div class="cl-rule-badges"><span class="cl-tier cl-tier-a">Máximo</span><span class="cl-rule-pts">+10 pts</span></div>
-            </div>
-            <div class="cl-rule-row">
-              <span class="cl-rule-icon">🎯</span>
-              <span class="cl-rule-label">Participación (respuesta incorrecta)</span>
-              <div class="cl-rule-badges"><span class="cl-tier cl-tier-d">Base</span><span class="cl-rule-pts">+2 pts</span></div>
-            </div>
-            <div class="cl-rule-row">
-              <span class="cl-rule-icon">🔥</span>
-              <span class="cl-rule-label">Bonus: 3 respuestas correctas seguidas</span>
-              <div class="cl-rule-badges"><span class="cl-tier cl-tier-bonus">Bonus</span><span class="cl-rule-pts">+10 pts</span></div>
-            </div>
-            <div class="cl-rule-row">
-              <span class="cl-rule-icon">🔥</span>
-              <span class="cl-rule-label">Bonus racha de participación 7 días</span>
-              <div class="cl-rule-badges"><span class="cl-tier cl-tier-bonus">Bonus</span><span class="cl-rule-pts">+20 pts</span></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Recognition -->
-        <div class="cl-section">
-          <button class="cl-section-toggle open-sec" style="background:#cff6d5;color:var(--ink-950);border-color:#7bdd8b;" onclick="clToggleSec(this,'cl-sec-reco')">
-            <span>🙌 Reconocimiento &amp; Visibilidad</span><span id="cl-arr-reco">▲</span>
-          </button>
-          <div id="cl-sec-reco" class="cl-section-body">
-            <div class="cl-rule-row">
-              <span class="cl-rule-icon">💛</span>
-              <span class="cl-rule-label">Recibir un reconocimiento</span>
-              <div class="cl-rule-badges"><span class="cl-tier cl-tier-a">Máximo</span><span class="cl-rule-pts">+12 pts</span></div>
-            </div>
-            <div class="cl-rule-row">
-              <span class="cl-rule-icon">🙌</span>
-              <span class="cl-rule-label">Dar un reconocimiento</span>
-              <div class="cl-rule-badges"><span class="cl-tier cl-tier-b">Alto</span><span class="cl-rule-pts">+8 pts</span></div>
-            </div>
-            <div class="cl-rule-row">
-              <span class="cl-rule-icon">🗳️</span>
-              <span class="cl-rule-label">Bonus por cada voto recibido</span>
-              <div class="cl-rule-badges"><span class="cl-tier cl-tier-bonus">Bonus</span><span class="cl-rule-pts">+5 pts</span></div>
-            </div>
-          </div>
+        <div id="cl-reg-content">
+          <!-- Populado por sbRenderReglamento() -->
+          <div style="text-align:center;padding:24px;color:var(--neu-600);font-size:13px">Cargando reglamento...</div>
         </div>
       </div>
     </div><!-- /cl-inner -->
@@ -2476,7 +2413,7 @@ function dAns(btn, correct) {
 function dShowResult(correct, timeout) {
   dStep('ds2');
   if(timeout){ document.getElementById('d-em').textContent='⏰'; document.getElementById('d-title').textContent='¡Se acabó el tiempo!'; document.getElementById('d-pts').textContent='+0 pts'; document.getElementById('d-pts').style.cssText='background:#F3F4F6;color:#9CA3AF;'; document.getElementById('d-sub').textContent='La respuesta era "Las personas primero".'; document.getElementById('d-streak').style.display='none'; }
-  else if(correct){ const b=dSecs*5; document.getElementById('d-em').textContent='🎉'; document.getElementById('d-title').textContent='¡Correcto!'; document.getElementById('d-pts').textContent='+'+(100+b)+' pts'; document.getElementById('d-sub').textContent='Bonus de velocidad: +'+b+' pts.'; document.getElementById('d-streak').style.display='flex'; }
+  else if(correct){ const b=dSecs*5; document.getElementById('d-em').textContent='🎉'; document.getElementById('d-title').textContent='¡Correcto!'; document.getElementById('d-pts').textContent='+'+(100+b)+' pts'; document.getElementById('d-sub').textContent='Bonus de velocidad: +'+b+' pts.'; document.getElementById('d-streak').style.display='none'; }
   else { document.getElementById('d-em').textContent='😅'; document.getElementById('d-title').textContent='Respuesta incorrecta'; document.getElementById('d-pts').textContent='+0 pts'; document.getElementById('d-pts').style.cssText='background:#FEF2F2;color:#EF4444;'; document.getElementById('d-sub').textContent='La correcta era "Las personas primero".'; document.getElementById('d-streak').style.display='none'; }
 }
 
@@ -3046,9 +2983,83 @@ async function sbRenderCultureLab() {
   } catch(e) { console.error('[Supabase] sbRenderCultureLab:', e); }
 }
 
+// ── Renderizar Reglamento desde config de admin ──────────────
+async function sbRenderReglamento() {
+  try {
+    // Cargar configuración de puntos desde Supabase
+    var cfgRes = await _sb.from('configuracion').select('clave, valor');
+    var config = {};
+    (cfgRes.data || []).forEach(function(r) { config[r.clave] = r.valor; });
+
+    var rankingOn = config.ranking_habilitado === 'true' || config.ranking_habilitado === true;
+    var periodo = config.ranking_periodo || 'mensual';
+
+    var container = document.getElementById('cl-reg-content');
+    var subtitle = document.getElementById('cl-reg-subtitle');
+    if (!container) return;
+
+    // Si ranking está apagado, mostrar mensaje
+    if (!rankingOn) {
+      container.innerHTML = '<div style="text-align:center;padding:24px;color:var(--neu-600);font-size:13px">El ranking no está activo en este momento.</div>';
+      if (subtitle) subtitle.textContent = 'El sistema de puntaje no está habilitado actualmente.';
+      return;
+    }
+
+    // Subtítulo con período
+    var periodoLabel = { mensual:'mensual', trimestral:'trimestral', custom:'personalizado' };
+    if (subtitle) subtitle.textContent = 'Período de ranking: ' + (periodoLabel[periodo] || periodo) + '. Acumulá puntos participando en las dinámicas.';
+
+    // Parsear puntos configurados
+    var ptsDaily = { base: 10, bonus_racha: 5, bonus_velocidad: 3 };
+    var ptsPulso = { base: 5 };
+    var ptsReco = { dar: 3, recibir: 10 };
+    try { if (config.puntos_daily_play) ptsDaily = JSON.parse(config.puntos_daily_play); } catch(e) {}
+    try { if (config.puntos_pulso) ptsPulso = JSON.parse(config.puntos_pulso); } catch(e) {}
+    try { if (config.puntos_reconocimiento) ptsReco = JSON.parse(config.puntos_reconocimiento); } catch(e) {}
+
+    var html = '';
+
+    // Pulso — solo si puntos > 0
+    if (ptsPulso.base > 0) {
+      html += '<div class="cl-section">';
+      html += '<button class="cl-section-toggle open-sec" style="background:#e9e8ff;color:var(--ink-950);border-color:#b9b1ff;" onclick="clToggleSec(this,\'cl-sec-pulse\')">';
+      html += '<span>💜 Pulso &amp; Sentimiento</span><span id="cl-arr-pulse">▲</span></button>';
+      html += '<div id="cl-sec-pulse" class="cl-section-body">';
+      html += '<div class="cl-rule-row"><span class="cl-rule-icon">💜</span><span class="cl-rule-label">Responder el pulso</span>';
+      html += '<div class="cl-rule-badges"><span class="cl-rule-pts">+' + ptsPulso.base + ' pts</span></div></div>';
+      html += '</div></div>';
+    }
+
+    // Trivia diaria — solo si puntos > 0
+    if (ptsDaily.base > 0) {
+      html += '<div class="cl-section">';
+      html += '<button class="cl-section-toggle open-sec" style="background:#fcf7ce;color:var(--ink-950);border-color:#f8da65;" onclick="clToggleSec(this,\'cl-sec-daily\')">';
+      html += '<span>⚡ Trivia diaria</span><span id="cl-arr-daily">▲</span></button>';
+      html += '<div id="cl-sec-daily" class="cl-section-body">';
+      html += '<div class="cl-rule-row"><span class="cl-rule-icon">✅</span><span class="cl-rule-label">Respuesta correcta</span>';
+      html += '<div class="cl-rule-badges"><span class="cl-rule-pts">+' + ptsDaily.base + ' pts</span></div></div>';
+      var ptsIncorrecta = Math.max(0, Math.floor(ptsDaily.base * 0.2));
+      if (ptsIncorrecta > 0) {
+        html += '<div class="cl-rule-row"><span class="cl-rule-icon">🎯</span><span class="cl-rule-label">Respuesta incorrecta</span>';
+        html += '<div class="cl-rule-badges"><span class="cl-rule-pts">+' + ptsIncorrecta + ' pts</span></div></div>';
+      }
+      html += '</div></div>';
+    }
+
+    // Reconocimiento — NO mostrar (Próximamente)
+
+    if (html === '') {
+      html = '<div style="text-align:center;padding:24px;color:var(--neu-600);font-size:13px">No hay dinámicas con puntos configurados.</div>';
+    }
+
+    container.innerHTML = html;
+  } catch(e) { console.error('[Supabase] sbRenderReglamento:', e); }
+}
+
 async function sbInit() {
   console.log('[Supabase] sbInit arrancando...');
   await sbRenderCultureLab();
+  await sbRenderReglamento();
   await sbRenderRanking();
   // Primera carga inmediata + polling cada 5s
   await sbPolling();
