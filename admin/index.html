@@ -992,7 +992,7 @@
                   <span class="cfg-mod-ico" style="background:#FEF3C7"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3l0 7l6 0l-8 11l0 -7l-6 0l8 -11"/></svg></span>
                   <div class="cfg-mod-text"><span class="cfg-mod-name">Trivia diaria</span><span class="cfg-pts-action">Respuesta correcta</span></div>
                 </div>
-                <div class="cfg-pts-col-pts"><input class="pts-input" type="number" value="20" min="0" max="999"></div>
+                <div class="cfg-pts-col-pts"><input class="pts-input" id="cfg-pts-daily-correct" type="number" value="20" min="0" max="999"></div>
               </div>
               <!-- Daily Play · Respuesta incorrecta -->
               <div class="cfg-pts-row">
@@ -1000,7 +1000,7 @@
                   <span class="cfg-mod-ico" style="background:#FEF3C7"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3l0 7l6 0l-8 11l0 -7l-6 0l8 -11"/></svg></span>
                   <div class="cfg-mod-text"><span class="cfg-mod-name">Trivia diaria</span><span class="cfg-pts-action">Respuesta incorrecta</span></div>
                 </div>
-                <div class="cfg-pts-col-pts"><input class="pts-input" type="number" value="0" min="0" max="999"></div>
+                <div class="cfg-pts-col-pts"><input class="pts-input" id="cfg-pts-daily-incorrect" type="number" value="0" min="0" max="999"></div>
               </div>
               <!-- Pulso -->
               <div class="cfg-pts-row">
@@ -1008,7 +1008,7 @@
                   <span class="cfg-mod-ico" style="background:#F8FDFE"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A9370" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"/></svg></span>
                   <div class="cfg-mod-text"><span class="cfg-mod-name">Pulso</span><span class="cfg-pts-action">Respondió el pulso</span></div>
                 </div>
-                <div class="cfg-pts-col-pts"><input class="pts-input" type="number" value="5" min="0" max="999"></div>
+                <div class="cfg-pts-col-pts"><input class="pts-input" id="cfg-pts-pulso" type="number" value="5" min="0" max="999"></div>
               </div>
               <!-- Reconocimiento · Nominó (próximamente) -->
               <div class="cfg-pts-row" style="opacity:.4;pointer-events:none">
@@ -2519,6 +2519,29 @@ function saveConfig(){
     }, 2000);
   }
 
+  // Persistir en Supabase
+  if (typeof sbGuardarConfig === 'function') {
+    var premiosChk = document.getElementById('chk-premios');
+    var periodoBtn = document.querySelector('.ptab.on');
+    sbGuardarConfig('ranking_habilitado', rankingActive ? 'true' : 'false');
+    sbGuardarConfig('premios_habilitados', (premiosChk && premiosChk.checked) ? 'true' : 'false');
+    sbGuardarConfig('ranking_periodo', periodoBtn ? periodoBtn.textContent.trim().toLowerCase() : 'mensual');
+
+    // Persistir puntos por dinámica
+    var dailyCorrect = document.getElementById('cfg-pts-daily-correct');
+    var dailyIncorrect = document.getElementById('cfg-pts-daily-incorrect');
+    var pulsoBase = document.getElementById('cfg-pts-pulso');
+    sbGuardarConfig('puntos_daily_play', JSON.stringify({
+      base: dailyCorrect ? parseInt(dailyCorrect.value) || 0 : 10,
+      incorrecta: dailyIncorrect ? parseInt(dailyIncorrect.value) || 0 : 0,
+      bonus_racha: 0,
+      bonus_velocidad: 0
+    }));
+    sbGuardarConfig('puntos_pulso', JSON.stringify({
+      base: pulsoBase ? parseInt(pulsoBase.value) || 0 : 5
+    }));
+  }
+
   showToast('Configuración guardada · Ranking ' + (rankingActive ? 'activado' : 'desactivado'));
 }
 
@@ -3458,7 +3481,19 @@ async function sbCargarConfigAdmin() {
     var customBlock = document.getElementById('periodo-custom');
     if (customBlock) customBlock.classList.toggle('hidden', periodo !== 'custom');
 
-    console.log('[Supabase] Config cargada: ranking=' + rankOn + ' premios=' + premOn + ' periodo=' + periodo);
+    // Puntos por dinámica
+    var ptsDaily = { base: 10, incorrecta: 0 };
+    var ptsPulso = { base: 5 };
+    try { if (config.puntos_daily_play) ptsDaily = JSON.parse(config.puntos_daily_play); } catch(e) {}
+    try { if (config.puntos_pulso) ptsPulso = JSON.parse(config.puntos_pulso); } catch(e) {}
+    var dcEl = document.getElementById('cfg-pts-daily-correct');
+    var diEl = document.getElementById('cfg-pts-daily-incorrect');
+    var ppEl = document.getElementById('cfg-pts-pulso');
+    if (dcEl) dcEl.value = ptsDaily.base || 0;
+    if (diEl) diEl.value = ptsDaily.incorrecta || 0;
+    if (ppEl) ppEl.value = ptsPulso.base || 0;
+
+    console.log('[Supabase] Config cargada: ranking=' + rankOn + ' premios=' + premOn + ' periodo=' + periodo + ' pts_daily=' + JSON.stringify(ptsDaily) + ' pts_pulso=' + JSON.stringify(ptsPulso));
   } catch(e) { console.error('[Supabase] sbCargarConfigAdmin:', e); }
 }
 

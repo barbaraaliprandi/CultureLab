@@ -3005,12 +3005,12 @@ async function sbRenderReglamento() {
       return;
     }
 
-    // Subtítulo con período
+    // Subtítulo: primero la acción, después el período
     var periodoLabel = { mensual:'mensual', trimestral:'trimestral', custom:'personalizado' };
-    if (subtitle) subtitle.textContent = 'Período de ranking: ' + (periodoLabel[periodo] || periodo) + '. Acumulá puntos participando en las dinámicas.';
+    if (subtitle) subtitle.innerHTML = 'Acumulá puntos participando en las dinámicas.<br><span style="font-size:11px;opacity:.7">Período de ranking: ' + (periodoLabel[periodo] || periodo) + '</span>';
 
     // Parsear puntos configurados
-    var ptsDaily = { base: 10, bonus_racha: 5, bonus_velocidad: 3 };
+    var ptsDaily = { base: 10, incorrecta: 0 };
     var ptsPulso = { base: 5 };
     var ptsReco = { dar: 3, recibir: 10 };
     try { if (config.puntos_daily_play) ptsDaily = JSON.parse(config.puntos_daily_play); } catch(e) {}
@@ -3038,7 +3038,7 @@ async function sbRenderReglamento() {
       html += '<div id="cl-sec-daily" class="cl-section-body">';
       html += '<div class="cl-rule-row"><span class="cl-rule-icon">✅</span><span class="cl-rule-label">Respuesta correcta</span>';
       html += '<div class="cl-rule-badges"><span class="cl-rule-pts">+' + ptsDaily.base + ' pts</span></div></div>';
-      var ptsIncorrecta = Math.max(0, Math.floor(ptsDaily.base * 0.2));
+      var ptsIncorrecta = ptsDaily.incorrecta || 0;
       if (ptsIncorrecta > 0) {
         html += '<div class="cl-rule-row"><span class="cl-rule-icon">🎯</span><span class="cl-rule-label">Respuesta incorrecta</span>';
         html += '<div class="cl-rule-badges"><span class="cl-rule-pts">+' + ptsIncorrecta + ' pts</span></div></div>';
