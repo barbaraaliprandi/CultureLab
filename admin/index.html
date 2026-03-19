@@ -1080,6 +1080,17 @@
               </div>
             </div>
 
+            <!-- Visibilidad general de premios -->
+            <div style="margin-top:16px;padding:16px;border:1px solid var(--border);border-radius:12px;background:var(--white)">
+              <label style="font-size:14px;font-weight:600;color:var(--text);display:block;margin-bottom:6px">Visibilidad de premios</label>
+              <select class="fsel" id="premios-visibilidad" style="font-size:13px;width:100%">
+                <option>Visible para todos los colaboradores</option>
+                <option>Solo visible para el ganador</option>
+                <option>No mostrar premios</option>
+              </select>
+              <div style="font-size:11px;color:var(--text3);margin-top:5px">Definí si los colaboradores pueden ver los premios antes de conocer al ganador. Aplica a los tres puestos.</div>
+            </div>
+
             <div class="cfg-pts-note" style="margin-top:14px">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
               Los premios son visibles para los colaboradores en el hub de participación. La entrega es responsabilidad de la organización.
@@ -1694,14 +1705,7 @@
         <div style="font-size:11px;color:var(--text3);margin-top:2px">PNG, JPG hasta 2MB</div>
       </div>
     </div>
-    <div style="margin-bottom:4px">
-      <label style="font-size:13px;font-weight:600;color:var(--text);display:block;margin-bottom:6px">Visibilidad</label>
-      <select class="fsel" id="premio-visibilidad" style="font-size:13px">
-        <option>Visible para todos los colaboradores</option>
-        <option>Solo visible para el ganador</option>
-      </select>
-      <div style="font-size:11px;color:var(--text3);margin-top:5px">Define si los colaboradores pueden ver el premio antes de conocer al ganador</div>
-    </div>
+    <!-- Visibilidad movida a nivel general de premios -->
   </div>
   <div class="dr-footer">
     <button class="btn-sec" onclick="closePremioDrawer()">Cancelar</button>
