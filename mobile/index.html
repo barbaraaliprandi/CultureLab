@@ -3437,7 +3437,7 @@ async function sbEnviarPulso(emoji, sentimiento, motivos, comentario) {
       if (cfgP.data && cfgP.data.valor) { var pp = JSON.parse(cfgP.data.valor); ptsPulso = pp.base || 5; }
     } catch(e) {}
     await sbActualizarRanking(ptsPulso, 'pulso');
-    sbToast('💛 Pulso enviado — +' + ptsPulso + ' puntos');
+    
     // Actualizar contador real de respuestas de este pulso
     if (window._sbPulsoId) {
       var cntRes = await _sb.from('pulso_respuestas').select('id')
@@ -3462,7 +3462,7 @@ async function sbEnviarReconocimiento(nominado, tipo, mensaje) {
       nominado_nombre: nominado, tipo_reconocimiento: tipo, mensaje: mensaje, valores: []
     });
     await sbActualizarRanking(3, 'reconocimiento');
-    sbToast('⭐ Reconocimiento enviado — +3 puntos');
+    
   } catch(e) { console.error('[Supabase] enviarReconocimiento:', e); }
 }
 
